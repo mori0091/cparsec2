@@ -11,6 +11,10 @@ int main(int argc, char **argv) {
   PARSE_TEST(anyChar, "123"); /* 1 */
   PARSE_TEST(anyChar, "");    /* "error:too short" */
 
+  PARSE_TEST(char1('a'), "abc"); /* a */
+  PARSE_TEST(char1('b'), "abc"); /* error:expects 'b' but was 'a' */
+  PARSE_TEST(char1('a'), "");    /* "error:too short" */
+
   Parser digit = satisfy(is_digit);
   PARSE_TEST(digit, "123"); /* 1 */
   PARSE_TEST(digit, "23");  /* 2 */

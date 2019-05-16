@@ -30,6 +30,7 @@ typedef struct stParser *Parser;
 struct stParser {
   char (*run)(Parser self, Source src);
   union {
+    char expected;
     Predicate pred;
   };
 };
@@ -42,4 +43,5 @@ char parse(Parser p, Source src);
 void parseTest(Parser p, const char *input);
 
 extern Parser const anyChar;
+Parser char1(char c);
 Parser satisfy(Predicate pred);
