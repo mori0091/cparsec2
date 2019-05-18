@@ -6,7 +6,7 @@
 This project is an exercise to construct *parsec* like library for C11.
 
 ** API
-- cparse2_init()        :: 
+- cparsec2_init()       :: 
      Initialize cparsec2 library.\\
      This must be called once at first.
 - parse(p, src)         :: 
