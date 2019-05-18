@@ -48,26 +48,12 @@ struct stCharParser {
 #define parse(p, src) ((p)->run((p), (src)))
 
 // void parseTest(Parser<T> p, const char *input);
-#define parseTest(P, INPUT)                                                    \
-  do {                                                                         \
-    struct stSource src = {.input = (INPUT), .p = (INPUT)};                    \
-    showResult(parse((P), &src));                                              \
-  } while (0)
+#define parseTest(p, input)                                             \
+  _Generic((p)                                                          \
+           , CharParser   : parseTest_char                              \
+           )(p, input)
 
-// void showResult(Result<T> x);
-#define showResult(x)                                                          \
-  do {                                                                         \
-    if ((x).error) {                                                           \
-      printf("error:%s\n", (x).error);                                         \
-    } else {                                                                   \
-      show((x).result);                                                        \
-    }                                                                          \
-  } while (0)
-
-// void show(T x);
-#define show(x) _Generic((x), char : show_char)(x)
-
-void show_char(char c);
+void parseTest_char(CharParser p, const char *input);
 
 extern CharParser const anyChar;
 CharParser char1(char c);

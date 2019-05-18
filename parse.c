@@ -10,4 +10,18 @@ const char *error(const char *fmt, ...) {
   return strdup(buf);
 }
 
+// void show(T x);
+#define show(x) _Generic((x), char : show_char, const char * : show_string)(x)
+
 void show_char(char c) { printf("'%c'\n", c); }
+void show_string(const char *str) { printf("\"%s\"\n", str); }
+
+void parseTest_char(CharParser p, const char* input) {
+  struct stSource src = {.input = input, .p = input};
+  CharResult x = parse(p, &src);
+  if (x.error) {
+    printf("error:%s\n", x.error);
+  } else {
+    show(x.result);
+  }
+}
