@@ -39,7 +39,9 @@ struct stCharParser {
   printf("%8s \"%s\" => ", #p, input);                                         \
   parseTest(p, input)
 
-char parse(CharParser p, Source src);
+// T parse(Parser<T> p, Source src);
+#define parse(p, src) ((p)->run((p), (src)))
+
 void parseTest(CharParser p, const char *input);
 
 extern CharParser const anyChar;

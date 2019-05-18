@@ -11,8 +11,6 @@ char error(const char *fmt, ...) {
   return '\0';
 }
 
-char parse(CharParser p, Source src) { return p->run(p, src); }
-
 void parseTest(CharParser p, const char *input) {
   struct stSource src;
   src.input = input;
