@@ -2,10 +2,10 @@
 
 #include "cparsec2.h"
 
-static StringResult run_many(StringParser p, Source src) {
+static StringResult run_many(StringParser self, Source src) {
   Buffer buf = buf_new();
   for (;;) {
-    CharResult c = parse(p->parser, src);
+    CharResult c = parse(self->parser, src);
     if (c.error) {
       /* catch and discard exception */
       free((void *)c.error);
@@ -18,8 +18,8 @@ static StringResult run_many(StringParser p, Source src) {
 }
 
 StringParser many(CharParser p) {
-  StringParser ps = malloc(sizeof(struct stStringParser));
-  ps->run = run_many;
-  ps->parser = p;
-  return ps;
+  StringParser self = malloc(sizeof(struct stStringParser));
+  self->run = run_many;
+  self->parser = p;
+  return self;
 }

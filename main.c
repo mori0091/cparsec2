@@ -58,11 +58,12 @@ int main(int argc, char **argv) {
   PARSE_TEST(letter, "+*");  /* "error:not satisfy" */
   PARSE_TEST(letter, "");    /* "error:too short" */
 
-  PARSE_TEST(many(anyChar), "12ab!*"); /* "12ab!*" */
-  PARSE_TEST(many(digit), "123"); /* "123" */
-  PARSE_TEST(many(digit), "12a"); /* "12" */
+  PARSE_TEST(many(anyChar), "12ab!*");      /* "12ab!*" */
+  PARSE_TEST(many(digit), "123");           /* "123" */
+  PARSE_TEST(many(digit), "12a");           /* "12" */
   PARSE_TEST(many(digit), "1234567890abc"); /* "1234567890" */
-  PARSE_TEST(many(digit), "");    /* "" */
+  PARSE_TEST(many(digit), "");              /* "" */
+  PARSE_TEST(many(digit), "abc");           /* "" */
 
   return 0;
 }
