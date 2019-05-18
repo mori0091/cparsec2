@@ -42,8 +42,14 @@ struct stCharParser {
 // T parse(Parser<T> p, Source src);
 #define parse(p, src) ((p)->run((p), (src)))
 
-void parseTest(CharParser p, const char *input);
+// void parseTest(Parser<T> p, const char *input);
+#define parseTest(P, INPUT)                                                    \
+  do {                                                                         \
+    struct stSource src = {.input = (INPUT), .p = (INPUT)};                    \
+    show(parse((P), &src));                                                    \
+  } while (0)
 
+void show(char c);
 extern CharParser const anyChar;
 CharParser char1(char c);
 CharParser satisfy(Predicate pred);

@@ -11,13 +11,6 @@ char error(const char *fmt, ...) {
   return '\0';
 }
 
-void show(char c);
-
-void parseTest(CharParser p, const char *input) {
-  struct stSource src = {.input = input, .p = input};
-  show(parse(p, &src));
-}
-
 void show(char c) {
   if (c) {
     printf("'%c'\n", c);
