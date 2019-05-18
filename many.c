@@ -3,20 +3,18 @@
 #include "cparsec2.h"
 
 static StringResult run_many(StringParser p, Source src) {
-  char * buf = malloc(8);
-  int capacity = 8;
-  int len = 0;
+  Buffer buf = buf_new();
   for (;;) {
     CharResult c = parse(p->parser, src);
-    if (c.error) break;
-    if (len == capacity - 1) {
-      capacity *= 2;
-      buf = realloc(buf, capacity);
+    if (c.error) {
+      /* catch and discard exception */
+      free((void *)c.error);
+      break;
     }
-    buf[len++] = c.result;
+    buf_push(&buf, c.result);
   }
-  buf[len] = '\0';
-  return (StringResult){.result = buf};
+  buf_push(&buf, '\0');
+  return (StringResult){.result = buf.data};
 }
 
 StringParser many(CharParser p) {

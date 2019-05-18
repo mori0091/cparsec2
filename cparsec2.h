@@ -10,6 +10,16 @@
 
 #define UNUSED(v) ((void)v)
 
+typedef struct {
+  char *data;
+  int capacity;
+  int len;
+} Buffer;
+
+Buffer buf_new(void);
+void buf_ensure(Buffer *b);
+void buf_push(Buffer *b, char v);
+
 /** Construct an error message */
 const char *error(const char *fmt, ...);
 
