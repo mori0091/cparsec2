@@ -23,6 +23,24 @@ void consume(Source src) {
   src->p++;
 }
 
+CharParser anyChar;
+CharParser digit;
+CharParser lower;
+CharParser upper;
+CharParser alpha;
+CharParser alnum;
+CharParser letter;
+
+void cparsec2_init(void) {
+  anyChar = satisfy(is_anyChar);
+  digit   = satisfy(is_digit);
+  lower   = satisfy(is_lower);
+  upper   = satisfy(is_upper);
+  alpha   = satisfy(is_alpha);
+  alnum   = satisfy(is_alnum);
+  letter  = satisfy(is_letter);
+}
+
 // void show(T x);
 #define show(x) _Generic((x), char : show_char, const char * : show_string)(x)
 

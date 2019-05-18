@@ -30,6 +30,7 @@ struct stSource {
 };
 
 typedef bool (*Predicate)(char c);
+bool is_anyChar(char c);
 bool is_digit(char c);
 bool is_lower(char c);
 bool is_upper(char c);
@@ -69,6 +70,9 @@ CharResult peek(Source src);
 // drop head char
 void consume(Source src);
 
+// initialize cparsec2
+void cparsec2_init(void);
+
 #define PARSE_TEST(p, input)                                                   \
   printf("%8s \"%s\" => ", #p, input);                                         \
   parseTest(p, input)
@@ -86,7 +90,14 @@ void consume(Source src);
 void parseTest_char(CharParser p, const char *input);
 void parseTest_string(StringParser p, const char *input);
 
-extern CharParser const anyChar;
+extern CharParser anyChar;
+extern CharParser digit;
+extern CharParser lower;
+extern CharParser upper;
+extern CharParser alpha;
+extern CharParser alnum;
+extern CharParser letter;
+
 CharParser char1(char c);
 CharParser satisfy(Predicate pred);
 

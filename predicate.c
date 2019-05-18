@@ -2,6 +2,10 @@
 
 #include "cparsec2.h"
 
+bool is_anyChar(char c) {
+  UNUSED(c);
+  return true;
+}
 bool is_digit(char c) { return '0' <= c && c <= '9'; }
 bool is_lower(char c) { return 'a' <= c && c <= 'z'; }
 bool is_upper(char c) { return 'A' <= c && c <= 'Z'; }

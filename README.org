@@ -6,6 +6,9 @@
 This project is an exercise to construct *parsec* like library for C11.
 
 ** API
+- cparse2_init()        :: 
+     Initialize cparsec2 library.\\
+     This must be called once at first.
 - parse(p, src)         :: 
      Apply parser ~p~ to text provided from ~src~, and return result.
 - parseTest(p, string)  :: 
@@ -16,6 +19,18 @@ This project is an exercise to construct *parsec* like library for C11.
 ** CharParser
 - anyChar               :: 
      A CharParser which parse any one char
+- digit                 :: 
+     A CharParser which parse a digit (i.e. ~0~ .. ~9~)
+- lower                 :: 
+     A CharParser which parse a lower-case char (i.e. ~a~ .. ~z~)
+- upper                 :: 
+     A CharParser which parse a upper-case char (i.e. ~A~ .. ~Z~)
+- alpha                 :: 
+     A CharParser which parse an alphabet char (i.e. ~a~ .. ~z~, ~A~ .. ~Z~)
+- alnum                 :: 
+     A CharParser which parse a digit or an alphabet char (i.e. ~0~ .. ~9~, ~a~ .. ~z~, ~A~ .. ~Z~)
+- letter                :: 
+     A CharParser which parse underscore or an alphabet char (i.e. ~_~, ~a~ .. ~z~, ~A~ .. ~Z~)
 - char1(c)              :: 
      Create a CharParser which parse the char ~c~
 - satisfy(pred)         :: 
