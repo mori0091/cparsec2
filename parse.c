@@ -10,6 +10,19 @@ const char *error(const char *fmt, ...) {
   return strdup(buf);
 }
 
+CharResult peek(Source src) {
+  char c = *src->p;
+  if (!c) {
+    return (CharResult){.error = error("too short")};
+  }
+  return (CharResult){.result = c};
+}
+
+void consume(Source src) {
+  assert(*src->p);
+  src->p++;
+}
+
 // void show(T x);
 #define show(x) _Generic((x), char : show_char, const char * : show_string)(x)
 

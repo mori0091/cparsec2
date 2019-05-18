@@ -1,5 +1,6 @@
 /* -*- coding:utf-8-unix -*- */
 
+#include <assert.h>
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -52,6 +53,11 @@ struct stStringParser {
     CharParser parser;
   };
 };
+
+// peek head char
+CharResult peek(Source src);
+// drop head char
+void consume(Source src);
 
 #define PARSE_TEST(p, input)                                                   \
   printf("%8s \"%s\" => ", #p, input);                                         \

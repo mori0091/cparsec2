@@ -4,12 +4,12 @@
 
 static CharResult run_anyChar(CharParser p, Source src) {
   UNUSED(p);
-  char c = *src->p;
-  if (!c) {
-    return (CharResult){.error = error("too short")};
+  CharResult c = peek(src);
+  if (c.error) {
+    return c; /* error */
   }
-  src->p++;
-  return (CharResult){.result = c};
+  consume(src);
+  return c;
 }
 
 static struct stCharParser anyChar_ = {.run = run_anyChar};

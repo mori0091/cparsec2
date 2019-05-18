@@ -3,13 +3,14 @@
 #include "cparsec2.h"
 
 static CharResult run_satisfy(CharParser p, Source src) {
-  CharResult c = parse(anyChar, src);
+  CharResult c = peek(src);
   if (c.error) {
     return c; /* error */
   }
   if (!p->pred(c.result)) {
     return (CharResult){.error = error("not satisfy")};
   }
+  consume(src);
   return c;
 }
 
