@@ -91,3 +91,4 @@ CharParser char1(char c);
 CharParser satisfy(Predicate pred);
 
 StringParser many(CharParser p);
+StringParser many1(CharParser p);
