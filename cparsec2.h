@@ -73,3 +73,5 @@ void parseTest_string(StringParser p, const char *input);
 extern CharParser const anyChar;
 CharParser char1(char c);
 CharParser satisfy(Predicate pred);
+
+StringParser many(CharParser p);
