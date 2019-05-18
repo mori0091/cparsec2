@@ -12,5 +12,5 @@ This project is an exercise to construct *parsec* like library for C11.
 
 ** CharParser
 - anyChar  :: A CharParser which parse any one char
-- char1(c) :: Create a CharParser which parse ~(char)(c)~
+- char1(c) :: Create a CharParser which parse the char ~c~
 - satisfy(pred) :: Create a CharParser which parse a char ~c~ satisfying ~pred(c) == true~
