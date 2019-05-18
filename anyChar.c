@@ -8,6 +8,7 @@ static CharResult run_anyChar(CharParser p, Source src) {
   if (!c) {
     return (CharResult){.error = error("too short")};
   }
+  src->p++;
   return (CharResult){.result = c};
 }
 
