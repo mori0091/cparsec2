@@ -11,7 +11,7 @@ char error(const char *fmt, ...) {
   return '\0';
 }
 
-void show(char c) {
+void show_char(char c) {
   if (c) {
     printf("'%c'\n", c);
   }

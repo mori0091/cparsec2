@@ -49,7 +49,10 @@ struct stCharParser {
     show(parse((P), &src));                                                    \
   } while (0)
 
-void show(char c);
+#define show(x) _Generic((x), char : show_char)(x)
+
+void show_char(char c);
+
 extern CharParser const anyChar;
 CharParser char1(char c);
 CharParser satisfy(Predicate pred);
