@@ -9,11 +9,6 @@
 
 #define UNUSED(v) ((void)v)
 
-typedef struct {
-  const char *error; // An error message if an error occurred, otherwise NULL.
-  char result;       // the result value if and only if operation succeeded.
-} CharResult;
-
 /** Construct an error message */
 const char *error(const char *fmt, ...);
 
@@ -31,12 +26,30 @@ bool is_alpha(char c);
 bool is_alnum(char c);
 bool is_letter(char c);
 
+typedef struct {
+  const char *error; // An error message if an error occurred, otherwise NULL.
+  char result;       // the result value if and only if operation succeeded.
+} CharResult;
+
 typedef struct stCharParser *CharParser;
 struct stCharParser {
   CharResult (*run)(CharParser self, Source src);
   union {
     char expected;
     Predicate pred;
+  };
+};
+
+typedef struct {
+  const char *error;  // An error message if an error occurred, otherwise NULL.
+  const char *result; // the result value if and only if operation succeeded.
+} StringResult;
+
+typedef struct stStringParser *StringParser;
+struct stStringParser {
+  StringResult (*run)(StringParser self, Source src);
+  union {
+    CharParser parser;
   };
 };
 
@@ -51,9 +64,11 @@ struct stCharParser {
 #define parseTest(p, input)                                             \
   _Generic((p)                                                          \
            , CharParser   : parseTest_char                              \
+           , StringParser : parseTest_string                            \
            )(p, input)
 
 void parseTest_char(CharParser p, const char *input);
+void parseTest_string(StringParser p, const char *input);
 
 extern CharParser const anyChar;
 CharParser char1(char c);

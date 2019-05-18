@@ -25,3 +25,13 @@ void parseTest_char(CharParser p, const char* input) {
     show(x.result);
   }
 }
+
+void parseTest_string(StringParser p, const char* input) {
+  struct stSource src = {.input = input, .p = input};
+  StringResult x = parse(p, &src);
+  if (x.error) {
+    printf("error:%s\n", x.error);
+  } else {
+    show(x.result);
+  }
+}
