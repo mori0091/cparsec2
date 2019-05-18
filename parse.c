@@ -11,9 +11,9 @@ char error(const char *fmt, ...) {
   return '\0';
 }
 
-char parse(Parser p, Source src) { return p->run(p, src); }
+char parse(CharParser p, Source src) { return p->run(p, src); }
 
-void parseTest(Parser p, const char *input) {
+void parseTest(CharParser p, const char *input) {
   struct stSource src;
   src.input = input;
   src.p = input;

@@ -2,7 +2,7 @@
 
 #include "cparsec2.h"
 
-static char run_anyChar(Parser p, Source src) {
+static char run_anyChar(CharParser p, Source src) {
   UNUSED(p);
   char c = *src->p;
   if (!c) {
@@ -11,8 +11,6 @@ static char run_anyChar(Parser p, Source src) {
   return c;
 }
 
-static struct stParser anyChar_ = {
-                                   .run = run_anyChar,
-};
+static struct stCharParser anyChar_ = {.run = run_anyChar};
 
-Parser const anyChar = &anyChar_;
+CharParser const anyChar = &anyChar_;

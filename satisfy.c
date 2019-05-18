@@ -2,7 +2,7 @@
 
 #include "cparsec2.h"
 
-static char run_satisfy(Parser p, Source src) {
+static char run_satisfy(CharParser p, Source src) {
   char c = parse(anyChar, src);
   if (!c) {
     return c; /* error */
@@ -13,8 +13,8 @@ static char run_satisfy(Parser p, Source src) {
   return c;
 }
 
-Parser satisfy(Predicate pred) {
-  Parser p = malloc(sizeof(struct stParser));
+CharParser satisfy(Predicate pred) {
+  CharParser p = malloc(sizeof(struct stCharParser));
   p->run = run_satisfy;
   p->pred = pred;
   return p;

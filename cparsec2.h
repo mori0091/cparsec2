@@ -26,9 +26,9 @@ bool is_alpha(char c);
 bool is_alnum(char c);
 bool is_letter(char c);
 
-typedef struct stParser *Parser;
-struct stParser {
-  char (*run)(Parser self, Source src);
+typedef struct stCharParser *CharParser;
+struct stCharParser {
+  char (*run)(CharParser self, Source src);
   union {
     char expected;
     Predicate pred;
@@ -39,9 +39,9 @@ struct stParser {
   printf("%8s \"%s\" => ", #p, input);                                         \
   parseTest(p, input)
 
-char parse(Parser p, Source src);
-void parseTest(Parser p, const char *input);
+char parse(CharParser p, Source src);
+void parseTest(CharParser p, const char *input);
 
-extern Parser const anyChar;
-Parser char1(char c);
-Parser satisfy(Predicate pred);
+extern CharParser const anyChar;
+CharParser char1(char c);
+CharParser satisfy(Predicate pred);
