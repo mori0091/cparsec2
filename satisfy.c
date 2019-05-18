@@ -2,13 +2,13 @@
 
 #include "cparsec2.h"
 
-static char run_satisfy(CharParser p, Source src) {
-  char c = parse(anyChar, src);
-  if (!c) {
+static CharResult run_satisfy(CharParser p, Source src) {
+  CharResult c = parse(anyChar, src);
+  if (c.error) {
     return c; /* error */
   }
-  if (!p->pred(c)) {
-    return error("not satisfy");
+  if (!p->pred(c.result)) {
+    return (CharResult){.error = error("not satisfy")};
   }
   return c;
 }

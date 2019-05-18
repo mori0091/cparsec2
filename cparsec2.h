@@ -9,8 +9,13 @@
 
 #define UNUSED(v) ((void)v)
 
-/** Print error message and return '\0' */
-char error(const char *fmt, ...);
+typedef struct {
+  const char *error; // An error message if an error occurred, otherwise NULL.
+  char result;       // the result value if and only if operation succeeded.
+} CharResult;
+
+/** Construct an error message */
+const char *error(const char *fmt, ...);
 
 typedef struct stSource *Source;
 struct stSource {
@@ -28,7 +33,7 @@ bool is_letter(char c);
 
 typedef struct stCharParser *CharParser;
 struct stCharParser {
-  char (*run)(CharParser self, Source src);
+  CharResult (*run)(CharParser self, Source src);
   union {
     char expected;
     Predicate pred;
@@ -46,9 +51,20 @@ struct stCharParser {
 #define parseTest(P, INPUT)                                                    \
   do {                                                                         \
     struct stSource src = {.input = (INPUT), .p = (INPUT)};                    \
-    show(parse((P), &src));                                                    \
+    showResult(parse((P), &src));                                              \
   } while (0)
 
+// void showResult(Result<T> x);
+#define showResult(x)                                                          \
+  do {                                                                         \
+    if ((x).error) {                                                           \
+      printf("error:%s\n", (x).error);                                         \
+    } else {                                                                   \
+      show((x).result);                                                        \
+    }                                                                          \
+  } while (0)
+
+// void show(T x);
 #define show(x) _Generic((x), char : show_char)(x)
 
 void show_char(char c);

@@ -2,13 +2,13 @@
 
 #include "cparsec2.h"
 
-static char run_anyChar(CharParser p, Source src) {
+static CharResult run_anyChar(CharParser p, Source src) {
   UNUSED(p);
   char c = *src->p;
   if (!c) {
-    return error("too short");
+    return (CharResult){.error = error("too short")};
   }
-  return c;
+  return (CharResult){.result = c};
 }
 
 static struct stCharParser anyChar_ = {.run = run_anyChar};

@@ -2,13 +2,13 @@
 
 #include "cparsec2.h"
 
-static char run_char1(CharParser p, Source src) {
-  char c = parse(anyChar, src);
-  if (!c) {
+static CharResult run_char1(CharParser p, Source src) {
+  CharResult c = parse(anyChar, src);
+  if (c.error) {
     return c; /* error */
   }
-  if (p->expected != c) {
-    return error("expects '%c' but was '%c'", p->expected, c);
+  if (p->expected != c.result) {
+    return (CharResult){.error = error("expects '%c' but was '%c'", p->expected, c.result)};
   }
   return c;
 }

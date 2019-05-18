@@ -2,17 +2,12 @@
 
 #include "cparsec2.h"
 
-char error(const char *fmt, ...) {
+const char *error(const char *fmt, ...) {
+  char buf[1024] = {0};
   va_list ap;
   va_start(ap, fmt);
-  printf("error:");
-  vprintf(fmt, ap);
-  printf("\n");
-  return '\0';
+  vsprintf(buf, fmt, ap);
+  return strdup(buf);
 }
 
-void show_char(char c) {
-  if (c) {
-    printf("'%c'\n", c);
-  }
-}
+void show_char(char c) { printf("'%c'\n", c); }
