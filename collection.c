@@ -29,6 +29,11 @@ void buf_append(Buffer *b, const char* s) {
   }
 }
 
+char *buf_finish(Buffer *b) {
+  buf_push(b, '\0');
+  return b->data;
+}
+
 PtrBuffer ptrbuf_new(void) {
   return (PtrBuffer){0};
 }
@@ -49,4 +54,15 @@ void ptrbuf_ensure(PtrBuffer *b) {
 void ptrbuf_push(PtrBuffer *b, void *v)  {
   ptrbuf_ensure(b);
   b->data[b->len++] = v;
+}
+
+void ptrbuf_append(PtrBuffer *b, void **s) {
+  while (*s) {
+    ptrbuf_push(b, *s++);
+  }
+}
+
+void **ptrbuf_finish(PtrBuffer *b) {
+  ptrbuf_push(b, NULL);
+  return b->data;
 }

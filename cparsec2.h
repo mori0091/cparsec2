@@ -21,6 +21,7 @@ Buffer buf_new(void);
 void buf_ensure(Buffer *b);
 void buf_push(Buffer *b, char v);
 void buf_append(Buffer *b, const char* s);
+char* buf_finish(Buffer *b);
 
 typedef struct {
   void **data;
@@ -31,6 +32,8 @@ typedef struct {
 PtrBuffer ptrbuf_new(void);
 void ptrbuf_ensure(PtrBuffer *b);
 void ptrbuf_push(PtrBuffer *b, void *v);
+void ptrbuf_append(PtrBuffer *b, void **s);
+void **ptrbuf_finish(PtrBuffer *b);
 
 /** Construct an error message */
 const char *error(const char *fmt, ...);

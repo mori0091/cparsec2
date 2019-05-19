@@ -18,9 +18,8 @@ static StringResult run_many1(StringParser self, Source src) {
   Buffer str = buf_new();
   buf_push(&str, c.result);
   buf_append(&str, s.result);
-  buf_push(&str, '\0');
   /* free((void*)s.result); */
-  return (StringResult){.result = str.data};
+  return (StringResult){.result = buf_finish(&str)};
 }
 
 StringParser many1(CharParser p) {

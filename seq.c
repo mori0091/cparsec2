@@ -15,8 +15,7 @@ static StringResult run_seq_char(StringParser self, Source src) {
     buf_push(&str, c.result);
     p++;
   }
-  buf_push(&str, '\0');
-  return (StringResult){.result = str.data};
+  return (StringResult){.result = buf_finish(&str)};
 }
 
 StringParser seq_char(CharParser ps[]) {
@@ -24,9 +23,8 @@ StringParser seq_char(CharParser ps[]) {
   while (*ps) {
     ptrbuf_push(&buf, *ps++);
   }
-  ptrbuf_push(&buf, NULL);
   StringParser self = malloc(sizeof(struct stStringParser));
   self->run = run_seq_char;
-  self->parsers = (CharParser *)buf.data;
+  self->parsers = (CharParser *)ptrbuf_finish(&buf);
   return self;
 }

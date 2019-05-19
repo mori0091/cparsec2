@@ -16,8 +16,7 @@ static StringResult run_cons_char(StringParser self, Source src) {
     return s;
   }
   buf_append(&str, s.result);
-  buf_push(&str, '\0');
-  return (StringResult){.result = str.data};
+  return (StringResult){.result = buf_finish(&str)};
 }
 
 StringParser cons_char(CharParser p, StringParser ps) {
