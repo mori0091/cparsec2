@@ -41,12 +41,12 @@ CharParser letter;
 
 void cparsec2_init(void) {
   anyChar = satisfy(is_anyChar);
-  digit   = satisfy(is_digit);
-  lower   = satisfy(is_lower);
-  upper   = satisfy(is_upper);
-  alpha   = satisfy(is_alpha);
-  alnum   = satisfy(is_alnum);
-  letter  = satisfy(is_letter);
+  digit = satisfy(is_digit);
+  lower = satisfy(is_lower);
+  upper = satisfy(is_upper);
+  alpha = satisfy(is_alpha);
+  alnum = satisfy(is_alnum);
+  letter = satisfy(is_letter);
 }
 
 // void show(T x);
@@ -55,7 +55,7 @@ void cparsec2_init(void) {
 void show_char(char c) { printf("'%c'\n", c); }
 void show_string(const char *str) { printf("\"%s\"\n", str); }
 
-void parseTest_char(CharParser p, const char* input) {
+void parseTest_char(CharParser p, const char *input) {
   struct stSource src = {.input = input, .p = input};
   CharResult x = parse(p, &src);
   if (x.error) {
@@ -65,7 +65,7 @@ void parseTest_char(CharParser p, const char* input) {
   }
 }
 
-void parseTest_string(StringParser p, const char* input) {
+void parseTest_string(StringParser p, const char *input) {
   struct stSource src = {.input = input, .p = input};
   StringResult x = parse(p, &src);
   if (x.error) {
