@@ -46,3 +46,7 @@ This project is an exercise to construct *parsec* like library for C11.
 - seq(p, ...)           :: 
      Create a StringParser which parse a sequence of chars.\\
      Each CharParser in the list of arguments ~p, ...~ is used to parse for each char.
+- cons(p, ps)           :: 
+     Create a StringParser which parse a sequence of chars.\\
+     A CharParser ~p~ is used to parse the 1st char, and \\
+     A StringParser ~ps~ is used to parse subsequent chars.

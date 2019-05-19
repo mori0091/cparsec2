@@ -74,5 +74,10 @@ int main(int argc, char **argv) {
 
   /* cannot compile [-Wincompatible-pointer-types] */
   // PARSE_TEST(seq(letter, many(digit)), "a1234"); /* "a1234" */
+
+  PARSE_TEST(cons(letter, many(digit)), "a1234");  /* "a1234" */
+  PARSE_TEST(cons(letter, many(digit)), "abc123"); /* "a" */
+  PARSE_TEST(cons(letter, many(digit)), "a123bc"); /* "a123" */
+
   return 0;
 }

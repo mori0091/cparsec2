@@ -75,6 +75,10 @@ struct stStringParser {
   union {
     CharParser parser;
     CharParser *parsers; // a list of CharParser (NULL terminated)
+    struct {
+      CharParser head;
+      StringParser tail;
+    };
   };
 };
 
@@ -121,3 +125,7 @@ StringParser many1(CharParser p);
 #define seq(...) SEQ_I(__VA_ARGS__, NULL)
 #define SEQ_I(p, ...) _Generic((p), CharParser : seq_char)((CharParser []){p, __VA_ARGS__})
 StringParser seq_char(CharParser ps[]);
+
+// Parser<T[]> cons(Parser<T> p, Parser<T[]> ps);
+#define cons(p, ps) _Generic((p), CharParser : cons_char)(p, ps)
+StringParser cons_char(CharParser p, StringParser ps);
