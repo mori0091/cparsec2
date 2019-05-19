@@ -3,10 +3,15 @@
 SRCS = $(wildcard *.c)
 OBJS = $(SRCS:.c=.o)
 
+CFLAGS = -std=c11 -Wall -pedantic-errors
+
 cparsec2: $(OBJS)
-	$(CC) -o $@ $^ $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(OBJS): cparsec2.h
+
+%.o: %.c
+	$(CC) $(CFLAGS) -o $@ -c $<
 
 test: cparsec2
 	./cparsec2

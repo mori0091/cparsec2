@@ -43,3 +43,6 @@ This project is an exercise to construct *parsec* like library for C11.
 - many1(p)              :: 
      Create a StringParser which parse one or more chars.\\
      A CharParser ~p~ is used to parse for each char.
+- seq(p, ...)           :: 
+     Create a StringParser which parse a sequence of chars.\\
+     Each CharParser in the list of arguments ~p, ...~ is used to parse for each char.

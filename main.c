@@ -68,5 +68,11 @@ int main(int argc, char **argv) {
   PARSE_TEST(many1(digit), "");              /* "error:too short" */
   PARSE_TEST(many1(digit), "abc");           /* "error:not satisfy" */
 
+  PARSE_TEST(seq(letter, digit, digit), "a12");  /* "a12" */
+  PARSE_TEST(seq(letter, digit, digit), "_123"); /* "_12" */
+  PARSE_TEST(seq(letter, digit, digit), "123");  /* "error:not satisfy" */
+
+  /* cannot compile [-Wincompatible-pointer-types] */
+  // PARSE_TEST(seq(letter, many(digit)), "a1234"); /* "a1234" */
   return 0;
 }

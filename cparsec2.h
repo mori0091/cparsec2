@@ -20,6 +20,16 @@ Buffer buf_new(void);
 void buf_ensure(Buffer *b);
 void buf_push(Buffer *b, char v);
 
+typedef struct {
+  void **data;
+  int capacity;
+  int len;
+} PtrBuffer;
+
+PtrBuffer ptrbuf_new(void);
+void ptrbuf_ensure(PtrBuffer *b);
+void ptrbuf_push(PtrBuffer *b, void *v);
+
 /** Construct an error message */
 const char *error(const char *fmt, ...);
 
@@ -62,6 +72,7 @@ struct stStringParser {
   StringResult (*run)(StringParser self, Source src);
   union {
     CharParser parser;
+    CharParser *parsers; // a list of CharParser (NULL terminated)
   };
 };
 
@@ -103,3 +114,8 @@ CharParser satisfy(Predicate pred);
 
 StringParser many(CharParser p);
 StringParser many1(CharParser p);
+
+// Parser<T[]> seq(Parser<T> p, ...);
+#define seq(...) SEQ_I(__VA_ARGS__, NULL)
+#define SEQ_I(p, ...) _Generic((p), CharParser : seq_char)((CharParser []){p, __VA_ARGS__})
+StringParser seq_char(CharParser ps[]);
