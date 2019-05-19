@@ -20,6 +20,7 @@ typedef struct {
 Buffer buf_new(void);
 void buf_ensure(Buffer *b);
 void buf_push(Buffer *b, char v);
+void buf_append(Buffer *b, const char* s);
 
 typedef struct {
   void **data;

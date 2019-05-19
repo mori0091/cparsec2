@@ -2,13 +2,6 @@
 
 #include "cparsec2.h"
 
-char* cons(char c, const char* cs) {
-  char *str = malloc(1 + strlen(cs) + 1);
-  str[0] = c;
-  str[1] = '\0';
-  return strcat(str, cs);
-}
-
 static StringResult run_many1(StringParser self, Source src) {
   CharResult c = parse(self->parser, src);
   if (c.error) {
@@ -22,9 +15,12 @@ static StringResult run_many1(StringParser self, Source src) {
     /* catch and re-throw exception */
     return s;
   }
-  char *str = cons(c.result, s.result);
-  free((void*)s.result);
-  return (StringResult){.result = str};
+  Buffer str = buf_new();
+  buf_push(&str, c.result);
+  buf_append(&str, s.result);
+  buf_push(&str, '\0');
+  /* free((void*)s.result); */
+  return (StringResult){.result = str.data};
 }
 
 StringParser many1(CharParser p) {

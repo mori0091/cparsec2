@@ -23,6 +23,12 @@ void buf_push(Buffer *b, char v) {
   b->data[b->len++] = v;
 }
 
+void buf_append(Buffer *b, const char* s) {
+  while (*s) {
+    buf_push(b, *s++);
+  }
+}
+
 PtrBuffer ptrbuf_new(void) {
   return (PtrBuffer){0};
 }
