@@ -3,11 +3,19 @@
 #include "cparsec2.h"
 
 const char *error(const char *fmt, ...) {
-  char buf[1024] = {0};
   va_list ap;
   va_start(ap, fmt);
-  vsprintf(buf, fmt, ap);
-  return strdup(buf);
+  int len = vsnprintf(NULL, 0, fmt, ap);
+  if (len < 0) {
+    fprintf(stderr, "vsnprintf(NULL, 0, fmt, ...):%s\n", strerror(errno));
+    exit(1);
+  }
+  char *buf = malloc(len + 1);
+  if (vsnprintf(buf, len + 1, fmt, ap) < 0) {
+    fprintf(stderr, "vsnprintf(buf, len, fmt, ...):%s\n", strerror(errno));
+    exit(1);
+  }
+  return buf;
 }
 
 CharResult peek(Source src) {
