@@ -2,6 +2,21 @@
 
 #include "cparsec2.h"
 
+/* A user-defined parser function. */
+StringResult run_digit3(void *arg, Source src) {
+  /* omit 'arg' since 'digit3' use no arguments */
+  UNUSED(arg);
+
+  Buffer str = buf_new();
+  for (int i = 0; i < 3; ++i) {
+    CharResult c = parse(digit, src);
+    if (c.error)
+      return (StringResult){.error = c.error};
+    buf_push(&str, c.result);
+  }
+  return (StringResult){.result = buf_finish(&str)};
+}
+
 int main(int argc, char **argv) {
   UNUSED(argc);
   UNUSED(argv);
@@ -78,6 +93,15 @@ int main(int argc, char **argv) {
   PARSE_TEST(cons(letter, many(digit)), "a1234");  /* "a1234" */
   PARSE_TEST(cons(letter, many(digit)), "abc123"); /* "a" */
   PARSE_TEST(cons(letter, many(digit)), "a123bc"); /* "a123" */
+
+  StringParser digit3 = genParser(run_digit3, NULL);
+  PARSE_TEST(digit3, "1234");              /* "123" */
+  PARSE_TEST(digit3, "123");               /* "123" */
+  PARSE_TEST(digit3, "12");                /* "error:too short" */
+  PARSE_TEST(digit3, "a123");              /* "error:not satisfy" */
+
+  PARSE_TEST(cons(upper, digit3), "A123"); /* "A123" */
+  PARSE_TEST(cons(upper, digit3), "a123"); /* "error:not satisfy" */
 
   return 0;
 }

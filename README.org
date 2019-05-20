@@ -5,6 +5,75 @@
 
 This project is an exercise to construct *parsec* like library for C11.
 
+** How to make your parser
+
+Let's create a parser named ~digit3~, which parses three digits.
+
+*** Step 1. Define your function body of your parser.
+#+begin_src c
+  #include "cparsec2.h"
+
+  StringResult run_digit3(void *arg, Source src) {
+    /* omit 'arg' since 'digit3' use no arguments */
+    UNUSED(arg);
+
+    Buffer str = buf_new();
+    for (int i = 0; i < 3; ++i) {
+      CharResult c = parse(digit, src);
+      if (c.error) return (StringResult){.error = c.error};
+      buf_push(&str, c.result);
+    }
+    return (StringResult){.result = buf_finish(&str)};
+  }
+#+end_src
+
+*** Step 2. Create parser by calling genParser(fun, arg)
+#+begin_src c
+  StringParser digit3 = genParser(run_digit3, NULL);
+#+end_src
+
+*** Step 3. Then use your parser.
+#+begin_src c
+  PARSE_TEST(digit3, "1234");   /* -> "123" */
+  PARSE_TEST(digit3, "123");    /* -> "123" */
+  PARSE_TEST(digit3, "12");     /* -> "error:too short" */
+  PARSE_TEST(digit3, "a123");   /* -> "error:not satisfy" */
+#+end_src
+
+*** Finally, you can get the 1st example as follows:
+#+begin_src c
+  #include "cparsec2.h"
+
+  StringResult run_digit3(void *arg, Source src) {
+    /* omit 'arg' since 'digit3' use no arguments */
+    UNUSED(arg);
+
+    Buffer str = buf_new();
+    for (int i = 0; i < 3; ++i) {
+      CharResult c = parse(digit, src);
+      if (c.error) return (StringResult){.error = c.error};
+      buf_push(&str, c.result);
+    }
+    return (StringResult){.result = buf_finish(&str)};
+  }
+
+  int main(int argc, char **argv) {
+    UNUSED(argc);
+    UNUSED(argv);
+
+    /* NOTE: THIS MUST BE CALLED ONCE AT FIRST. */
+    cparsec2_init();
+
+    StringParser digit3 = genParser(run_digit3, NULL);
+    PARSE_TEST(digit3, "1234");   /* -> "123" */
+    PARSE_TEST(digit3, "123");    /* -> "123" */
+    PARSE_TEST(digit3, "12");     /* -> "error:too short" */
+    PARSE_TEST(digit3, "a123");   /* -> "error:not satisfy" */
+
+    return 0;
+  }
+#+end_src
+
 ** API
 - cparsec2_init()       :: 
      Initialize cparsec2 library.\\
@@ -15,6 +84,10 @@ This project is an exercise to construct *parsec* like library for C11.
      Apply parser ~p~ to ~string~ and print result.
 - PARSE_TEST(p, string) :: 
      Same as ~parseTest~ and also print ~p string~. (for debug purpose)
+- genParser(f, arg)     :: 
+     Create new parser.\\
+     ~f~ is a function body of the parser, and ~arg~ is argument (may be NULL)
+     to be passed to ~f~ when the parser is applied.
 
 ** CharParser
 - anyChar               :: 
