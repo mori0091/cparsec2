@@ -58,32 +58,32 @@ typedef struct {
   char result;       // the result value if and only if operation succeeded.
 } CharResult;
 
-typedef struct stCharParser *CharParser;
-struct stCharParser {
-  CharResult (*run)(CharParser self, Source src);
-  union {
-    char expected;
-    Predicate pred;
-  };
-};
-
 typedef struct {
   const char *error;  // An error message if an error occurred, otherwise NULL.
   const char *result; // the result value if and only if operation succeeded.
 } StringResult;
 
-typedef struct stStringParser *StringParser;
-struct stStringParser {
-  StringResult (*run)(StringParser self, Source src);
-  union {
-    CharParser parser;
-    CharParser *parsers; // a list of CharParser (NULL terminated)
-    struct {
-      CharParser head;
-      StringParser tail;
-    };
-  };
-};
+typedef CharResult (*CharParserFn)(void *arg, Source src);
+typedef StringResult (*StringParserFn)(void *arg, Source src);
+
+typedef struct stCharParser {
+  CharParserFn run;
+  void *arg;
+} *CharParser;
+
+typedef struct stStringParser {
+  StringParserFn run;
+  void *arg;
+} *StringParser;
+
+#define genParser(f, arg)                       \
+  _Generic((f)                                  \
+           , CharParserFn   : genCharParser     \
+           , StringParserFn : genStringParser   \
+           )(f, arg)
+
+CharParser genCharParser(CharParserFn f, void *arg);
+StringParser genStringParser(StringParserFn f, void *arg);
 
 // peek head char
 CharResult peek(Source src);
@@ -98,7 +98,7 @@ void cparsec2_init(void);
   parseTest(p, input)
 
 // T parse(Parser<T> p, Source src);
-#define parse(p, src) ((p)->run((p), (src)))
+#define parse(p, src) ((p)->run((p)->arg, (src)))
 
 // void parseTest(Parser<T> p, const char *input);
 #define parseTest(p, input)                                             \

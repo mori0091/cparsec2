@@ -2,7 +2,13 @@
 
 #include "cparsec2.h"
 
-static StringResult run_cons_char(StringParser self, Source src) {
+struct cons_arg {
+  CharParser head;
+  StringParser tail;
+};
+
+static StringResult run_cons_char(void *arg, Source src) {
+  struct cons_arg *self = (struct cons_arg *)arg;
   Buffer str = buf_new();
   CharResult c = parse(self->head, src);
   if (c.error) {
@@ -20,9 +26,8 @@ static StringResult run_cons_char(StringParser self, Source src) {
 }
 
 StringParser cons_char(CharParser p, StringParser ps) {
-  StringParser self = malloc(sizeof(struct stStringParser));
-  self->run = run_cons_char;
-  self->head = p;
-  self->tail = ps;
-  return self;
+  struct cons_arg *arg = malloc(sizeof(struct cons_arg));
+  arg->head = p;
+  arg->tail = ps;
+  return genParser(run_cons_char, arg);
 }

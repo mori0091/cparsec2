@@ -2,12 +2,17 @@
 
 #include "cparsec2.h"
 
-static CharResult run_satisfy(CharParser p, Source src) {
+struct satisfy_arg {
+  Predicate pred;
+};
+
+static CharResult run_satisfy(void *arg, Source src) {
   CharResult c = peek(src);
   if (c.error) {
     return c; /* error */
   }
-  if (!p->pred(c.result)) {
+  struct satisfy_arg *self = (struct satisfy_arg *)arg;
+  if (!self->pred(c.result)) {
     return (CharResult){.error = error("not satisfy")};
   }
   consume(src);
@@ -15,8 +20,7 @@ static CharResult run_satisfy(CharParser p, Source src) {
 }
 
 CharParser satisfy(Predicate pred) {
-  CharParser p = malloc(sizeof(struct stCharParser));
-  p->run = run_satisfy;
-  p->pred = pred;
-  return p;
+  struct satisfy_arg *arg = malloc(sizeof(struct satisfy_arg));
+  arg -> pred = pred;
+  return genParser(run_satisfy, arg);
 }

@@ -2,9 +2,9 @@
 
 #include "cparsec2.h"
 
-static StringResult run_seq_char(StringParser self, Source src) {
+static StringResult run_seq_char(void *arg, Source src) {
   Buffer str = buf_new();
-  CharParser *p = self->parsers;
+  CharParser *p = (CharParser *)arg;
   while (*p) {
     CharResult c = parse(*p, src);
     if (c.error) {
@@ -23,8 +23,5 @@ StringParser seq_char(CharParser ps[]) {
   while (*ps) {
     ptrbuf_push(&buf, *ps++);
   }
-  StringParser self = malloc(sizeof(struct stStringParser));
-  self->run = run_seq_char;
-  self->parsers = (CharParser *)ptrbuf_finish(&buf);
-  return self;
+  return genParser(run_seq_char, ptrbuf_finish(&buf));
 }

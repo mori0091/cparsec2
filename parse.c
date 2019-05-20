@@ -49,6 +49,20 @@ void cparsec2_init(void) {
   letter = satisfy(is_letter);
 }
 
+CharParser genCharParser(CharParserFn f, void *arg) {
+  CharParser p = malloc(sizeof(struct stCharParser));
+  p->run = f;
+  p->arg = arg;
+  return p;
+}
+
+StringParser genStringParser(StringParserFn f, void *arg) {
+  StringParser p = malloc(sizeof(struct stStringParser));
+  p->run = f;
+  p->arg = arg;
+  return p;
+}
+
 // void show(T x);
 #define show(x) _Generic((x), char : show_char, const char * : show_string)(x)
 
