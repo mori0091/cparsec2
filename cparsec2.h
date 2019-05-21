@@ -7,7 +7,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdnoreturn.h>
 #include <string.h>
+#include <setjmp.h>
 
 #define UNUSED(v) ((void)v)
 
@@ -109,6 +111,28 @@ void cparsec2_init(void);
 
 void parseTest_char(CharParser p, const char *input);
 void parseTest_string(StringParser p, const char *input);
+
+// context object for exception handling
+typedef struct {
+  const char* msg;
+  jmp_buf e;
+} Ctx;
+
+// TRY(Ctx *ctx) {statement...} else {exception-handler...}
+#define TRY(ctx) if (!setjmp((ctx)->e))
+
+// throw exception
+noreturn void raise(Ctx* ctx, const char *msg);
+
+// T parseEx(Parser<T> p, Souce src, Ctx *ctx)
+#define parseEx(p, src, ctx)                    \
+  _Generic((p)                                  \
+           , CharParser   : parseEx_char        \
+           , StringParser : parseEx_string      \
+           )(p, src, ctx)
+
+char parseEx_char(CharParser p, Source src, Ctx *ctx);
+const char *parseEx_string(StringParser p, Source src, Ctx *ctx);
 
 extern CharParser anyChar;
 extern CharParser digit;

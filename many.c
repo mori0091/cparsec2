@@ -3,16 +3,16 @@
 #include "cparsec2.h"
 
 static StringResult run_many(void *arg, Source src) {
-  Buffer str = buf_new();
   CharParser parser = (CharParser)arg;
-  for (;;) {
-    CharResult c = parse(parser, src);
-    if (c.error) {
-      /* catch and discard exception */
-      free((void *)c.error);
-      break;
+  Buffer str = buf_new();
+  Ctx ctx;
+  TRY(&ctx) {
+    for (;;) {
+      buf_push(&str, parseEx(parser, src, &ctx));
     }
-    buf_push(&str, c.result);
+  } else {
+    /* catch and discard exception */
+    free((void *)ctx.msg);
   }
   return (StringResult){.result = buf_finish(&str)};
 }

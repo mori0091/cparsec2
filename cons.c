@@ -10,19 +10,15 @@ struct cons_arg {
 static StringResult run_cons_char(void *arg, Source src) {
   struct cons_arg *self = (struct cons_arg *)arg;
   Buffer str = buf_new();
-  CharResult c = parse(self->head, src);
-  if (c.error) {
-    /* catch and re-throw exception */
-    return (StringResult){.error = c.error};
+  Ctx ctx;
+  TRY(&ctx) {
+    buf_push(&str, parseEx(self->head, src, &ctx));
+    buf_append(&str, parseEx(self->tail, src, &ctx));
+    return (StringResult){.result = buf_finish(&str)};
+  } else {
+    free(str.data);
+    return (StringResult){.error = ctx.msg};
   }
-  buf_push(&str, c.result);
-  StringResult s = parse(self->tail, src);
-  if (s.error) {
-    /* catch and re-throw exception */
-    return s;
-  }
-  buf_append(&str, s.result);
-  return (StringResult){.result = buf_finish(&str)};
 }
 
 StringParser cons_char(CharParser p, StringParser ps) {

@@ -10,11 +10,31 @@ StringResult run_digit3(void *arg, Source src) {
   Buffer str = buf_new();
   for (int i = 0; i < 3; ++i) {
     CharResult c = parse(digit, src);
-    if (c.error)
+    if (c.error) {
+      free(str.data);
       return (StringResult){.error = c.error};
+    }
     buf_push(&str, c.result);
   }
   return (StringResult){.result = buf_finish(&str)};
+}
+
+/* A user-defined parser function. (using exception handling) */
+StringResult run_digit3ex(void *arg, Source src) {
+  /* omit 'arg' since 'digit3' use no arguments */
+  UNUSED(arg);
+
+  Buffer str = buf_new();
+  Ctx ctx;
+  TRY(&ctx) {                   /* try */
+    for (int i = 0; i < 3; ++i) {
+      buf_push(&str, parseEx(digit, src, &ctx));
+    }
+    return (StringResult){.result = buf_finish(&str)};
+  } else {                      /* catch */
+    free(str.data);
+    return (StringResult){.error = ctx.msg};
+  }
 }
 
 int main(int argc, char **argv) {
@@ -102,6 +122,15 @@ int main(int argc, char **argv) {
 
   PARSE_TEST(cons(upper, digit3), "A123"); /* "A123" */
   PARSE_TEST(cons(upper, digit3), "a123"); /* "error:not satisfy" */
+
+  StringParser digit3ex = genParser(run_digit3ex, NULL);
+  PARSE_TEST(digit3ex, "1234");              /* "123" */
+  PARSE_TEST(digit3ex, "123");               /* "123" */
+  PARSE_TEST(digit3ex, "12");                /* "error:too short" */
+  PARSE_TEST(digit3ex, "a123");              /* "error:not satisfy" */
+
+  PARSE_TEST(cons(upper, digit3ex), "A123"); /* "A123" */
+  PARSE_TEST(cons(upper, digit3ex), "a123"); /* "error:not satisfy" */
 
   return 0;
 }

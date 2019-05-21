@@ -4,20 +4,17 @@
 
 static StringResult run_many1(void *arg, Source src) {
   CharParser parser = (CharParser)arg;
-  CharResult c = parse(parser, src);
-  if (c.error) {
-    /* catch and re-throw exception */
-    return (StringResult){.error = c.error};
-  }
-  StringResult s = parse(many(parser), src);
-  if (s.error) {
-    /* catch and re-throw exception */
-    return s;
-  }
+  Ctx ctx;
   Buffer str = buf_new();
-  buf_push(&str, c.result);
-  buf_append(&str, s.result);
-  return (StringResult){.result = buf_finish(&str)};
+  TRY(&ctx) {
+    buf_push(&str, parseEx(parser, src, &ctx));
+    buf_append(&str, parseEx(many(parser), src, &ctx));
+    return (StringResult){.result = buf_finish(&str)};
+  } else {
+    free((void *)str.data);
+    /* catch and re-throw exception */
+    return (StringResult){.error = ctx.msg};
+  }
 }
 
 StringParser many1(CharParser p) {

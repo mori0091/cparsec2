@@ -63,19 +63,13 @@ StringParser genStringParser(StringParserFn f, void *arg) {
   return p;
 }
 
-// void show(T x);
-#define show(x) _Generic((x), char : show_char, const char * : show_string)(x)
-
-void show_char(char c) { printf("'%c'\n", c); }
-void show_string(const char *str) { printf("\"%s\"\n", str); }
-
 void parseTest_char(CharParser p, const char *input) {
   struct stSource src = {.input = input, .p = input};
   CharResult x = parse(p, &src);
   if (x.error) {
     printf("error:%s\n", x.error);
   } else {
-    show(x.result);
+    printf("'%c'\n", x.result);
   }
 }
 
@@ -85,6 +79,29 @@ void parseTest_string(StringParser p, const char *input) {
   if (x.error) {
     printf("error:%s\n", x.error);
   } else {
-    show(x.result);
+    printf("\"%s\"\n", x.result);
   }
+}
+
+noreturn void raise(Ctx* ctx, const char *msg) {
+  ctx->msg = msg;
+  longjmp(ctx->e, -1);
+}
+
+char parseEx_char(CharParser p, Source src, Ctx *ctx) {
+  assert(ctx);
+  CharResult x = parse(p, src);
+  if (x.error) {
+    raise(ctx, x.error);
+  }
+  return x.result;
+}
+
+const char *parseEx_string(StringParser p, Source src, Ctx *ctx) {
+  assert(ctx);
+  StringResult x = parse(p, src);
+  if (x.error) {
+    raise(ctx, x.error);
+  }
+  return x.result;
 }
