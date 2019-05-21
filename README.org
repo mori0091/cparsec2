@@ -5,11 +5,19 @@
 
 This project is an exercise to construct *parsec* like library for C11.
 
-** How to make your parser
+- [[#tutorial][Tutorial]]
+- [[#api][API]]
+
+** Tutorial
+:PROPERTIES:
+:CUSTOM_ID: tutorial
+:END:
+
+*** How to make your parser
 
 Let's create a parser named ~digit3~, which parses three digits.
 
-*** Step 1. Define your function body of your parser.
+**** Step 1. Define function body of your parser.
 #+begin_src c
   #include "cparsec2.h"
 
@@ -20,19 +28,22 @@ Let's create a parser named ~digit3~, which parses three digits.
     Buffer str = buf_new();
     for (int i = 0; i < 3; ++i) {
       CharResult c = parse(digit, src);
-      if (c.error) return (StringResult){.error = c.error};
+      if (c.error) {
+        free(str.data);
+        return (StringResult){.error = c.error};
+      }
       buf_push(&str, c.result);
     }
     return (StringResult){.result = buf_finish(&str)};
   }
 #+end_src
 
-*** Step 2. Create parser by calling genParser(fun, arg)
+**** Step 2. Create parser by calling genParser(fun, arg)
 #+begin_src c
   StringParser digit3 = genParser(run_digit3, NULL);
 #+end_src
 
-*** Step 3. Then use your parser.
+**** Step 3. Then use your parser.
 #+begin_src c
   PARSE_TEST(digit3, "1234");   /* -> "123" */
   PARSE_TEST(digit3, "123");    /* -> "123" */
@@ -40,7 +51,7 @@ Let's create a parser named ~digit3~, which parses three digits.
   PARSE_TEST(digit3, "a123");   /* -> "error:not satisfy" */
 #+end_src
 
-*** Finally, you can get the 1st example as follows:
+**** Finally, you can get the 1st example as follows:
 #+begin_src c
   #include "cparsec2.h"
 
@@ -51,7 +62,10 @@ Let's create a parser named ~digit3~, which parses three digits.
     Buffer str = buf_new();
     for (int i = 0; i < 3; ++i) {
       CharResult c = parse(digit, src);
-      if (c.error) return (StringResult){.error = c.error};
+      if (c.error) {
+        free(str.data);
+        return (StringResult){.error = c.error};
+      }
       buf_push(&str, c.result);
     }
     return (StringResult){.result = buf_finish(&str)};
@@ -74,12 +88,95 @@ Let's create a parser named ~digit3~, which parses three digits.
   }
 #+end_src
 
+
+*** Simplify your parser by using exception handling
+ 
+Let's rewrite and simplify the ~digit3~ parser by using exception handling.
+
+**** Step 1. Simplify function body of your parser
+
+The following function ~run_digit3ex~ is the simplified version of
+~run_digit3()~ (the function body of ~digit3~).
+
+#+begin_src c
+  #include "cparsec2.h"
+
+  /* A user-defined parser function. (using exception handling) */
+  StringResult run_digit3ex(void *arg, Source src) {
+    /* omit 'arg' since 'digit3' use no arguments */
+    UNUSED(arg);
+
+    Buffer str = buf_new();
+    Ctx ctx;
+    TRY(&ctx) {                   /* try */
+      for (int i = 0; i < 3; ++i) {
+        buf_push(&str, parseEx(digit, src, &ctx));
+      }
+      return (StringResult){.result = buf_finish(&str)};
+    } else {                      /* catch */
+      free(str.data);
+      return (StringResult){.error = ctx.msg};
+    }
+  }
+#+end_src
+
+**** Step 2. Create parser by calling genParser(fun, arg)
+
+#+begin_src c
+  // StringParser digit3 = genParser(run_digit3, NULL);
+  StringParser digit3 = genParser(run_digit3ex, NULL);
+#+end_src
+
+That's all!
+
+
+*** You can use 'parser combinator' to make new parser
+
+To make the 1st example ~digit3~ parser, we used pre-defined built-in parser
+~digit~. And we made the custom function body such as ~run_digit3()~ or
+~run_digit3ex()~ for the ~digit3~ parser...
+
+Is it difficult?
+
+Fortunately, *cparse2* has various pre-defined /built-in parsers/, /parser
+generators/ (factory method to make parser), and /parser combinators/ (factory
+method to make parser from other parser(s)).
+
+- built-in parsers      :: 
+     ex. ~anyChar~, ~digit~, ~lower~, ~upper~, ~alpha~, ~alnum~, ~letter~, ...
+- parser generators     :: 
+     factory methods to make (parameterized) parser\\
+     ex. ~char1(c)~, ~satisfy(pred)~, ...
+- parser combinators    :: 
+     factory methods to make (composite) parser from other parser(s)\\
+     ex. ~many(p)~, ~many1(p)~, ~seq(p, ...)~, ~cons(p, ps)~, ...
+
+Therefore, we can made the 1st example ~digit3~ more easily, as follows:
+#+begin_src c
+StringParser digit3 = seq(digit, digit, digit);
+#+end_src
+
+That's all !
+
+No need to define a custom function body in case of ~digit3~. Awesome!
+
+
 ** API
+:PROPERTIES:
+:CUSTOM_ID: api
+:END:
+
+*** Core API
 - cparsec2_init()       :: 
      Initialize cparsec2 library.\\
      This must be called once at first.
 - parse(p, src)         :: 
-     Apply parser ~p~ to text provided from ~src~, and return result.
+     Apply parser ~p~ to text provided from ~src~, and return result/error as
+     struct (such as ~CharResult~, ~StringResult~).
+- parseEx(p, src, ctx)  :: 
+     Apply parser ~p~ to text provided from ~src~, and return result (such as
+     ~char~, ~const char *~). If an error occurred, it is thrown as exception
+     through ~ctx~. (see also Exception handling)
 - parseTest(p, string)  :: 
      Apply parser ~p~ to ~string~ and print result.
 - PARSE_TEST(p, string) :: 
@@ -89,7 +186,18 @@ Let's create a parser named ~digit3~, which parses three digits.
      ~f~ is a function body of the parser, and ~arg~ is argument (may be NULL)
      to be passed to ~f~ when the parser is applied.
 
-** CharParser
+*** Exception handling
+
+See also the tutorial.
+
+- Ctx                   :: 
+     Type of context for exception handling.
+- TRY(ctx) {...} else {...} :: 
+     Exception handling macro. (C++ or Java like ~try {...} catch {...}~ clause)
+- raise(ctx, msg)       :: 
+     Throw a string ~msg~ as an exception.
+
+*** CharParser
 - anyChar               :: 
      A CharParser which parse any one char
 - digit                 :: 
@@ -109,7 +217,7 @@ Let's create a parser named ~digit3~, which parses three digits.
 - satisfy(pred)         :: 
      Create a CharParser which parse a char ~c~ satisfying ~pred(c) == true~
 
-** StringParser
+*** StringParser
 - many(p)               :: 
      Create a StringParser which parse zero or more chars.\\
      A CharParser ~p~ is used to parse for each char.
