@@ -87,8 +87,20 @@ typedef struct stStringParser {
 CharParser genCharParser(CharParserFn f, void *arg);
 StringParser genStringParser(StringParserFn f, void *arg);
 
+// context object for exception handling
+typedef struct {
+  const char* msg;
+  jmp_buf e;
+} Ctx;
+
+// TRY(Ctx *ctx) {statement...} else {exception-handler...}
+#define TRY(ctx) if (!setjmp((ctx)->e))
+
+// throw exception
+noreturn void raise(Ctx* ctx, const char *msg);
+
 // peek head char
-CharResult peek(Source src);
+char peek(Source src, Ctx *ctx);
 // drop head char
 void consume(Source src);
 
@@ -111,18 +123,6 @@ void cparsec2_init(void);
 
 void parseTest_char(CharParser p, const char *input);
 void parseTest_string(StringParser p, const char *input);
-
-// context object for exception handling
-typedef struct {
-  const char* msg;
-  jmp_buf e;
-} Ctx;
-
-// TRY(Ctx *ctx) {statement...} else {exception-handler...}
-#define TRY(ctx) if (!setjmp((ctx)->e))
-
-// throw exception
-noreturn void raise(Ctx* ctx, const char *msg);
 
 // T parseEx(Parser<T> p, Souce src, Ctx *ctx)
 #define parseEx(p, src, ctx)                    \

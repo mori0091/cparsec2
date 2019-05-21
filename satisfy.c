@@ -7,16 +7,18 @@ struct satisfy_arg {
 };
 
 static CharResult run_satisfy(void *arg, Source src) {
-  CharResult c = peek(src);
-  if (c.error) {
-    return c; /* error */
-  }
   struct satisfy_arg *self = (struct satisfy_arg *)arg;
-  if (!self->pred(c.result)) {
-    return (CharResult){.error = error("not satisfy")};
+  Ctx ctx;
+  TRY(&ctx) {
+    char c = peek(src, &ctx);
+    if (self->pred(c)) {
+      consume(src);
+      return (CharResult){.result = c};
+    }
+    raise(&ctx, error("not satisfy"));
+  } else {
+    return (CharResult){.error = ctx.msg};
   }
-  consume(src);
-  return c;
 }
 
 CharParser satisfy(Predicate pred) {

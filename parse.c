@@ -18,12 +18,12 @@ const char *error(const char *fmt, ...) {
   return buf;
 }
 
-CharResult peek(Source src) {
+char peek(Source src, Ctx *ctx) {
   char c = *src->p;
   if (!c) {
-    return (CharResult){.error = error("too short")};
+    raise(ctx, error("too short"));
   }
-  return (CharResult){.result = c};
+  return c;
 }
 
 void consume(Source src) {

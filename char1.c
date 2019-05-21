@@ -3,16 +3,18 @@
 #include "cparsec2.h"
 
 static CharResult run_char1(void *arg, Source src) {
-  CharResult c = peek(src);
-  if (c.error) {
-    return c; /* error */
-  }
   char expected = (char)(intptr_t)arg;
-  if (expected != c.result) {
-    return (CharResult){.error = error("expects '%c' but was '%c'", expected, c.result)};
+  Ctx ctx;
+  TRY(&ctx) {
+    char c = peek(src, &ctx);
+    if (expected == c) {
+      consume(src);
+      return (CharResult){.result = c};
+    }
+    raise(&ctx, error("expects '%c' but was '%c'", expected, c));
+  } else {
+    return (CharResult){.error = ctx.msg};
   }
-  consume(src);
-  return c;
 }
 
 CharParser char1(char c) {
