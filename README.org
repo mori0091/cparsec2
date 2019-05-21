@@ -98,6 +98,11 @@ Let's rewrite and simplify the ~digit3~ parser by using exception handling.
 The following function ~run_digit3ex~ is the simplified version of
 ~run_digit3()~ (the function body of ~digit3~).
 
+In this example, [[#exception_handling][Exception Handling]] mechanism is used:
+- Define ~Ctx ctx~ object
+- Use ~TRY(&ctx) {...} else {...}~ (C++, Java like ~try {...} catch {...}~ clause)
+- Use ~parseEx(digit, src, &ctx)~ instead of ~parse(digit, src)~
+
 #+begin_src c
   #include "cparsec2.h"
 
@@ -138,7 +143,7 @@ To make the 1st example ~digit3~ parser, we used pre-defined built-in parser
 
 Is it difficult?
 
-Fortunately, *cparse2* has various pre-defined /built-in parsers/, /parser
+Fortunately, *cparsec2* has various pre-defined /built-in parsers/, /parser
 generators/ (factory method to make parser), and /parser combinators/ (factory
 method to make parser from other parser(s)).
 
@@ -187,8 +192,9 @@ No need to define a custom function body in case of ~digit3~. Awesome!
      to be passed to ~f~ when the parser is applied.
 
 *** Exception handling
-
-See also the tutorial.
+:PROPERTIES:
+:CUSTOM_ID: exception_handling
+:END:
 
 - Ctx                   :: 
      Type of context for exception handling.
@@ -196,6 +202,20 @@ See also the tutorial.
      Exception handling macro. (C++ or Java like ~try {...} catch {...}~ clause)
 - raise(ctx, msg)       :: 
      Throw a string ~msg~ as an exception.
+
+Example:
+#+begin_src c
+  Ctx ctx;
+  TRY(&ctx) {                        /* try */
+    // ...
+    raise(&ctx, "something wrong!"); /* throw "something wrong!" */
+    // ...
+  }
+  else {                             /* catch */
+    printf("error:%s\n", ctx.msg);   /* -> "error: something wrong!" */
+    free(ctx.msg);
+  }
+#+end_src
 
 *** CharParser
 - anyChar               :: 
