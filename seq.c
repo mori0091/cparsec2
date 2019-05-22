@@ -2,7 +2,7 @@
 
 #include "cparsec2.h"
 
-static StringResult run_seq_char(void *arg, Source src) {
+static const char *run_seq_char(void *arg, Source src, Ctx *ex) {
   CharParser *p = (CharParser *)arg;
   Buffer str = buf_new();
   Ctx ctx;
@@ -10,11 +10,11 @@ static StringResult run_seq_char(void *arg, Source src) {
     while (*p) {
       buf_push(&str, parse(*p++, src, &ctx));
     }
-    return (StringResult){.result = buf_finish(&str)};
+    return buf_finish(&str);
   } else {
     mem_free((void *)str.data);
     /* catch and re-throw exception */
-    return (StringResult){.error = ctx.msg};
+    raise(ex, ctx.msg);
   }
 }
 

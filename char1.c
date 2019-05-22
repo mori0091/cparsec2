@@ -2,18 +2,18 @@
 
 #include "cparsec2.h"
 
-static CharResult run_char1(void *arg, Source src) {
+static char run_char1(void *arg, Source src, Ctx *ex) {
   char expected = (char)(intptr_t)arg;
   Ctx ctx;
   TRY(&ctx) {
     char c = peek(src, &ctx);
     if (expected == c) {
       consume(src);
-      return (CharResult){.result = c};
+      return c;
     }
     raise(&ctx, error("expects '%c' but was '%c'", expected, c));
   } else {
-    return (CharResult){.error = ctx.msg};
+    raise(ex, ctx.msg);
   }
 }
 

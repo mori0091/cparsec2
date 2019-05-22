@@ -171,18 +171,10 @@ noreturn void raise(Ctx *ctx, const char *msg) {
 
 char parse_char(CharParser p, Source src, Ctx *ctx) {
   assert(ctx);
-  CharResult x = p->run(p->arg, src);
-  if (x.error) {
-    raise(ctx, x.error);
-  }
-  return x.result;
+  return p->run(p->arg, src, ctx);
 }
 
 const char *parse_string(StringParser p, Source src, Ctx *ctx) {
   assert(ctx);
-  StringResult x = p->run(p->arg, src);
-  if (x.error) {
-    raise(ctx, x.error);
-  }
-  return x.result;
+  return p->run(p->arg, src, ctx);
 }

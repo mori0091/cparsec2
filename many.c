@@ -2,7 +2,8 @@
 
 #include "cparsec2.h"
 
-static StringResult run_many(void *arg, Source src) {
+static const char *run_many(void *arg, Source src, Ctx *ex) {
+  UNUSED(ex);
   CharParser parser = (CharParser)arg;
   Buffer str = buf_new();
   Ctx ctx;
@@ -14,7 +15,7 @@ static StringResult run_many(void *arg, Source src) {
     /* catch and discard exception */
     mem_free((void *)ctx.msg);
   }
-  return (StringResult){.result = buf_finish(&str)};
+  return buf_finish(&str);
 }
 
 StringParser many(CharParser p) {

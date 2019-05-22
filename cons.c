@@ -7,17 +7,17 @@ struct cons_arg {
   StringParser tail;
 };
 
-static StringResult run_cons_char(void *arg, Source src) {
+static const char *run_cons_char(void *arg, Source src, Ctx *ex) {
   struct cons_arg *self = (struct cons_arg *)arg;
   Buffer str = buf_new();
   Ctx ctx;
   TRY(&ctx) {
     buf_push(&str, parse(self->head, src, &ctx));
     buf_append(&str, parse(self->tail, src, &ctx));
-    return (StringResult){.result = buf_finish(&str)};
+    return buf_finish(&str);
   } else {
     mem_free(str.data);
-    return (StringResult){.error = ctx.msg};
+    raise(ex, ctx.msg);
   }
 }
 

@@ -6,18 +6,18 @@ struct satisfy_arg {
   Predicate pred;
 };
 
-static CharResult run_satisfy(void *arg, Source src) {
+static char run_satisfy(void *arg, Source src, Ctx *ex) {
   struct satisfy_arg *self = (struct satisfy_arg *)arg;
   Ctx ctx;
   TRY(&ctx) {
     char c = peek(src, &ctx);
     if (self->pred(c)) {
       consume(src);
-      return (CharResult){.result = c};
+      return c;
     }
     raise(&ctx, error("not satisfy"));
   } else {
-    return (CharResult){.error = ctx.msg};
+    raise(ex, ctx.msg);
   }
 }
 

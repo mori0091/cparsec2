@@ -3,7 +3,7 @@
 #include "cparsec2.h"
 
 /* A user-defined parser function. */
-StringResult run_digit3(void *arg, Source src) {
+const char *run_digit3(void *arg, Source src, Ctx *ex) {
   /* omit 'arg' since 'digit3' use no arguments */
   UNUSED(arg);
 
@@ -13,10 +13,10 @@ StringResult run_digit3(void *arg, Source src) {
     for (int i = 0; i < 3; ++i) {
       buf_push(&str, parse(digit, src, &ctx));
     }
-    return (StringResult){.result = buf_finish(&str)};
+    return buf_finish(&str);
   } else {                      /* catch */
     mem_free(str.data);
-    return (StringResult){.error = ctx.msg};
+    raise(ex, ctx.msg);
   }
 }
 

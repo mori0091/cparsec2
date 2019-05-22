@@ -37,6 +37,18 @@ void ptrbuf_push(PtrBuffer *b, void *v);
 void ptrbuf_append(PtrBuffer *b, void **s);
 void **ptrbuf_finish(PtrBuffer *b);
 
+// context object for exception handling
+typedef struct {
+  const char* msg;
+  jmp_buf e;
+} Ctx;
+
+// TRY(Ctx *ctx) {statement...} else {exception-handler...}
+#define TRY(ctx) if (!setjmp((ctx)->e))
+
+// throw exception
+noreturn void raise(Ctx* ctx, const char *msg);
+
 /** Construct an error message */
 const char *error(const char *fmt, ...);
 
@@ -55,18 +67,8 @@ bool is_alpha(char c);
 bool is_alnum(char c);
 bool is_letter(char c);
 
-typedef struct {
-  const char *error; // An error message if an error occurred, otherwise NULL.
-  char result;       // the result value if and only if operation succeeded.
-} CharResult;
-
-typedef struct {
-  const char *error;  // An error message if an error occurred, otherwise NULL.
-  const char *result; // the result value if and only if operation succeeded.
-} StringResult;
-
-typedef CharResult (*CharParserFn)(void *arg, Source src);
-typedef StringResult (*StringParserFn)(void *arg, Source src);
+typedef char (*CharParserFn)(void *arg, Source src, Ctx *ex);
+typedef const char * (*StringParserFn)(void *arg, Source src, Ctx *ex);
 
 typedef struct stCharParser {
   CharParserFn run;
@@ -86,18 +88,6 @@ typedef struct stStringParser {
 
 CharParser genCharParser(CharParserFn f, void *arg);
 StringParser genStringParser(StringParserFn f, void *arg);
-
-// context object for exception handling
-typedef struct {
-  const char* msg;
-  jmp_buf e;
-} Ctx;
-
-// TRY(Ctx *ctx) {statement...} else {exception-handler...}
-#define TRY(ctx) if (!setjmp((ctx)->e))
-
-// throw exception
-noreturn void raise(Ctx* ctx, const char *msg);
 
 // peek head char
 char peek(Source src, Ctx *ctx);
