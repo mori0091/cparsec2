@@ -16,7 +16,7 @@ const char *run_digit3(void *arg, Source src, Ctx *ex) {
     return buf_finish(&str);
   } else {                      /* catch */
     mem_free(str.data);
-    raise(ex, ctx.msg);
+    raise(ex, ctx.msg);         /* re-throw */
   }
 }
 
