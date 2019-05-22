@@ -106,6 +106,12 @@ void consume(Source src);
 
 // initialize cparsec2
 void cparsec2_init(void);
+// clean up cparsec2 (free all allocated memory)
+void cparsec2_end(void);
+
+void *mem_malloc(size_t s);
+void *mem_realloc(void *p, size_t s);
+void mem_free(void *p);
 
 #define PARSE_TEST(p, input)                                                   \
   printf("%8s \"%s\" => ", #p, input);                                         \

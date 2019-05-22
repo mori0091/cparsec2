@@ -16,13 +16,13 @@ static StringResult run_cons_char(void *arg, Source src) {
     buf_append(&str, parseEx(self->tail, src, &ctx));
     return (StringResult){.result = buf_finish(&str)};
   } else {
-    free(str.data);
+    mem_free(str.data);
     return (StringResult){.error = ctx.msg};
   }
 }
 
 StringParser cons_char(CharParser p, StringParser ps) {
-  struct cons_arg *arg = malloc(sizeof(struct cons_arg));
+  struct cons_arg *arg = mem_malloc(sizeof(struct cons_arg));
   arg->head = p;
   arg->tail = ps;
   return genParser(run_cons_char, arg);

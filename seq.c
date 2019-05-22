@@ -12,7 +12,7 @@ static StringResult run_seq_char(void *arg, Source src) {
     }
     return (StringResult){.result = buf_finish(&str)};
   } else {
-    free((void *)str.data);
+    mem_free((void *)str.data);
     /* catch and re-throw exception */
     return (StringResult){.error = ctx.msg};
   }

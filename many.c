@@ -12,7 +12,7 @@ static StringResult run_many(void *arg, Source src) {
     }
   } else {
     /* catch and discard exception */
-    free((void *)ctx.msg);
+    mem_free((void *)ctx.msg);
   }
   return (StringResult){.result = buf_finish(&str)};
 }

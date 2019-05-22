@@ -22,7 +22,7 @@ static CharResult run_satisfy(void *arg, Source src) {
 }
 
 CharParser satisfy(Predicate pred) {
-  struct satisfy_arg *arg = malloc(sizeof(struct satisfy_arg));
+  struct satisfy_arg *arg = mem_malloc(sizeof(struct satisfy_arg));
   arg -> pred = pred;
   return genParser(run_satisfy, arg);
 }

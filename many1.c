@@ -11,7 +11,7 @@ static StringResult run_many1(void *arg, Source src) {
     buf_append(&str, parseEx(many(parser), src, &ctx));
     return (StringResult){.result = buf_finish(&str)};
   } else {
-    free((void *)str.data);
+    mem_free((void *)str.data);
     /* catch and re-throw exception */
     return (StringResult){.error = ctx.msg};
   }
