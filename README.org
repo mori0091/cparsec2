@@ -18,6 +18,12 @@ This project is an exercise to construct *parsec* like library for C11.
 Let's create a parser named ~digit3~, which parses three digits.
 
 **** Step 1. Define function body of your parser.
+
+In this example, [[#exception_handling][Exception Handling]] mechanism is used:
+- Define ~Ctx ctx~ object
+- Use ~TRY(&ctx) {...} else {...}~ (C++, Java like ~try {...} catch {...}~ clause)
+- Use ~parseEx(digit, src, &ctx)~
+
 #+begin_src c
   #include "cparsec2.h"
 
@@ -26,15 +32,16 @@ Let's create a parser named ~digit3~, which parses three digits.
     UNUSED(arg);
 
     Buffer str = buf_new();
-    for (int i = 0; i < 3; ++i) {
-      CharResult c = parse(digit, src);
-      if (c.error) {
-        mem_free(str.data);
-        return (StringResult){.error = c.error};
+    Ctx ctx;
+    TRY(&ctx) {                   /* try */
+      for (int i = 0; i < 3; ++i) {
+        buf_push(&str, parseEx(digit, src, &ctx));
       }
-      buf_push(&str, c.result);
+      return (StringResult){.result = buf_finish(&str)};
+    } else {                      /* catch */
+      mem_free(str.data);
+      return (StringResult){.error = ctx.msg};
     }
-    return (StringResult){.result = buf_finish(&str)};
   }
 #+end_src
 
@@ -60,15 +67,16 @@ Let's create a parser named ~digit3~, which parses three digits.
     UNUSED(arg);
 
     Buffer str = buf_new();
-    for (int i = 0; i < 3; ++i) {
-      CharResult c = parse(digit, src);
-      if (c.error) {
-        mem_free(str.data);
-        return (StringResult){.error = c.error};
+    Ctx ctx;
+    TRY(&ctx) {                   /* try */
+      for (int i = 0; i < 3; ++i) {
+        buf_push(&str, parseEx(digit, src, &ctx));
       }
-      buf_push(&str, c.result);
+      return (StringResult){.result = buf_finish(&str)};
+    } else {                      /* catch */
+      mem_free(str.data);
+      return (StringResult){.error = ctx.msg};
     }
-    return (StringResult){.result = buf_finish(&str)};
   }
 
   int main(int argc, char **argv) {
@@ -88,58 +96,11 @@ Let's create a parser named ~digit3~, which parses three digits.
   }
 #+end_src
 
-
-*** Simplify your parser by using exception handling
- 
-Let's rewrite and simplify the ~digit3~ parser by using exception handling.
-
-**** Step 1. Simplify function body of your parser
-
-The following function ~run_digit3ex~ is the simplified version of
-~run_digit3()~ (the function body of ~digit3~).
-
-In this example, [[#exception_handling][Exception Handling]] mechanism is used:
-- Define ~Ctx ctx~ object
-- Use ~TRY(&ctx) {...} else {...}~ (C++, Java like ~try {...} catch {...}~ clause)
-- Use ~parseEx(digit, src, &ctx)~ instead of ~parse(digit, src)~
-
-#+begin_src c
-  #include "cparsec2.h"
-
-  /* A user-defined parser function. (using exception handling) */
-  StringResult run_digit3ex(void *arg, Source src) {
-    /* omit 'arg' since 'digit3' use no arguments */
-    UNUSED(arg);
-
-    Buffer str = buf_new();
-    Ctx ctx;
-    TRY(&ctx) {                   /* try */
-      for (int i = 0; i < 3; ++i) {
-        buf_push(&str, parseEx(digit, src, &ctx));
-      }
-      return (StringResult){.result = buf_finish(&str)};
-    } else {                      /* catch */
-      mem_free(str.data);
-      return (StringResult){.error = ctx.msg};
-    }
-  }
-#+end_src
-
-**** Step 2. Create parser by calling genParser(fun, arg)
-
-#+begin_src c
-  // StringParser digit3 = genParser(run_digit3, NULL);
-  StringParser digit3 = genParser(run_digit3ex, NULL);
-#+end_src
-
-That's all!
-
-
 *** You can use 'parser combinator' to make new parser
 
 To make the 1st example ~digit3~ parser, we used pre-defined built-in parser
-~digit~. And we made the custom function body such as ~run_digit3()~ or
-~run_digit3ex()~ for the ~digit3~ parser...
+~digit~. And we made the custom function body such as ~run_digit3()~ for the
+~digit3~ parser...
 
 Is it difficult?
 
@@ -180,9 +141,6 @@ No need to define a custom function body in case of ~digit3~. Awesome!
      During after calling this API and before calling ~cparsec2_init()~, calling
      any other cparsec2 API and values returned from them are invalid (access to
      them will be undefined behavior).
-- parse(p, src)         :: 
-     Apply parser ~p~ to text provided from ~src~, and return result/error as
-     struct (such as ~CharResult~, ~StringResult~).
 - parseEx(p, src, ctx)  :: 
      Apply parser ~p~ to text provided from ~src~, and return result (such as
      ~char~, ~const char *~). If an error occurred, it is thrown as exception

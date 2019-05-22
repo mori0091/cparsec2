@@ -117,9 +117,6 @@ void mem_free(void *p);
   printf("%8s \"%s\" => ", #p, input);                                         \
   parseTest(p, input)
 
-// T parse(Parser<T> p, Source src);
-#define parse(p, src) ((p)->run((p)->arg, (src)))
-
 // void parseTest(Parser<T> p, const char *input);
 #define parseTest(p, input)                                             \
   _Generic((p)                                                          \
