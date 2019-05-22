@@ -22,7 +22,7 @@ Let's create a parser named ~digit3~, which parses three digits.
 In this example, [[#exception_handling][Exception Handling]] mechanism is used:
 - Define ~Ctx ctx~ object
 - Use ~TRY(&ctx) {...} else {...}~ (C++, Java like ~try {...} catch {...}~ clause)
-- Use ~parseEx(digit, src, &ctx)~
+- Use ~parse(digit, src, &ctx)~
 
 #+begin_src c
   #include "cparsec2.h"
@@ -35,7 +35,7 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
     Ctx ctx;
     TRY(&ctx) {                   /* try */
       for (int i = 0; i < 3; ++i) {
-        buf_push(&str, parseEx(digit, src, &ctx));
+        buf_push(&str, parse(digit, src, &ctx));
       }
       return (StringResult){.result = buf_finish(&str)};
     } else {                      /* catch */
@@ -70,7 +70,7 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
     Ctx ctx;
     TRY(&ctx) {                   /* try */
       for (int i = 0; i < 3; ++i) {
-        buf_push(&str, parseEx(digit, src, &ctx));
+        buf_push(&str, parse(digit, src, &ctx));
       }
       return (StringResult){.result = buf_finish(&str)};
     } else {                      /* catch */
@@ -141,7 +141,7 @@ No need to define a custom function body in case of ~digit3~. Awesome!
      During after calling this API and before calling ~cparsec2_init()~, calling
      any other cparsec2 API and values returned from them are invalid (access to
      them will be undefined behavior).
-- parseEx(p, src, ctx)  :: 
+- parse(p, src, ctx)    :: 
      Apply parser ~p~ to text provided from ~src~, and return result (such as
      ~char~, ~const char *~). If an error occurred, it is thrown as exception
      through ~ctx~. (see also Exception handling)

@@ -12,8 +12,8 @@ static StringResult run_cons_char(void *arg, Source src) {
   Buffer str = buf_new();
   Ctx ctx;
   TRY(&ctx) {
-    buf_push(&str, parseEx(self->head, src, &ctx));
-    buf_append(&str, parseEx(self->tail, src, &ctx));
+    buf_push(&str, parse(self->head, src, &ctx));
+    buf_append(&str, parse(self->tail, src, &ctx));
     return (StringResult){.result = buf_finish(&str)};
   } else {
     mem_free(str.data);

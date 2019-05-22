@@ -127,15 +127,15 @@ void mem_free(void *p);
 void parseTest_char(CharParser p, const char *input);
 void parseTest_string(StringParser p, const char *input);
 
-// T parseEx(Parser<T> p, Souce src, Ctx *ctx)
-#define parseEx(p, src, ctx)                    \
+// T parse(Parser<T> p, Souce src, Ctx *ctx)
+#define parse(p, src, ctx)                      \
   _Generic((p)                                  \
-           , CharParser   : parseEx_char        \
-           , StringParser : parseEx_string      \
+           , CharParser   : parse_char          \
+           , StringParser : parse_string        \
            )(p, src, ctx)
 
-char parseEx_char(CharParser p, Source src, Ctx *ctx);
-const char *parseEx_string(StringParser p, Source src, Ctx *ctx);
+char parse_char(CharParser p, Source src, Ctx *ctx);
+const char *parse_string(StringParser p, Source src, Ctx *ctx);
 
 extern CharParser anyChar;
 extern CharParser digit;

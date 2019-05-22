@@ -8,7 +8,7 @@ static StringResult run_many(void *arg, Source src) {
   Ctx ctx;
   TRY(&ctx) {
     for (;;) {
-      buf_push(&str, parseEx(parser, src, &ctx));
+      buf_push(&str, parse(parser, src, &ctx));
     }
   } else {
     /* catch and discard exception */

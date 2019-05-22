@@ -11,7 +11,7 @@ StringResult run_digit3(void *arg, Source src) {
   Ctx ctx;
   TRY(&ctx) {                   /* try */
     for (int i = 0; i < 3; ++i) {
-      buf_push(&str, parseEx(digit, src, &ctx));
+      buf_push(&str, parse(digit, src, &ctx));
     }
     return (StringResult){.result = buf_finish(&str)};
   } else {                      /* catch */

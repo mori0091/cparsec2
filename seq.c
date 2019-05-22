@@ -8,7 +8,7 @@ static StringResult run_seq_char(void *arg, Source src) {
   Ctx ctx;
   TRY(&ctx) {
     while (*p) {
-      buf_push(&str, parseEx(*p++, src, &ctx));
+      buf_push(&str, parse(*p++, src, &ctx));
     }
     return (StringResult){.result = buf_finish(&str)};
   } else {

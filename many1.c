@@ -7,8 +7,8 @@ static StringResult run_many1(void *arg, Source src) {
   Ctx ctx;
   Buffer str = buf_new();
   TRY(&ctx) {
-    buf_push(&str, parseEx(parser, src, &ctx));
-    buf_append(&str, parseEx(many(parser), src, &ctx));
+    buf_push(&str, parse(parser, src, &ctx));
+    buf_append(&str, parse(many(parser), src, &ctx));
     return (StringResult){.result = buf_finish(&str)};
   } else {
     mem_free((void *)str.data);

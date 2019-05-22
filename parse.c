@@ -147,9 +147,8 @@ StringParser genStringParser(StringParserFn f, void *arg) {
 void parseTest_char(CharParser p, const char *input) {
   struct stSource src = {.input = input, .p = input};
   Ctx ctx;
-  TRY(&ctx) {
-    printf("'%c'\n", parseEx(p, &src, &ctx));
-  } else {
+  TRY(&ctx) { printf("'%c'\n", parse(p, &src, &ctx)); }
+  else {
     printf("error:%s\n", ctx.msg);
     mem_free((void *)ctx.msg);
   }
@@ -158,9 +157,8 @@ void parseTest_char(CharParser p, const char *input) {
 void parseTest_string(StringParser p, const char *input) {
   struct stSource src = {.input = input, .p = input};
   Ctx ctx;
-  TRY(&ctx) {
-    printf("\"%s\"\n", parseEx(p, &src, &ctx));
-  } else {
+  TRY(&ctx) { printf("\"%s\"\n", parse(p, &src, &ctx)); }
+  else {
     printf("error:%s\n", ctx.msg);
     mem_free((void *)ctx.msg);
   }
@@ -171,7 +169,7 @@ noreturn void raise(Ctx *ctx, const char *msg) {
   longjmp(ctx->e, -1);
 }
 
-char parseEx_char(CharParser p, Source src, Ctx *ctx) {
+char parse_char(CharParser p, Source src, Ctx *ctx) {
   assert(ctx);
   CharResult x = p->run(p->arg, src);
   if (x.error) {
@@ -180,7 +178,7 @@ char parseEx_char(CharParser p, Source src, Ctx *ctx) {
   return x.result;
 }
 
-const char *parseEx_string(StringParser p, Source src, Ctx *ctx) {
+const char *parse_string(StringParser p, Source src, Ctx *ctx) {
   assert(ctx);
   StringResult x = p->run(p->arg, src);
   if (x.error) {
