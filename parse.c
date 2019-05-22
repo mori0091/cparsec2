@@ -146,21 +146,23 @@ StringParser genStringParser(StringParserFn f, void *arg) {
 
 void parseTest_char(CharParser p, const char *input) {
   struct stSource src = {.input = input, .p = input};
-  CharResult x = parse(p, &src);
-  if (x.error) {
-    printf("error:%s\n", x.error);
+  Ctx ctx;
+  TRY(&ctx) {
+    printf("'%c'\n", parseEx(p, &src, &ctx));
   } else {
-    printf("'%c'\n", x.result);
+    printf("error:%s\n", ctx.msg);
+    mem_free((void *)ctx.msg);
   }
 }
 
 void parseTest_string(StringParser p, const char *input) {
   struct stSource src = {.input = input, .p = input};
-  StringResult x = parse(p, &src);
-  if (x.error) {
-    printf("error:%s\n", x.error);
+  Ctx ctx;
+  TRY(&ctx) {
+    printf("\"%s\"\n", parseEx(p, &src, &ctx));
   } else {
-    printf("\"%s\"\n", x.result);
+    printf("error:%s\n", ctx.msg);
+    mem_free((void *)ctx.msg);
   }
 }
 
