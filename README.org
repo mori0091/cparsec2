@@ -29,7 +29,7 @@ Let's create a parser named ~digit3~, which parses three digits.
     for (int i = 0; i < 3; ++i) {
       CharResult c = parse(digit, src);
       if (c.error) {
-        free(str.data);
+        mem_free(str.data);
         return (StringResult){.error = c.error};
       }
       buf_push(&str, c.result);
@@ -63,7 +63,7 @@ Let's create a parser named ~digit3~, which parses three digits.
     for (int i = 0; i < 3; ++i) {
       CharResult c = parse(digit, src);
       if (c.error) {
-        free(str.data);
+        mem_free(str.data);
         return (StringResult){.error = c.error};
       }
       buf_push(&str, c.result);
@@ -119,7 +119,7 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
       }
       return (StringResult){.result = buf_finish(&str)};
     } else {                      /* catch */
-      free(str.data);
+      mem_free(str.data);
       return (StringResult){.error = ctx.msg};
     }
   }
@@ -218,7 +218,7 @@ Example:
   }
   else {                             /* catch */
     printf("error:%s\n", ctx.msg);   /* -> "error: something wrong!" */
-    free(ctx.msg);
+    mem_free(ctx.msg);
   }
 #+end_src
 
