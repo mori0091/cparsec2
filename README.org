@@ -27,7 +27,7 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
 #+begin_src c
   #include "cparsec2.h"
 
-  const char *run_digit3(void *arg, Source src, Ctx *ex) {
+  const char* run_digit3(void* arg, Source src, Ctx* ex) {
     /* omit 'arg' since 'digit3' use no arguments */
     UNUSED(arg);
 
@@ -38,7 +38,8 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
         buf_push(&str, parse(digit, src, &ctx));
       }
       return buf_finish(&str);
-    } else {                      /* catch */
+    }
+    else {                        /* catch */
       mem_free(str.data);
       raise(ex, ctx.msg);         /* re-throw */
     }
@@ -62,7 +63,7 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
 #+begin_src c
   #include "cparsec2.h"
 
-  const char *run_digit3(void *arg, Source src, Ctx *ex) {
+  const char* run_digit3(void* arg, Source src, Ctx* ex) {
     /* omit 'arg' since 'digit3' use no arguments */
     UNUSED(arg);
 
@@ -73,13 +74,14 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
         buf_push(&str, parse(digit, src, &ctx));
       }
       return buf_finish(&str);
-    } else {                      /* catch */
+    }
+    else {                        /* catch */
       mem_free(str.data);
       raise(ex, ctx.msg);         /* re-throw */
     }
   }
 
-  int main(int argc, char **argv) {
+  int main(int argc, char** argv) {
     UNUSED(argc);
     UNUSED(argv);
 
@@ -201,6 +203,8 @@ Example:
      Create a CharParser which parse a char ~c~ satisfying ~pred(c) == true~
 
 *** StringParser
+- spaces                :: 
+     A StringParser which parse zero or more whitespaces (i.e. ~\ ~, ~\\t~, ~\\n~, or ~\\r~)
 - many(p)               :: 
      Create a StringParser which parse zero or more chars.\\
      A CharParser ~p~ is used to parse for each char.

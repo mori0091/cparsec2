@@ -12,3 +12,6 @@ bool is_upper(char c) { return 'A' <= c && c <= 'Z'; }
 bool is_alpha(char c) { return is_lower(c) || is_upper(c); }
 bool is_alnum(char c) { return is_digit(c) || is_alpha(c); }
 bool is_letter(char c) { return c == '_' || is_alpha(c); }
+bool is_space(char c) {
+  return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+}

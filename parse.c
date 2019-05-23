@@ -39,6 +39,7 @@ CharParser upper;
 CharParser alpha;
 CharParser alnum;
 CharParser letter;
+StringParser spaces;
 
 /* list of live objects */
 static PtrBuffer cparsec2_objects = {0};
@@ -82,6 +83,7 @@ void cparsec2_init(void) {
   alpha = satisfy(is_alpha);
   alnum = satisfy(is_alnum);
   letter = satisfy(is_letter);
+  spaces = many(satisfy(is_space));
 }
 
 void cparsec2_end(void) {

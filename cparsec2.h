@@ -148,6 +148,7 @@ bool is_upper(char c);
 bool is_alpha(char c);
 bool is_alnum(char c);
 bool is_letter(char c);
+bool is_space(char c);
 
 // ---- built-in parsers, parser generators, and parser combinators ----
 
@@ -158,6 +159,7 @@ extern CharParser upper;
 extern CharParser alpha;
 extern CharParser alnum;
 extern CharParser letter;
+extern StringParser spaces;
 
 CharParser char1(char c);
 CharParser satisfy(Predicate pred);
