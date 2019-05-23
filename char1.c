@@ -2,7 +2,7 @@
 
 #include "cparsec2.h"
 
-static char run_char1(void *arg, Source src, Ctx *ex) {
+static char run_char1(void* arg, Source src, Ctx* ex) {
   char expected = (char)(intptr_t)arg;
   Ctx ctx;
   TRY(&ctx) {
@@ -12,11 +12,12 @@ static char run_char1(void *arg, Source src, Ctx *ex) {
       return c;
     }
     raise(&ctx, error("expects '%c' but was '%c'", expected, c));
-  } else {
+  }
+  else {
     raise(ex, ctx.msg);
   }
 }
 
 CharParser char1(char c) {
-  return genParser(run_char1, (void *)(intptr_t)c);
+  return genParser(run_char1, (void*)(intptr_t)c);
 }

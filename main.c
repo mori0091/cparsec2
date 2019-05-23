@@ -3,24 +3,25 @@
 #include "cparsec2.h"
 
 /* A user-defined parser function. */
-const char *run_digit3(void *arg, Source src, Ctx *ex) {
+const char* run_digit3(void* arg, Source src, Ctx* ex) {
   /* omit 'arg' since 'digit3' use no arguments */
   UNUSED(arg);
 
   Buffer str = buf_new();
   Ctx ctx;
-  TRY(&ctx) {                   /* try */
+  TRY(&ctx) { /* try */
     for (int i = 0; i < 3; ++i) {
       buf_push(&str, parse(digit, src, &ctx));
     }
     return buf_finish(&str);
-  } else {                      /* catch */
+  }
+  else { /* catch */
     mem_free(str.data);
-    raise(ex, ctx.msg);         /* re-throw */
+    raise(ex, ctx.msg); /* re-throw */
   }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   UNUSED(argc);
   UNUSED(argv);
 
@@ -90,18 +91,15 @@ int main(int argc, char **argv) {
   PARSE_TEST(seq(letter, digit, digit), "_123"); /* "_12" */
   PARSE_TEST(seq(letter, digit, digit), "123");  /* "error:not satisfy" */
 
-  /* cannot compile [-Wincompatible-pointer-types] */
-  // PARSE_TEST(seq(letter, many(digit)), "a1234"); /* "a1234" */
-
   PARSE_TEST(cons(letter, many(digit)), "a1234");  /* "a1234" */
   PARSE_TEST(cons(letter, many(digit)), "abc123"); /* "a" */
   PARSE_TEST(cons(letter, many(digit)), "a123bc"); /* "a123" */
 
   StringParser digit3 = genParser(run_digit3, NULL);
-  PARSE_TEST(digit3, "1234");              /* "123" */
-  PARSE_TEST(digit3, "123");               /* "123" */
-  PARSE_TEST(digit3, "12");                /* "error:too short" */
-  PARSE_TEST(digit3, "a123");              /* "error:not satisfy" */
+  PARSE_TEST(digit3, "1234"); /* "123" */
+  PARSE_TEST(digit3, "123");  /* "123" */
+  PARSE_TEST(digit3, "12");   /* "error:too short" */
+  PARSE_TEST(digit3, "a123"); /* "error:not satisfy" */
 
   PARSE_TEST(cons(upper, digit3), "A123"); /* "A123" */
   PARSE_TEST(cons(upper, digit3), "a123"); /* "error:not satisfy" */

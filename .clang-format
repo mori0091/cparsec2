@@ -1,0 +1,5 @@
+# -*- coding:utf-8-unix -*-
+BasedOnStyle: LLVM
+AlignEscapedNewlines: Right
+ColumnLimit: 74
+PointerAlignment: Left

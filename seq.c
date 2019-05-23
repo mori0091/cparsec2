@@ -2,8 +2,8 @@
 
 #include "cparsec2.h"
 
-static const char *run_seq_char(void *arg, Source src, Ctx *ex) {
-  CharParser *p = (CharParser *)arg;
+static const char* run_seq_char(void* arg, Source src, Ctx* ex) {
+  CharParser* p = (CharParser*)arg;
   Buffer str = buf_new();
   Ctx ctx;
   TRY(&ctx) {
@@ -11,8 +11,9 @@ static const char *run_seq_char(void *arg, Source src, Ctx *ex) {
       buf_push(&str, parse(*p++, src, &ctx));
     }
     return buf_finish(&str);
-  } else {
-    mem_free((void *)str.data);
+  }
+  else {
+    mem_free((void*)str.data);
     /* catch and re-throw exception */
     raise(ex, ctx.msg);
   }
