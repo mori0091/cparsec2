@@ -204,7 +204,7 @@ Example:
 
 *** StringParser
 - spaces                :: 
-     A StringParser which parse zero or more whitespaces (i.e. ~' '~, ~'\t'~, ~'\n'~, or ~'\r'~)
+     A StringParser which parse zero or more whitespaces (i.e. space, TAB, LF, CR)
 - many(p)               :: 
      Create a StringParser which parse zero or more chars.\\
      A CharParser ~p~ is used to parse for each char.
