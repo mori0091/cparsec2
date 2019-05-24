@@ -144,6 +144,7 @@ void consume(Source src) {
   _Generic((x)                                  \
            , char        : show_Char            \
            , const char* : show_String          \
+           , Token       : show_Token           \
            )(x)
 // clang-format on
 
@@ -153,6 +154,10 @@ void show_Char(char x) {
 
 void show_String(const char* x) {
   printf("\"%s\"\n", x);
+}
+
+void show_Token(Token x) {
+  printf("<Token:%d,\"%s\">\n", x->type, x->str);
 }
 
 // ---- CharParser ----
@@ -194,6 +199,30 @@ const char* parse_String(StringParser p, Source src, Ctx* ctx) {
 }
 
 void parseTest_String(StringParser p, const char* input) {
+  struct stSource src = {.input = input, .p = input};
+  Ctx ctx;
+  TRY(&ctx) { show(parse(p, &src, &ctx)); }
+  else {
+    printf("error:%s\n", ctx.msg);
+    mem_free((void*)ctx.msg);
+  }
+}
+
+// ---- TokenParser ----
+
+TokenParser genTokenParser(TokenParserFn f, void* arg) {
+  TokenParser p = mem_malloc(sizeof(struct stTokenParser));
+  p->run = f;
+  p->arg = arg;
+  return p;
+}
+
+Token parse_Token(TokenParser p, Source src, Ctx* ctx) {
+  assert(ctx);
+  return p->run(p->arg, src, ctx);
+}
+
+void parseTest_Token(TokenParser p, const char* input) {
   struct stSource src = {.input = input, .p = input};
   Ctx ctx;
   TRY(&ctx) { show(parse(p, &src, &ctx)); }

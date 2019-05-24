@@ -109,6 +109,14 @@ int main(int argc, char** argv) {
   PARSE_TEST(cons(upper, digit3), "A123"); /* "A123" */
   PARSE_TEST(cons(upper, digit3), "a123"); /* "error:not satisfy" */
 
+  TokenParser number = token(TK_NUMBER, many1(digit));
+  PARSE_TEST(number, "1234"); /* "<Token:0,"1234">" */
+  PARSE_TEST(number, "123");  /* "<Token:0,"123">" */
+  PARSE_TEST(number, "12");   /* "<Token:0,"12">" */
+  PARSE_TEST(number, "1");    /* "<Token:0,"1">" */
+  PARSE_TEST(number, "");     /* "error:too short" */
+  PARSE_TEST(number, "a123"); /* "error:not satisfy" */
+
   cparsec2_end();
 
   return 0;

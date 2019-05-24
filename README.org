@@ -218,3 +218,14 @@ Example:
      Create a StringParser which parse a sequence of chars.\\
      A CharParser ~p~ is used to parse the 1st char, and a StringParser ~ps~ is
      used to parse subsequent chars.
+
+*** TokenParser
+- token(type, p)        :: 
+     Create a TokenParser which parse a token.\\
+     An enum TokenType ~type~ specify the kind of token, and a StringParser ~p~
+     is used to parse a token string. Note that any leading whitespaces are
+     skipped, and then subsequent chars are parsed by ~p~.
+
+#+begin_note
+~token(type, p)~ is experimental.
+#+end_note

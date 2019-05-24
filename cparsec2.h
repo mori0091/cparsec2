@@ -87,6 +87,7 @@ void consume(Source src);
   _Generic((f)                                  \
            , CharParserFn   : genCharParser     \
            , StringParserFn : genStringParser   \
+           , TokenParserFn  : genTokenParser    \
            )(f, arg)
 // clang-format on
 
@@ -98,6 +99,7 @@ void consume(Source src);
   _Generic((p)                                  \
            , CharParser   : parse_Char          \
            , StringParser : parse_String        \
+           , TokenParser  : parse_Token         \
            )(p, src, ctx)
 // clang-format on
 
@@ -109,6 +111,7 @@ void consume(Source src);
   _Generic((p)                                  \
            , CharParser   : parseTest_Char      \
            , StringParser : parseTest_String    \
+           , TokenParser  : parseTest_Token     \
            )(p, input)
 // clang-format on
 
@@ -144,10 +147,29 @@ struct stStringParser {
   void* arg;
 };
 
+// ---- Token ----
+typedef struct stToken* Token;
 
+enum TokenType {
+  TK_NUMBER,
+};
 
+struct stToken {
+  enum TokenType type;          // kind of the token
+  const char* str;              // string recognized as the token
+};
 
+// ---- TokenParser ----
+typedef Token (*TokenParserFn)(void* arg, Source src, Ctx* ex);
+typedef struct stTokenParser* TokenParser;
+TokenParser genTokenParser(TokenParserFn f, void* arg);
+Token parse_Token(TokenParser p, Source src, Ctx* ctx);
+void parseTest_Token(TokenParser p, const char* input);
 
+struct stTokenParser {
+  TokenParserFn run;
+  void* arg;
+};
 
 // ---- predicates ----
 
@@ -189,3 +211,6 @@ StringParser seq_char(CharParser ps[]);
 // Parser<T[]> cons(Parser<T> p, Parser<T[]> ps);
 #define cons(p, ps) _Generic((p), CharParser : cons_char)(p, ps)
 StringParser cons_char(CharParser p, StringParser ps);
+
+// Parser<String> token(enum TokenType type, Parser<String> p);
+TokenParser token(enum TokenType type, StringParser p);
