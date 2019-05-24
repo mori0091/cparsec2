@@ -138,6 +138,23 @@ void consume(Source src) {
   src->p++;
 }
 
+// ---- show ----
+// clang-format off
+#define show(x)                                 \
+  _Generic((x)                                  \
+           , char        : show_Char            \
+           , const char* : show_String          \
+           )(x)
+// clang-format on
+
+void show_Char(char x) {
+  printf("'%c'\n", x);
+}
+
+void show_String(const char* x) {
+  printf("\"%s\"\n", x);
+}
+
 // ---- CharParser ----
 
 CharParser genCharParser(CharParserFn f, void* arg) {
@@ -155,7 +172,7 @@ char parse_Char(CharParser p, Source src, Ctx* ctx) {
 void parseTest_Char(CharParser p, const char* input) {
   struct stSource src = {.input = input, .p = input};
   Ctx ctx;
-  TRY(&ctx) { printf("'%c'\n", parse(p, &src, &ctx)); }
+  TRY(&ctx) { show(parse(p, &src, &ctx)); }
   else {
     printf("error:%s\n", ctx.msg);
     mem_free((void*)ctx.msg);
@@ -179,7 +196,7 @@ const char* parse_String(StringParser p, Source src, Ctx* ctx) {
 void parseTest_String(StringParser p, const char* input) {
   struct stSource src = {.input = input, .p = input};
   Ctx ctx;
-  TRY(&ctx) { printf("\"%s\"\n", parse(p, &src, &ctx)); }
+  TRY(&ctx) { show(parse(p, &src, &ctx)); }
   else {
     printf("error:%s\n", ctx.msg);
     mem_free((void*)ctx.msg);
