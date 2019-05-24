@@ -82,61 +82,72 @@ void consume(Source src);
 
 // ---- building-block for making parser ----
 
-typedef char (*CharParserFn)(void* arg, Source src, Ctx* ex);
-typedef const char* (*StringParserFn)(void* arg, Source src, Ctx* ex);
-
-typedef struct stCharParser {
-  CharParserFn run;
-  void* arg;
-} * CharParser;
-
-typedef struct stStringParser {
-  StringParserFn run;
-  void* arg;
-} * StringParser;
-
 // clang-format off
-#define genParser(f, arg)                                                \
-  _Generic((f)                                                           \
-           , CharParserFn   : genCharParser                              \
-           , StringParserFn : genStringParser                            \
+#define genParser(f, arg)                       \
+  _Generic((f)                                  \
+           , CharParserFn   : genCharParser     \
+           , StringParserFn : genStringParser   \
            )(f, arg)
 // clang-format on
-
-CharParser genCharParser(CharParserFn f, void* arg);
-StringParser genStringParser(StringParserFn f, void* arg);
 
 // ---- parser invocation ----
 
 // T parse(Parser<T> p, Souce src, Ctx *ctx)
 // clang-format off
-#define parse(p, src, ctx)                                               \
-  _Generic((p)                                                           \
-           , CharParser   : parse_char                                   \
-           , StringParser : parse_string                                 \
+#define parse(p, src, ctx)                      \
+  _Generic((p)                                  \
+           , CharParser   : parse_Char          \
+           , StringParser : parse_String        \
            )(p, src, ctx)
 // clang-format on
 
-char parse_char(CharParser p, Source src, Ctx* ctx);
-const char* parse_string(StringParser p, Source src, Ctx* ctx);
+// ---- parser invocation (for debug purpose) ----
 
 // void parseTest(Parser<T> p, const char *input);
 // clang-format off
-#define parseTest(p, input)                                              \
-  _Generic((p)                                                           \
-           , CharParser   : parseTest_char                               \
-           , StringParser : parseTest_string                             \
+#define parseTest(p, input)                     \
+  _Generic((p)                                  \
+           , CharParser   : parseTest_Char      \
+           , StringParser : parseTest_String    \
            )(p, input)
 // clang-format on
 
-void parseTest_char(CharParser p, const char* input);
-void parseTest_string(StringParser p, const char* input);
-
-#define PARSE_TEST(p, input)                                             \
-  do {                                                                   \
-    printf("%8s \"%s\" => ", #p, input);                                 \
-    parseTest(p, input);                                                 \
+// clang-format off
+#define PARSE_TEST(p, input)                    \
+  do {                                          \
+    printf("%8s \"%s\" => ", #p, input);        \
+    parseTest(p, input);                        \
   } while (0)
+// clang-format on
+
+// ---- CharParser ----
+typedef char (*CharParserFn)(void* arg, Source src, Ctx* ex);
+typedef struct stCharParser* CharParser;
+CharParser genCharParser(CharParserFn f, void* arg);
+char parse_Char(CharParser p, Source src, Ctx* ctx);
+void parseTest_Char(CharParser p, const char* input);
+
+struct stCharParser {
+  CharParserFn run;
+  void* arg;
+};
+
+// ---- StringParser ----
+typedef const char* (*StringParserFn)(void* arg, Source src, Ctx* ex);
+typedef struct stStringParser* StringParser;
+StringParser genStringParser(StringParserFn f, void* arg);
+const char* parse_String(StringParser p, Source src, Ctx* ctx);
+void parseTest_String(StringParser p, const char* input);
+
+struct stStringParser {
+  StringParserFn run;
+  void* arg;
+};
+
+
+
+
+
 
 // ---- predicates ----
 
@@ -150,7 +161,7 @@ bool is_alnum(char c);
 bool is_letter(char c);
 bool is_space(char c);
 
-// ---- built-in parsers, parser generators, and parser combinators ----
+// ---- built-in parsers ----
 
 extern CharParser anyChar;
 extern CharParser digit;
@@ -160,6 +171,8 @@ extern CharParser alpha;
 extern CharParser alnum;
 extern CharParser letter;
 extern StringParser spaces;
+
+// ---- parser generators, and parser combinators ----
 
 CharParser char1(char c);
 CharParser satisfy(Predicate pred);

@@ -2,44 +2,7 @@
 
 #include "cparsec2.h"
 
-const char* error(const char* fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  int len = vsnprintf(NULL, 0, fmt, ap);
-  if (len < 0) {
-    fprintf(stderr, "vsnprintf(NULL, 0, fmt, ...):%s\n", strerror(errno));
-    exit(1);
-  }
-  char* buf = mem_malloc(len + 1);
-  if (vsnprintf(buf, len + 1, fmt, ap) < 0) {
-    fprintf(stderr, "vsnprintf(buf, len, fmt, ...):%s\n",
-            strerror(errno));
-    exit(1);
-  }
-  return buf;
-}
-
-char peek(Source src, Ctx* ctx) {
-  char c = *src->p;
-  if (!c) {
-    raise(ctx, error("too short"));
-  }
-  return c;
-}
-
-void consume(Source src) {
-  assert(*src->p);
-  src->p++;
-}
-
-CharParser anyChar;
-CharParser digit;
-CharParser lower;
-CharParser upper;
-CharParser alpha;
-CharParser alnum;
-CharParser letter;
-StringParser spaces;
+// ---- resource management ----
 
 /* list of live objects */
 static PtrBuffer cparsec2_objects = {0};
@@ -133,6 +96,50 @@ void mem_free(void* p) {
   free(p);
 }
 
+// ---- variadic buffer ----
+// -- (see 'collection.c')
+
+// ---- error and exception handling ----
+
+noreturn void raise(Ctx* ctx, const char* msg) {
+  ctx->msg = msg;
+  longjmp(ctx->e, -1);
+}
+
+const char* error(const char* fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  int len = vsnprintf(NULL, 0, fmt, ap);
+  if (len < 0) {
+    fprintf(stderr, "vsnprintf(NULL, 0, fmt, ...):%s\n", strerror(errno));
+    exit(1);
+  }
+  char* buf = mem_malloc(len + 1);
+  if (vsnprintf(buf, len + 1, fmt, ap) < 0) {
+    fprintf(stderr, "vsnprintf(buf, len, fmt, ...):%s\n",
+            strerror(errno));
+    exit(1);
+  }
+  return buf;
+}
+
+// ---- source of input character sequence ----
+
+char peek(Source src, Ctx* ctx) {
+  char c = *src->p;
+  if (!c) {
+    raise(ctx, error("too short"));
+  }
+  return c;
+}
+
+void consume(Source src) {
+  assert(*src->p);
+  src->p++;
+}
+
+// ---- CharParser ----
+
 CharParser genCharParser(CharParserFn f, void* arg) {
   CharParser p = mem_malloc(sizeof(struct stCharParser));
   p->run = f;
@@ -140,14 +147,12 @@ CharParser genCharParser(CharParserFn f, void* arg) {
   return p;
 }
 
-StringParser genStringParser(StringParserFn f, void* arg) {
-  StringParser p = mem_malloc(sizeof(struct stStringParser));
-  p->run = f;
-  p->arg = arg;
-  return p;
+char parse_Char(CharParser p, Source src, Ctx* ctx) {
+  assert(ctx);
+  return p->run(p->arg, src, ctx);
 }
 
-void parseTest_char(CharParser p, const char* input) {
+void parseTest_Char(CharParser p, const char* input) {
   struct stSource src = {.input = input, .p = input};
   Ctx ctx;
   TRY(&ctx) { printf("'%c'\n", parse(p, &src, &ctx)); }
@@ -157,7 +162,21 @@ void parseTest_char(CharParser p, const char* input) {
   }
 }
 
-void parseTest_string(StringParser p, const char* input) {
+// ---- StringParser ----
+
+StringParser genStringParser(StringParserFn f, void* arg) {
+  StringParser p = mem_malloc(sizeof(struct stStringParser));
+  p->run = f;
+  p->arg = arg;
+  return p;
+}
+
+const char* parse_String(StringParser p, Source src, Ctx* ctx) {
+  assert(ctx);
+  return p->run(p->arg, src, ctx);
+}
+
+void parseTest_String(StringParser p, const char* input) {
   struct stSource src = {.input = input, .p = input};
   Ctx ctx;
   TRY(&ctx) { printf("\"%s\"\n", parse(p, &src, &ctx)); }
@@ -167,17 +186,16 @@ void parseTest_string(StringParser p, const char* input) {
   }
 }
 
-noreturn void raise(Ctx* ctx, const char* msg) {
-  ctx->msg = msg;
-  longjmp(ctx->e, -1);
-}
+// ---- predicates ----
+// -- (see 'predicate.c')
 
-char parse_char(CharParser p, Source src, Ctx* ctx) {
-  assert(ctx);
-  return p->run(p->arg, src, ctx);
-}
+// ---- built-in parsers ----
 
-const char* parse_string(StringParser p, Source src, Ctx* ctx) {
-  assert(ctx);
-  return p->run(p->arg, src, ctx);
-}
+CharParser anyChar;
+CharParser digit;
+CharParser lower;
+CharParser upper;
+CharParser alpha;
+CharParser alnum;
+CharParser letter;
+StringParser spaces;
