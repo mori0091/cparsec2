@@ -154,8 +154,8 @@ enum TokenType {
 };
 
 struct stToken {
-  enum TokenType type;          // kind of the token
-  const char* str;              // string recognized as the token
+  enum TokenType type; // kind of the token
+  const char* str;     // string recognized as the token
 };
 
 // ---- TokenParser ----
@@ -215,6 +215,7 @@ StringParser cons_char(CharParser p, StringParser ps);
 StringParser string1(const char* s);
 
 // Parser<Token> token(enum TokenType type, T p);
+// clang-format off
 #define token(type, p)                          \
   _Generic((p)                                  \
            , char         : token_c             \
@@ -222,6 +223,7 @@ StringParser string1(const char* s);
            , CharParser   : token_Char          \
            , StringParser : token_String        \
            )(type, p)
+// clang-format on
 
 TokenParser token_c(enum TokenType type, char c);
 TokenParser token_s(enum TokenType type, const char* s);

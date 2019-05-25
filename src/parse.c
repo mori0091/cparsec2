@@ -160,13 +160,9 @@ void consume(Source src) {
            )(x)
 // clang-format on
 
-void show_Char(char x) {
-  printf("'%c'\n", x);
-}
+void show_Char(char x) { printf("'%c'\n", x); }
 
-void show_String(const char* x) {
-  printf("\"%s\"\n", x);
-}
+void show_String(const char* x) { printf("\"%s\"\n", x); }
 
 void show_Token(Token x) {
   printf("<Token:%d,\"%s\">\n", x->type, x->str);
