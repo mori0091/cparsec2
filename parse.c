@@ -125,6 +125,18 @@ const char* error(const char* fmt, ...) {
 
 // ---- source of input character sequence ----
 
+struct stSource {
+  const char* input; /* whole input */
+  const char* p;     /* pointer to next char */
+};
+
+Source Source_new(const char* input) {
+  Source src = mem_malloc(sizeof(struct stSource));
+  src->input = input;
+  src->p = input;
+  return src;
+}
+
 char peek(Source src, Ctx* ctx) {
   char c = *src->p;
   if (!c) {
@@ -175,9 +187,9 @@ char parse_Char(CharParser p, Source src, Ctx* ctx) {
 }
 
 void parseTest_Char(CharParser p, const char* input) {
-  struct stSource src = {.input = input, .p = input};
+  Source src = Source_new(input);
   Ctx ctx;
-  TRY(&ctx) { show(parse(p, &src, &ctx)); }
+  TRY(&ctx) { show(parse(p, src, &ctx)); }
   else {
     printf("error:%s\n", ctx.msg);
     mem_free((void*)ctx.msg);
@@ -199,9 +211,9 @@ const char* parse_String(StringParser p, Source src, Ctx* ctx) {
 }
 
 void parseTest_String(StringParser p, const char* input) {
-  struct stSource src = {.input = input, .p = input};
+  Source src = Source_new(input);
   Ctx ctx;
-  TRY(&ctx) { show(parse(p, &src, &ctx)); }
+  TRY(&ctx) { show(parse(p, src, &ctx)); }
   else {
     printf("error:%s\n", ctx.msg);
     mem_free((void*)ctx.msg);
@@ -223,9 +235,9 @@ Token parse_Token(TokenParser p, Source src, Ctx* ctx) {
 }
 
 void parseTest_Token(TokenParser p, const char* input) {
-  struct stSource src = {.input = input, .p = input};
+  Source src = Source_new(input);
   Ctx ctx;
-  TRY(&ctx) { show(parse(p, &src, &ctx)); }
+  TRY(&ctx) { show(parse(p, src, &ctx)); }
   else {
     printf("error:%s\n", ctx.msg);
     mem_free((void*)ctx.msg);

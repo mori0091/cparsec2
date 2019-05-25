@@ -70,11 +70,9 @@ const char* error(const char* fmt, ...);
 // ---- source of input character sequence ----
 
 typedef struct stSource* Source;
-struct stSource {
-  const char* input; /* whole input */
-  const char* p;     /* pointer to next char */
-};
 
+// Construct new Source object
+Source Source_new(const char* input);
 // peek head char
 char peek(Source src, Ctx* ctx);
 // drop head char
