@@ -2,6 +2,8 @@
 #+STARTUP: showall indent
 
 * CPARSEC2 - a parser combinator library for C language
+[[https://circleci.com/gh/mori0091/cparsec2][https://circleci.com/gh/mori0091/cparsec2.svg?style=shield]]
+[[https://codecov.io/gh/mori0091/cparsec2][https://codecov.io/gh/mori0091/cparsec2/branch/master/graph/badge.svg]]
 
 This project is an exercise to construct *parsec* like library for C11.
 
