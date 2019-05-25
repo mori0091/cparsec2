@@ -227,14 +227,11 @@ Example:
      Create a TokenParser which parse a token.\\
      An enum TokenType ~type~ specify the kind of token, and ~p~ is used to
      parse a token string.
-  - Note that any leading whitespaces are skipped, and then subsequent chars are
-    parsed by ~p~.
-  - Type of ~p~ shall be one of the following:
+  - NOTE: Resulting TokenParser skips any leading whitespaces and then parse
+    subsequent chars by using ~p~.
+  - NOTE: Type of ~p~ shall be one of the following:
     - ~char~
     - ~const char*~ ; must be ends with null character (i.e. string)
     - ~CharParser~
     - ~StringParser~
-
-#+begin_note
-~token(type, p)~ is experimental.
-#+end_note
+  - NOTE: ~token(type, p)~ is *experimental*. Maybe API will be changed.
