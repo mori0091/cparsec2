@@ -212,3 +212,6 @@ StringParser cons_char(CharParser p, StringParser ps);
 
 // Parser<String> token(enum TokenType type, Parser<String> p);
 TokenParser token(enum TokenType type, StringParser p);
+// Parser<String> string1(const char* s);
+StringParser string1(const char* s);
+

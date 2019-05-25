@@ -100,6 +100,11 @@ int main(int argc, char** argv) {
   PARSE_TEST(cons(letter, many(digit)), "abc123"); /* "a" */
   PARSE_TEST(cons(letter, many(digit)), "a123bc"); /* "a123" */
 
+  PARSE_TEST(string1("a1234"), "a1234");  /* "a1234" */
+  PARSE_TEST(string1("a123"), "a1234");   /* "a123" */
+  PARSE_TEST(string1("a123"), "a123bc");  /* "a123" */
+  PARSE_TEST(string1("a1234"), "a123bc"); /* "error:expects '4' but was 'b'" */
+
   StringParser digit3 = genParser(run_digit3, NULL);
   PARSE_TEST(digit3, "1234"); /* "123" */
   PARSE_TEST(digit3, "123");  /* "123" */
