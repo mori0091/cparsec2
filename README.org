@@ -218,13 +218,22 @@ Example:
      Create a StringParser which parse a sequence of chars.\\
      A CharParser ~p~ is used to parse the 1st char, and a StringParser ~ps~ is
      used to parse subsequent chars.
+- string1(s)            :: 
+     Create a StringParser which parse the given string.\\
+     The string ~s~ is used as expectation to parse a string.
 
 *** TokenParser
 - token(type, p)        :: 
      Create a TokenParser which parse a token.\\
-     An enum TokenType ~type~ specify the kind of token, and a StringParser ~p~
-     is used to parse a token string. Note that any leading whitespaces are
-     skipped, and then subsequent chars are parsed by ~p~.
+     An enum TokenType ~type~ specify the kind of token, and ~p~ is used to
+     parse a token string.
+  - Note that any leading whitespaces are skipped, and then subsequent chars are
+    parsed by ~p~.
+  - Type of ~p~ shall be one of the following:
+    - ~char~
+    - ~const char*~ ; must be ends with null character (i.e. string)
+    - ~CharParser~
+    - ~StringParser~
 
 #+begin_note
 ~token(type, p)~ is experimental.
