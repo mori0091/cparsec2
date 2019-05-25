@@ -10,6 +10,36 @@ This project is an exercise to construct *parsec* like library for C11.
 - [[#tutorial][Tutorial]]
 - [[#api][API]]
 
+** How to build
+
+In this project, using GNU make command to build and test.\\
+Run =make= command as follows. (e.g. type =make= =Enter= at command-line)
+
+To build all: (=bin/cparsec2=, =lib/cparsec2.a=)
+#+begin_src shell
+make
+#+end_src
+
+To build executable file only: (=bin/cparsec2=)
+#+begin_src shell
+make build
+#+end_src
+
+To build archive file only: (=lib/cparsec2.a=)
+#+begin_src shell
+make lib
+#+end_src
+
+To test:
+#+begin_src shell
+make test
+#+end_src
+
+To cleanup:
+#+begin_src shell
+make clean
+#+end_src
+
 ** Tutorial
 :PROPERTIES:
 :CUSTOM_ID: tutorial
