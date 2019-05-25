@@ -1,4 +1,7 @@
 *.exe
+*.d
 *.o
 *.s
-tmp*
+/bin/*
+/obj/*
+/tmp*

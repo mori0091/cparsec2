@@ -1,20 +1,32 @@
 # -*- coding:utf-8-unix -*-
 
-SRCS = $(wildcard *.c)
-OBJS = $(SRCS:.c=.o)
+TARGET = bin/cparsec2
 
-CFLAGS = -std=c11 -Wall -pedantic-errors
+SRCS = $(wildcard src/*.c)
+OBJS = $(patsubst src/%.c, obj/%.o, $(SRCS))
+DEPS = $(patsubst %.o, %.d, $(OBJS))
 
-cparsec2: $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+CFLAGS = -MMD -MD
+CFLAGS += -pedantic-errors -Wall -Wpedantic -Wextra
+CFLAGS += -Winit-self -Wno-missing-field-initializers
 
-$(OBJS): cparsec2.h
+CFLAGS += -std=c11 -I include
 
-%.o: %.c
-	$(CC) $(CFLAGS) -o $@ -c $<
+$(TARGET): $(OBJS)
+	$(info [LD]    Build   : $@	[$(notdir $(CURDIR))])
+	@mkdir -p $(dir $@)
+	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-test: cparsec2
-	./cparsec2
+obj/%.o: src/%.c
+	$(info [C]     Compile : $@ ($<))
+	@mkdir -p $(dir $@)
+	@$(CC) $(CFLAGS) -c -o $@ $<
+
+test: $(TARGET)
+	./$(TARGET)
 
 clean:
-	rm -rf cparsec2 *.o *~ tmp*
+	@rm -f $(TARGET) $(OBJS) $(DEPS) *~
+	@rm -df obj bin
+
+-include $(DEPS)
