@@ -1,5 +1,7 @@
 *.exe
 *.d
+*.gcda
+*.gcno
 *.o
 *.s
 /bin/*

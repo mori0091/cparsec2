@@ -5,8 +5,10 @@ TARGET = bin/cparsec2
 SRCS = $(wildcard src/*.c)
 OBJS = $(patsubst src/%.c, obj/%.o, $(SRCS))
 DEPS = $(patsubst %.o, %.d, $(OBJS))
+COVS = $(patsubst %.o, %.gcda %.gcno, $(OBJS))
 
-CFLAGS = -MMD -MD
+CFLAGS ?=
+CFLAGS += -MMD -MD
 CFLAGS += -pedantic-errors -Wall -Wpedantic -Wextra
 CFLAGS += -Winit-self -Wno-missing-field-initializers
 
@@ -26,7 +28,7 @@ test: $(TARGET)
 	./$(TARGET)
 
 clean:
-	@rm -f $(TARGET) $(OBJS) $(DEPS) *~
+	@rm -f $(TARGET) $(OBJS) $(DEPS) $(COVS) *~
 	@rm -df obj bin
 
 -include $(DEPS)
