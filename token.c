@@ -27,7 +27,19 @@ static Token run_token(void* arg, Source src, Ctx* ex) {
   }
 }
 
-TokenParser token(enum TokenType type, StringParser p) {
+TokenParser token_c(enum TokenType type, char c) {
+  return token(type, char1(c));
+}
+
+TokenParser token_s(enum TokenType type, const char* s) {
+  return token(type, string1(s));
+}
+
+TokenParser token_Char(enum TokenType type, CharParser p) {
+  return token_String(type, seq(p));
+}
+
+TokenParser token_String(enum TokenType type, StringParser p) {
   struct token_arg* arg = mem_malloc(sizeof(struct token_arg));
   arg->type = type;
   arg->parser = p;

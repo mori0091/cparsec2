@@ -122,6 +122,11 @@ int main(int argc, char** argv) {
   PARSE_TEST(number, "");     /* "error:too short" */
   PARSE_TEST(number, "a123"); /* "error:not satisfy" */
 
+  TokenParser plus = token('+', (char)'+');
+  PARSE_TEST(plus, "1 + 2");    /* "error:expects '+' but was '1'" */
+  PARSE_TEST(plus, " + 2");     /* "<Token:?,"+"> */
+  PARSE_TEST(plus, " 2");       /* "error:expects '+' but was '2'" */
+
   cparsec2_end();
 
   return 0;

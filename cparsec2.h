@@ -210,8 +210,19 @@ StringParser seq_char(CharParser ps[]);
 #define cons(p, ps) _Generic((p), CharParser : cons_char)(p, ps)
 StringParser cons_char(CharParser p, StringParser ps);
 
-// Parser<String> token(enum TokenType type, Parser<String> p);
-TokenParser token(enum TokenType type, StringParser p);
 // Parser<String> string1(const char* s);
 StringParser string1(const char* s);
 
+// Parser<Token> token(enum TokenType type, T p);
+#define token(type, p)                          \
+  _Generic((p)                                  \
+           , char         : token_c             \
+           , const char*  : token_s             \
+           , CharParser   : token_Char          \
+           , StringParser : token_String        \
+           )(type, p)
+
+TokenParser token_c(enum TokenType type, char c);
+TokenParser token_s(enum TokenType type, const char* s);
+TokenParser token_Char(enum TokenType type, CharParser p);
+TokenParser token_String(enum TokenType type, StringParser p);
