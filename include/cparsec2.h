@@ -13,6 +13,12 @@
 #include <string.h>
 
 #ifdef __cplusplus
+#define NORETURN [[noreturn]]
+#else
+#define NORETURN _Noreturn
+#endif
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -67,7 +73,7 @@ typedef struct {
 #define TRY(ctx) if (!setjmp((ctx)->e))
 
 // throw exception
-_Noreturn void cthrow(Ctx* ctx, const char* msg);
+NORETURN void cthrow(Ctx* ctx, const char* msg);
 
 /** Construct an error message */
 const char* error(const char* fmt, ...);
