@@ -1,9 +1,6 @@
 # -*- coding:utf-8-unix -*-
 .PHONY: all build clean lib test
 
-TARGET = bin/cparsec2
-TARGET_LIB = lib/cparsec2.a
-
 SRCS = $(wildcard src/*.c)
 OBJS = $(patsubst src/%.c, obj/%.o, $(SRCS))
 DEPS = $(patsubst %.o, %.d, $(OBJS))
@@ -15,27 +12,27 @@ CFLAGS += -MMD -MD
 CFLAGS += -pedantic-errors -Wall -Wpedantic -Wextra
 CFLAGS += -Winit-self -Wno-missing-field-initializers
 
-CFLAGS += -std=c11 -I include
-
 all: build lib
+
+include .project.mk
 
 build: $(TARGET)
 
-lib: $(TARGET_LIB)
+lib: $(LIBTARGET)
 
 test: $(TARGET)
 	./$(TARGET)
 
 clean:
-	@rm -f $(TARGET) $(TARGET_LIB) $(OBJS) $(DEPS) $(COVS) *~
+	@rm -f $(TARGET) $(LIBTARGET) $(OBJS) $(DEPS) $(COVS) *~
 	@rm -df obj bin lib
 
 $(TARGET): $(OBJS)
 	$(info [LD]    Build   : $@	[$(notdir $(CURDIR))])
 	@mkdir -p $(dir $@)
-	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
-$(TARGET_LIB): $(LIBOBJS)
+$(LIBTARGET): $(LIBOBJS)
 	$(info [AR]    Build   : $@	[$(notdir $(CURDIR))])
 	@mkdir -p $(dir $@)
 	@$(AR) cr $@ $^
