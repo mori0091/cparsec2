@@ -7,14 +7,14 @@
 
 This project is an exercise to construct *parsec* like library for C11.
 
-- [[sec_howtobuild][How to build CPARSEC2 library]]
-- [[sec_howtotest][How to build and/or run unit-tests]]
+- [[#how-to-build-cparsec2-library][How to build CPARSEC2 library]]
+- [[#how-to-build-andor-run-unit-tests][How to build and/or run unit-tests]]
 - [[#tutorial][Tutorial]]
 - [[#api][API]]
 
 ** How to build CPARSEC2 library
 :PROPERTIES:
-:CUSTOM_ID: sec_howtobuild
+:CUSTOM_ID: how-to-build-cparsec2-library
 :END:
 
 In this project, using GNU make command to build and test.\\
@@ -53,7 +53,7 @@ make clean
 
 ** How to build and/or run unit-tests
 :PROPERTIES:
-:CUSTOM_ID: sec_howtotest
+:CUSTOM_ID: how-to-build-andor-run-unit-tests
 :END:
 
 This project uses [[https://github.com/catchorg/Catch2][Catch2]] - A modern, C++-native, header-only, test framework for
