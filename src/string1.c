@@ -13,7 +13,7 @@ static const char* run_string1(void* arg, Source src, Ctx* ex) {
     return expected;
   }
   else {
-    raise(ex, ctx.msg);
+    cthrow(ex, ctx.msg);
   }
 }
 

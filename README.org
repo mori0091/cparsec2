@@ -73,7 +73,7 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
     }
     else {                        /* catch */
       mem_free(str.data);
-      raise(ex, ctx.msg);         /* re-throw */
+      cthrow(ex, ctx.msg);        /* re-throw */
     }
   }
 #+end_src
@@ -109,7 +109,7 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
     }
     else {                        /* catch */
       mem_free(str.data);
-      raise(ex, ctx.msg);         /* re-throw */
+      cthrow(ex, ctx.msg);        /* re-throw */
     }
   }
 
@@ -197,7 +197,7 @@ No need to define a custom function body in case of ~digit3~. Awesome!
      Type of context for exception handling.
 - TRY(ctx) {...} else {...} :: 
      Exception handling macro. (C++ or Java like ~try {...} catch {...}~ clause)
-- raise(ctx, msg)       :: 
+- cthrow(ctx, msg)      :: 
      Throw a string ~msg~ as an exception.
 
 Example:
@@ -205,7 +205,7 @@ Example:
   Ctx ctx;
   TRY(&ctx) {                        /* try */
     // ...
-    raise(&ctx, "something wrong!"); /* throw "something wrong!" */
+    cthrow(&ctx, "something wrong!"); /* throw "something wrong!" */
     // ...
   }
   else {                             /* catch */

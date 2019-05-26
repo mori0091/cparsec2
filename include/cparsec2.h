@@ -9,7 +9,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdnoreturn.h>
 #include <string.h>
 
 #define UNUSED(v) ((void)v)
@@ -63,7 +62,7 @@ typedef struct {
 #define TRY(ctx) if (!setjmp((ctx)->e))
 
 // throw exception
-noreturn void raise(Ctx* ctx, const char* msg);
+_Noreturn void cthrow(Ctx* ctx, const char* msg);
 
 /** Construct an error message */
 const char* error(const char* fmt, ...);

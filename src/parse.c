@@ -101,7 +101,7 @@ void mem_free(void* p) {
 
 // ---- error and exception handling ----
 
-noreturn void raise(Ctx* ctx, const char* msg) {
+_Noreturn void cthrow(Ctx* ctx, const char* msg) {
   ctx->msg = msg;
   longjmp(ctx->e, -1);
 }
@@ -140,7 +140,7 @@ Source Source_new(const char* input) {
 char peek(Source src, Ctx* ctx) {
   char c = *src->p;
   if (!c) {
-    raise(ctx, error("too short"));
+    cthrow(ctx, error("too short"));
   }
   return c;
 }

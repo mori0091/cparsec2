@@ -14,7 +14,7 @@ static const char* run_many1(void* arg, Source src, Ctx* ex) {
   else {
     mem_free((void*)str.data);
     /* catch and re-throw exception */
-    raise(ex, ctx.msg);
+    cthrow(ex, ctx.msg);
   }
 }
 

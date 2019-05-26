@@ -11,10 +11,10 @@ static char run_char1(void* arg, Source src, Ctx* ex) {
       consume(src);
       return c;
     }
-    raise(&ctx, error("expects '%c' but was '%c'", expected, c));
+    cthrow(&ctx, error("expects '%c' but was '%c'", expected, c));
   }
   else {
-    raise(ex, ctx.msg);
+    cthrow(ex, ctx.msg);
   }
 }
 

@@ -18,7 +18,7 @@ static const char* run_cons_char(void* arg, Source src, Ctx* ex) {
   }
   else {
     mem_free(str.data);
-    raise(ex, ctx.msg);
+    cthrow(ex, ctx.msg);
   }
 }
 

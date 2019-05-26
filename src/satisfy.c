@@ -15,10 +15,10 @@ static char run_satisfy(void* arg, Source src, Ctx* ex) {
       consume(src);
       return c;
     }
-    raise(&ctx, error("not satisfy"));
+    cthrow(&ctx, error("not satisfy"));
   }
   else {
-    raise(ex, ctx.msg);
+    cthrow(ex, ctx.msg);
   }
 }
 

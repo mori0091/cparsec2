@@ -23,7 +23,7 @@ static Token run_token(void* arg, Source src, Ctx* ex) {
     return Token_new(self->type, str);
   }
   else {
-    raise(ex, ctx.msg);
+    cthrow(ex, ctx.msg);
   }
 }
 
