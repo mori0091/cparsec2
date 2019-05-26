@@ -1,11 +1,15 @@
 *.exe
+*.a
 *.d
+*.dll
 *.gcda
 *.gcno
 *.o
 *.s
+*.so
 /bin/*
 /lib/*
 /obj/*
+/test/tests
 /tmp*
 .dir-locals.el
