@@ -7,38 +7,87 @@
 
 This project is an exercise to construct *parsec* like library for C11.
 
+- [[sec_howtobuild][How to build CPARSEC2 library]]
+- [[sec_howtotest][How to build and/or run unit-tests]]
 - [[#tutorial][Tutorial]]
 - [[#api][API]]
 
-** How to build
+** How to build CPARSEC2 library
+:PROPERTIES:
+:CUSTOM_ID: sec_howtobuild
+:END:
 
 In this project, using GNU make command to build and test.\\
 Run =make= command as follows. (e.g. type =make= =Enter= at command-line)
 
-To build all: (=bin/cparsec2=, =lib/cparsec2.a=)
+To build all: (=bin/cparsec2=, =lib/libcparsec2.a=)
 #+begin_src shell
+# at the top of project directory
 make
 #+end_src
 
 To build executable file only: (=bin/cparsec2=)
 #+begin_src shell
+# at the top of project directory
 make build
 #+end_src
 
-To build archive file only: (=lib/cparsec2.a=)
+To build archive file (i.e. library) only: (=lib/libcparsec2.a=)
 #+begin_src shell
+# at the top of project directory
 make lib
 #+end_src
 
-To test:
+To run sample application: (=bin/cparsec2=)
 #+begin_src shell
+# at the top of project directory
 make test
 #+end_src
 
 To cleanup:
 #+begin_src shell
+# at the top of project directory
 make clean
 #+end_src
+
+
+** How to build and/or run unit-tests
+:PROPERTIES:
+:CUSTOM_ID: sec_howtotest
+:END:
+
+This project uses [[https://github.com/catchorg/Catch2][Catch2]] - A modern, C++-native, header-only, test framework for
+unit-tests.
+
+All unit-tests can be built and/or ran by GNU make command.
+
+To build unit-tests: (=test/tests=)
+#+begin_src shell
+# at the top of project directory
+make -C test
+# or at the 'test' directory
+cd test
+make
+#+end_src
+
+To run unit-tests: (=test/tests=)
+#+begin_src shell
+# at the top of project directory
+make test -C test
+# or at the 'test' directory
+cd test
+make test
+#+end_src
+
+To cleanup unit-tests:
+#+begin_src shell
+# at the top of project directory
+make clean -C test
+# or at the 'test' directory
+cd test
+make clean
+#+end_src
+
 
 ** Tutorial
 :PROPERTIES:
