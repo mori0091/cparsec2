@@ -7,10 +7,10 @@
 
 This project is an exercise to construct *parsec* like library for C11.
 
-- [[sec_howtobuild][How to build CPARSEC2 library]]
-- [[sec_howtotest][How to build and/or run unit-tests]]
-- [[#tutorial][Tutorial]]
-- [[#api][API]]
+- [[#sec_howtobuild][How to build CPARSEC2 library]]
+- [[#sec_howtotest][How to build and/or run unit-tests]]
+- [[#sec_tutorial][Tutorial]]
+- [[#sec_api][API]]
 
 ** How to build CPARSEC2 library
 :PROPERTIES:
@@ -91,7 +91,7 @@ make clean
 
 ** Tutorial
 :PROPERTIES:
-:CUSTOM_ID: tutorial
+:CUSTOM_ID: sec_tutorial
 :END:
 
 *** How to make your parser
@@ -212,7 +212,7 @@ No need to define a custom function body in case of ~digit3~. Awesome!
 
 ** API
 :PROPERTIES:
-:CUSTOM_ID: api
+:CUSTOM_ID: sec_api
 :END:
 
 *** Core API
