@@ -1,4 +1,5 @@
 /* -*- coding:utf-8-unix -*- */
+#pragma once
 
 #include <assert.h>
 #include <ctype.h>
@@ -10,6 +11,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define UNUSED(v) ((void)v)
 
@@ -228,3 +233,7 @@ TokenParser token_c(enum TokenType type, char c);
 TokenParser token_s(enum TokenType type, const char* s);
 TokenParser token_Char(enum TokenType type, CharParser p);
 TokenParser token_String(enum TokenType type, StringParser p);
+
+#ifdef __cplusplus
+}
+#endif
