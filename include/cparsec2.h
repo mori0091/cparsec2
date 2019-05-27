@@ -35,6 +35,9 @@ void* mem_malloc(size_t s);
 void* mem_realloc(void* p, size_t s);
 void mem_free(void* p);
 
+/** Construct a formated string */
+const char* mem_printf(const char* fmt, ...);
+
 // ---- variadic buffer ----
 
 typedef struct {
@@ -76,7 +79,7 @@ typedef struct {
 NORETURN void cthrow(Ctx* ctx, const char* msg);
 
 /** Construct an error message */
-const char* error(const char* fmt, ...);
+#define error(...) mem_printf(__VA_ARGS__)
 
 // ---- source of input character sequence ----
 

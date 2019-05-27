@@ -96,17 +96,7 @@ void mem_free(void* p) {
   free(p);
 }
 
-// ---- variadic buffer ----
-// -- (see 'collection.c')
-
-// ---- error and exception handling ----
-
-_Noreturn void cthrow(Ctx* ctx, const char* msg) {
-  ctx->msg = msg;
-  longjmp(ctx->e, -1);
-}
-
-const char* error(const char* fmt, ...) {
+const char* mem_printf(const char* fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   int len = vsnprintf(NULL, 0, fmt, ap);
@@ -122,6 +112,16 @@ const char* error(const char* fmt, ...) {
     exit(1);
   }
   return buf;
+}
+
+// ---- variadic buffer ----
+// -- (see 'collection.c')
+
+// ---- error and exception handling ----
+
+_Noreturn void cthrow(Ctx* ctx, const char* msg) {
+  ctx->msg = msg;
+  longjmp(ctx->e, -1);
 }
 
 // ---- source of input character sequence ----
