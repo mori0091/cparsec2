@@ -54,3 +54,39 @@ SCENARIO("token(TK_NUMBER, many1(digit))", "[cparsec2][parser][token]") {
   }
   cparsec2_end();
 }
+
+SCENARIO("token('+', (char)'+')", "[cparsec2][parser][token]") {
+  cparsec2_init();
+  GIVEN("an input: \"1 + 2\" and 'plus' as token('+', (char)'+')") {
+    Source src = Source_new("1 + 2");
+    TokenParser plus = token('+', (char)'+');
+    WHEN("apply plus") {
+      THEN("cause exception(\"expects '+' but was '1'\")") {
+        REQUIRE_THROWS_WITH(parse(plus, src), "expects '+' but was '1'");
+      }
+    }
+  }
+  GIVEN("an input: \" + 2\" and 'plus' as token('+', (char)'+')") {
+    Source src = Source_new(" + 2");
+    TokenParser plus = token('+', (char)'+');
+    WHEN("apply plus") {
+      Token tok = parse(plus, src);
+      THEN("results a token whose type is '+'") {
+        REQUIRE('+' == tok->type);
+        AND_THEN("value is \"+\"") {
+          REQUIRE("+" == std::string(tok->str));
+        }
+      }
+    }
+  }
+  GIVEN("an input: \" 2\" and 'plus' as token('+', (char)'+')") {
+    Source src = Source_new(" 2");
+    TokenParser plus = token('+', (char)'+');
+    WHEN("apply plus") {
+      THEN("cause exception(\"expects '+' but was '2'\")") {
+        REQUIRE_THROWS_WITH(parse(plus, src), "expects '+' but was '2'");
+      }
+    }
+  }
+  cparsec2_end();
+}
