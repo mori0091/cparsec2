@@ -7,6 +7,11 @@ SCENARIO("many1(p)", "[cparsec2][parser]") {
   cparsec2_init();
   GIVEN("an input \"aaabbb\"") {
     Source src = Source_new("aaabbb");
+    WHEN("apply many1(digit)") {
+      THEN("cause exception(\"not satisfy\")") {
+        REQUIRE_THROWS_WITH(parse(many1(digit), src), "not satisfy");
+      }
+    }
     WHEN("apply many1(char1('a'))") {
       AND_WHEN("apply many1(char1('b'))") {
         AND_WHEN("apply a parser (ex. alpha)") {
