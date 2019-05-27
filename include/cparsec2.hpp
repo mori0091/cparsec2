@@ -40,3 +40,15 @@ inline Token parse(TokenParser p, Source src) {
     throw ex;
   }
 }
+
+#ifdef seq
+#undef seq
+template <typename... Parser>
+inline StringParser seq(CharParser p, Parser... args) {
+  CharParser ps[] = {p, args..., NULL};
+  return seq_char(ps);
+}
+#endif
+#ifdef SEQ_I
+#undef SEQ_I
+#endif
