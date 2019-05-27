@@ -1,7 +1,7 @@
 /* -*- coding: utf-8-unix -*- */
 
+#include <cparsec2.hpp>
 #include <catch.hpp>
-#include "cparsec2.hpp"
 
 SCENARIO("many1(p)", "[cparsec2][parser]") {
   cparsec2_init();
@@ -15,7 +15,7 @@ SCENARIO("many1(p)", "[cparsec2][parser]") {
             AND_THEN("results \"bbb\"") {
               REQUIRE("bbb" == parse(many1(char1('b')), src));
               AND_THEN("cause exception(\"too short\")") {
-                REQUIRE_THROWS(parse(alpha, src));
+                REQUIRE_THROWS_WITH(parse(alpha, src), "too short");
               }
             }
           }
