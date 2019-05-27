@@ -13,6 +13,17 @@ SCENARIO("many1(p)", "[cparsec2][parser]") {
       }
     }
     WHEN("apply many1(char1('a'))") {
+      AND_WHEN("apply many1(char1('c'))") {
+        THEN("results \"aaa\"") {
+          REQUIRE("aaa" == parse(many1(char1('a')), src));
+          AND_THEN("cause exception(\"expects 'c' but was 'b'\")") {
+            REQUIRE_THROWS_WITH(parse(many1(char1('c')), src),
+                                "expects 'c' but was 'b'");
+          }
+        }
+      }
+    }
+    WHEN("apply many1(char1('a'))") {
       AND_WHEN("apply many1(char1('b'))") {
         AND_WHEN("apply a parser (ex. alpha)") {
           THEN("results \"aaa\"") {
