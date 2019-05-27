@@ -115,6 +115,7 @@ const char* error(const char* fmt, ...) {
     exit(1);
   }
   char* buf = mem_malloc(len + 1);
+  va_start(ap, fmt);
   if (vsnprintf(buf, len + 1, fmt, ap) < 0) {
     fprintf(stderr, "vsnprintf(buf, len, fmt, ...):%s\n",
             strerror(errno));
