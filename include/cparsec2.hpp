@@ -59,3 +59,19 @@ inline StringParser cons(CharParser p, StringParser ps) {
   return cons_char(p, ps);
 }
 #endif
+
+#ifdef token
+#undef token
+inline TokenParser token(enum TokenType type, char c) {
+  return token_c(type, c);
+}
+inline TokenParser token(enum TokenType type, const char* s) {
+  return token_s(type, s);
+}
+inline TokenParser token(enum TokenType type, CharParser p) {
+  return token_Char(type, p);
+}
+inline TokenParser token(enum TokenType type, StringParser p) {
+  return token_String(type, p);
+}
+#endif
