@@ -52,3 +52,10 @@ inline StringParser seq(CharParser p, Parser... args) {
 #ifdef SEQ_I
 #undef SEQ_I
 #endif
+
+#ifdef cons
+#undef cons
+inline StringParser cons(CharParser p, StringParser ps) {
+  return cons_char(p, ps);
+}
+#endif
