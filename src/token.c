@@ -3,11 +3,11 @@
 #include "cparsec2.h"
 
 struct token_arg {
-  enum TokenType type;
+  int type;
   StringParser parser;
 };
 
-static Token Token_new(enum TokenType type, const char* str) {
+static Token Token_new(int type, const char* str) {
   Token tok = mem_malloc(sizeof(struct stToken));
   tok->type = type;
   tok->str = str;
@@ -27,19 +27,19 @@ static Token run_token(void* arg, Source src, Ctx* ex) {
   }
 }
 
-TokenParser token_c(enum TokenType type, char c) {
+TokenParser token_c(int type, char c) {
   return token(type, char1(c));
 }
 
-TokenParser token_s(enum TokenType type, const char* s) {
+TokenParser token_s(int type, const char* s) {
   return token(type, string1(s));
 }
 
-TokenParser token_Char(enum TokenType type, CharParser p) {
+TokenParser token_Char(int type, CharParser p) {
   return token_String(type, seq(p));
 }
 
-TokenParser token_String(enum TokenType type, StringParser p) {
+TokenParser token_String(int type, StringParser p) {
   struct token_arg* arg = mem_malloc(sizeof(struct token_arg));
   arg->type = type;
   arg->parser = p;

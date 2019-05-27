@@ -235,10 +235,10 @@ StringParser string1(const char* s);
            )(type, p)
 // clang-format on
 
-TokenParser token_c(enum TokenType type, char c);
-TokenParser token_s(enum TokenType type, const char* s);
-TokenParser token_Char(enum TokenType type, CharParser p);
-TokenParser token_String(enum TokenType type, StringParser p);
+TokenParser token_c(int type, char c);
+TokenParser token_s(int type, const char* s);
+TokenParser token_Char(int type, CharParser p);
+TokenParser token_String(int type, StringParser p);
 
 #ifdef __cplusplus
 }
