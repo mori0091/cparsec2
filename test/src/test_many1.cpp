@@ -3,7 +3,7 @@
 #include <cparsec2.hpp>
 #include <catch.hpp>
 
-SCENARIO("many1(p)", "[cparsec2][parser]") {
+SCENARIO("many1(p)", "[cparsec2][parser][many1]") {
   cparsec2_init();
   GIVEN("an input \"aaabbb\"") {
     Source src = Source_new("aaabbb");

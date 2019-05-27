@@ -3,7 +3,7 @@
 #include <catch.hpp>
 #include <cparsec2.hpp>
 
-SCENARIO("char1(c)", "[cparsec2][parser]") {
+SCENARIO("char1(c)", "[cparsec2][parser][char1]") {
   cparsec2_init();
   GIVEN("an input: \"abc\" ") {
     Source src = Source_new("abc");

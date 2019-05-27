@@ -3,7 +3,7 @@
 #include <catch.hpp>
 #include <cparsec2.hpp>
 
-SCENARIO("digit", "[cparsec2][parser]") {
+SCENARIO("digit", "[cparsec2][parser][digit]") {
   cparsec2_init();
   GIVEN("an input: \"123\"") {
     Source src = Source_new("123");
