@@ -11,6 +11,16 @@ SCENARIO("many(p)", "[cparsec2][parser]") {
       THEN("results \"\"") { REQUIRE("" == parse(many(digit), src)); }
     }
     WHEN("apply many(char1('a'))") {
+      AND_WHEN("apply many(char1('c'))") {
+        THEN("results \"aaa\"") {
+          REQUIRE("aaa" == parse(many(char1('a')), src));
+          AND_THEN("results \"\"") {
+            REQUIRE("" == parse(many(char1('c')), src));
+          }
+        }
+      }
+    }
+    WHEN("apply many(char1('a'))") {
       AND_WHEN("apply many(char1('b'))") {
         AND_WHEN("apply a parser (ex. alpha)") {
           THEN("results \"aaa\"") {
