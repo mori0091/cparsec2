@@ -2,7 +2,6 @@
 
 #include <catch.hpp>
 #include <cparsec2.hpp>
-#include <unistd.h>
 
 SCENARIO("parseTest(p, str)", "[cparsec2][core][parseTest]") {
   cparsec2_init();
