@@ -8,12 +8,6 @@
 #undef parse
 #endif
 
-#ifdef parseTest
-#undef parseTest
-#define parseTest(p, input)                                              \
-  static_assert(0, "parseTest(p, input) is not available yet in C++")
-#endif
-
 inline char parse(CharParser p, Source src) {
   Ctx ctx;
   TRY(&ctx) { return parse_Char(p, src, &ctx); }
@@ -41,6 +35,25 @@ inline Token parse(TokenParser p, Source src) {
   }
 }
 
+#ifdef PARSE_TEST_I
+#undef PARSE_TEST_I
+#endif
+
+inline bool PARSE_TEST_I(const char* msg, CharParser p,
+                         const char* input) {
+  return parseTest_Char(msg, p, input);
+}
+
+inline bool PARSE_TEST_I(const char* msg, StringParser p,
+                         const char* input) {
+  return parseTest_String(msg, p, input);
+}
+
+inline bool PARSE_TEST_I(const char* msg, TokenParser p,
+                         const char* input) {
+  return parseTest_Token(msg, p, input);
+}
+
 #ifdef seq
 #undef seq
 template <typename... Parser>
@@ -62,9 +75,7 @@ inline StringParser cons(CharParser p, StringParser ps) {
 
 #ifdef token
 #undef token
-inline TokenParser token(int type, char c) {
-  return token_c(type, c);
-}
+inline TokenParser token(int type, char c) { return token_c(type, c); }
 inline TokenParser token(int type, const char* s) {
   return token_s(type, s);
 }
