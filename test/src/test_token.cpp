@@ -87,3 +87,37 @@ SCENARIO("token('+', (char)'+')", "[cparsec2][parser][token]") {
   }
   cparsec2_end();
 }
+
+SCENARIO("token(1, \"foo\")", "[cparsec2][parser][token]") {
+  cparsec2_init();
+  GIVEN("an input: \"foo foofoo bar\"") {
+    Source src = Source_new("foo foofoo bar");
+    TokenParser foo = token(1, "foo");
+    WHEN("apply foo = token(1, \"foo\")") {
+      AND_WHEN("apply foo") {
+        AND_WHEN("apply foo") {
+          AND_WHEN("apply foo") {
+            THEN("results a token whose value is \"foo\"") {
+              Token tok = parse(foo, src);
+              REQUIRE(std::string("foo") == tok->str);
+              AND_THEN("results a token whose value is \"foo\"") {
+                Token tok = parse(foo, src);
+                REQUIRE(std::string("foo") == tok->str);
+                AND_THEN("results a token whose value is \"foo\"") {
+                  Token tok = parse(foo, src);
+                  REQUIRE(std::string("foo") == tok->str);
+                  AND_THEN(
+                      "cause exception(\"expects 'f' but was 'b'\")") {
+                    REQUIRE_THROWS_WITH(parse(foo, src),
+                                        "expects 'f' but was 'b'");
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  cparsec2_end();
+}
