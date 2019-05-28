@@ -5,6 +5,14 @@
 
 SCENARIO("many1(p)", "[cparsec2][parser][many1]") {
   cparsec2_init();
+  GIVEN("an input \"1234567890abc\"") {
+    Source src = Source_new("1234567890abc");
+    WHEN("apply many1(digit)") {
+      THEN("results \"1234567890\"") {
+        REQUIRE("1234567890" == parse(many1(digit), src));
+      }
+    }
+  }
   GIVEN("an input \"aaabbb\"") {
     Source src = Source_new("aaabbb");
     WHEN("apply many1(digit)") {
