@@ -183,13 +183,18 @@ char parse_Char(CharParser p, Source src, Ctx* ctx) {
   return p->run(p->arg, src, ctx);
 }
 
-void parseTest_Char(CharParser p, const char* input) {
+bool parseTest_Char(const char* msg, CharParser p, const char* input) {
+  printf(msg);
   Source src = Source_new(input);
   Ctx ctx;
-  TRY(&ctx) { show(parse(p, src, &ctx)); }
+  TRY(&ctx) {
+    show(parse(p, src, &ctx));
+    return true;
+  }
   else {
     printf("error:%s\n", ctx.msg);
     mem_free((void*)ctx.msg);
+    return false;
   }
 }
 
@@ -207,13 +212,19 @@ const char* parse_String(StringParser p, Source src, Ctx* ctx) {
   return p->run(p->arg, src, ctx);
 }
 
-void parseTest_String(StringParser p, const char* input) {
+bool parseTest_String(const char* msg, StringParser p,
+                      const char* input) {
+  printf(msg);
   Source src = Source_new(input);
   Ctx ctx;
-  TRY(&ctx) { show(parse(p, src, &ctx)); }
+  TRY(&ctx) {
+    show(parse(p, src, &ctx));
+    return true;
+  }
   else {
     printf("error:%s\n", ctx.msg);
     mem_free((void*)ctx.msg);
+    return false;
   }
 }
 
@@ -231,13 +242,18 @@ Token parse_Token(TokenParser p, Source src, Ctx* ctx) {
   return p->run(p->arg, src, ctx);
 }
 
-void parseTest_Token(TokenParser p, const char* input) {
+bool parseTest_Token(const char* msg, TokenParser p, const char* input) {
+  printf(msg);
   Source src = Source_new(input);
   Ctx ctx;
-  TRY(&ctx) { show(parse(p, src, &ctx)); }
+  TRY(&ctx) {
+    show(parse(p, src, &ctx));
+    return true;
+  }
   else {
     printf("error:%s\n", ctx.msg);
     mem_free((void*)ctx.msg);
+    return false;
   }
 }
 

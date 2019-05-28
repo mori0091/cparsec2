@@ -117,22 +117,19 @@ void consume(Source src);
 
 // ---- parser invocation (for debug purpose) ----
 
-// void parseTest(Parser<T> p, const char *input);
+// bool parseTest(Parser<T> p, const char *input);
+#define parseTest(p, input) PARSE_TEST_I("", p, input)
+
+#define PARSE_TEST(p, input)                                             \
+  PARSE_TEST_I(mem_printf("%s \"%s\" => ", #p, input), p, input)
+
 // clang-format off
-#define parseTest(p, input)                     \
+#define PARSE_TEST_I(msg, p, input)             \
   _Generic((p)                                  \
            , CharParser   : parseTest_Char      \
            , StringParser : parseTest_String    \
            , TokenParser  : parseTest_Token     \
-           )(p, input)
-// clang-format on
-
-// clang-format off
-#define PARSE_TEST(p, input)                    \
-  do {                                          \
-    printf("%8s \"%s\" => ", #p, input);        \
-    parseTest(p, input);                        \
-  } while (0)
+           )(msg, p, input)
 // clang-format on
 
 // ---- CharParser ----
@@ -140,7 +137,7 @@ typedef char (*CharParserFn)(void* arg, Source src, Ctx* ex);
 typedef struct stCharParser* CharParser;
 CharParser genCharParser(CharParserFn f, void* arg);
 char parse_Char(CharParser p, Source src, Ctx* ctx);
-void parseTest_Char(CharParser p, const char* input);
+bool parseTest_Char(const char* msg, CharParser p, const char* input);
 
 struct stCharParser {
   CharParserFn run;
@@ -152,7 +149,7 @@ typedef const char* (*StringParserFn)(void* arg, Source src, Ctx* ex);
 typedef struct stStringParser* StringParser;
 StringParser genStringParser(StringParserFn f, void* arg);
 const char* parse_String(StringParser p, Source src, Ctx* ctx);
-void parseTest_String(StringParser p, const char* input);
+bool parseTest_String(const char* msg, StringParser p, const char* input);
 
 struct stStringParser {
   StringParserFn run;
@@ -176,7 +173,7 @@ typedef Token (*TokenParserFn)(void* arg, Source src, Ctx* ex);
 typedef struct stTokenParser* TokenParser;
 TokenParser genTokenParser(TokenParserFn f, void* arg);
 Token parse_Token(TokenParser p, Source src, Ctx* ctx);
-void parseTest_Token(TokenParser p, const char* input);
+bool parseTest_Token(const char* msg, TokenParser p, const char* input);
 
 struct stTokenParser {
   TokenParserFn run;
