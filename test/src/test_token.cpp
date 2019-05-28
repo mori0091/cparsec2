@@ -5,11 +5,10 @@
 
 SCENARIO("token(TK_NUMBER, many1(digit))", "[cparsec2][parser][token]") {
   cparsec2_init();
-  GIVEN("an input: \"1234\" and 'number' as token(TK_NUMBER, "
-        "many1(digit))") {
+  GIVEN("an input: \"1234\"") {
     Source src = Source_new("1234");
     TokenParser number = token(TK_NUMBER, many1(digit));
-    WHEN("apply number") {
+    WHEN("apply number = token(TK_NUMBER, many1(digit))") {
       Token tok = parse(number, src);
       THEN("results a token whose type is TK_NUMBER") {
         REQUIRE(TK_NUMBER == tok->type);
@@ -19,11 +18,10 @@ SCENARIO("token(TK_NUMBER, many1(digit))", "[cparsec2][parser][token]") {
       }
     }
   }
-  GIVEN(
-      "an input: \"1\" and 'number' as token(TK_NUMBER, many1(digit))") {
+  GIVEN("an input: \"1\"") {
     Source src = Source_new("1");
     TokenParser number = token(TK_NUMBER, many1(digit));
-    WHEN("apply number") {
+    WHEN("apply number = token(TK_NUMBER, many1(digit))") {
       Token tok = parse(number, src);
       THEN("results a token whose type is TK_NUMBER") {
         REQUIRE(TK_NUMBER == tok->type);
@@ -33,20 +31,19 @@ SCENARIO("token(TK_NUMBER, many1(digit))", "[cparsec2][parser][token]") {
       }
     }
   }
-  GIVEN("an input: \"\" and 'number' as token(TK_NUMBER, many1(digit))") {
+  GIVEN("an input: \"\"") {
     Source src = Source_new("");
     TokenParser number = token(TK_NUMBER, many1(digit));
-    WHEN("apply number") {
+    WHEN("apply number = token(TK_NUMBER, many1(digit))") {
       THEN("cause exception(\"too short\")") {
         REQUIRE_THROWS_WITH(parse(number, src), "too short");
       }
     }
   }
-  GIVEN("an input: \"a123\" and 'number' as token(TK_NUMBER, "
-        "many1(digit))") {
+  GIVEN("an input: \"a123\"") {
     Source src = Source_new("a123");
     TokenParser number = token(TK_NUMBER, many1(digit));
-    WHEN("apply number") {
+    WHEN("apply number = token(TK_NUMBER, many1(digit))") {
       THEN("cause exception(\"not satisfy\")") {
         REQUIRE_THROWS_WITH(parse(number, src), "not satisfy");
       }
@@ -57,19 +54,19 @@ SCENARIO("token(TK_NUMBER, many1(digit))", "[cparsec2][parser][token]") {
 
 SCENARIO("token('+', (char)'+')", "[cparsec2][parser][token]") {
   cparsec2_init();
-  GIVEN("an input: \"1 + 2\" and 'plus' as token('+', (char)'+')") {
+  GIVEN("an input: \"1 + 2\"") {
     Source src = Source_new("1 + 2");
     TokenParser plus = token('+', (char)'+');
-    WHEN("apply plus") {
+    WHEN("apply plus = token('+', (char)'+')") {
       THEN("cause exception(\"expects '+' but was '1'\")") {
         REQUIRE_THROWS_WITH(parse(plus, src), "expects '+' but was '1'");
       }
     }
   }
-  GIVEN("an input: \" + 2\" and 'plus' as token('+', (char)'+')") {
+  GIVEN("an input: \" + 2\"") {
     Source src = Source_new(" + 2");
     TokenParser plus = token('+', (char)'+');
-    WHEN("apply plus") {
+    WHEN("apply plus = token('+', (char)'+')") {
       Token tok = parse(plus, src);
       THEN("results a token whose type is '+'") {
         REQUIRE('+' == tok->type);
@@ -79,10 +76,10 @@ SCENARIO("token('+', (char)'+')", "[cparsec2][parser][token]") {
       }
     }
   }
-  GIVEN("an input: \" 2\" and 'plus' as token('+', (char)'+')") {
+  GIVEN("an input: \" 2\"") {
     Source src = Source_new(" 2");
     TokenParser plus = token('+', (char)'+');
-    WHEN("apply plus") {
+    WHEN("apply plus = token('+', (char)'+')") {
       THEN("cause exception(\"expects '+' but was '2'\")") {
         REQUIRE_THROWS_WITH(parse(plus, src), "expects '+' but was '2'");
       }
