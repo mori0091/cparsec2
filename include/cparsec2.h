@@ -101,6 +101,7 @@ void consume(Source src);
            , PARSER(Char)   : PARSE(Char)       \
            , PARSER(String) : PARSE(String)     \
            , PARSER(Token)  : PARSE(Token)      \
+           , PARSER(Int)    : PARSE(Int)        \
            )(p, src, ctx)
 // clang-format on
 
@@ -118,6 +119,7 @@ void consume(Source src);
            , PARSER(Char)   : PARSETEST(Char)   \
            , PARSER(String) : PARSETEST(String) \
            , PARSER(Token)  : PARSETEST(Token)  \
+           , PARSER(Int)    : PARSETEST(Int)    \
            )(msg, p, input)
 // clang-format on
 
@@ -128,6 +130,7 @@ void consume(Source src);
            , PARSER_FN(Char)   : PARSER_GEN(Char)   \
            , PARSER_FN(String) : PARSER_GEN(String) \
            , PARSER_FN(Token)  : PARSER_GEN(Token)  \
+           , PARSER_FN(Int)    : PARSER_GEN(Int)    \
            )(f, arg)
 // clang-format off
 
@@ -198,6 +201,9 @@ struct stToken {
 
 // ---- TokenParser ----
 DECLARE_PARSER(Token, Token);
+
+// ---- IntParser ----
+DECLARE_PARSER(Int, int);
 
 // ---- predicates ----
 

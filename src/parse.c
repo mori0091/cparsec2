@@ -165,6 +165,11 @@ DEFINE_PARSER(Token, Token) {
   printf("<Token:%d,\"%s\">\n", x->type, x->str);
 }
 
+// ---- IntParser ----
+DEFINE_PARSER(Int, int) {
+  printf("%d\n", x);
+}
+
 // ---- predicates ----
 // -- (see 'predicate.c')
 

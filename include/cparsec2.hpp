@@ -35,6 +35,15 @@ inline Token parse(PARSER(Token) p, Source src) {
   }
 }
 
+inline int parse(PARSER(Int) p, Source src) {
+  Ctx ctx;
+  TRY(&ctx) { return PARSE(Int)(p, src, &ctx); }
+  else {
+    std::string ex(ctx.msg);
+    throw ex;
+  }
+}
+
 #ifdef PARSE_TEST_I
 #undef PARSE_TEST_I
 #endif
@@ -52,6 +61,11 @@ inline bool PARSE_TEST_I(const char* msg, PARSER(String) p,
 inline bool PARSE_TEST_I(const char* msg, PARSER(Token) p,
                          const char* input) {
   return PARSETEST(Token)(msg, p, input);
+}
+
+inline bool PARSE_TEST_I(const char* msg, PARSER(Int) p,
+                         const char* input) {
+  return PARSETEST(Int)(msg, p, input);
 }
 
 #ifdef seq
