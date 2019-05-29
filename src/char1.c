@@ -18,6 +18,6 @@ static char run_char1(void* arg, Source src, Ctx* ex) {
   }
 }
 
-CharParser char1(char c) {
-  return genParser(run_char1, (void*)(intptr_t)c);
+PARSER(Char) char1(char c) {
+  return PARSER_GEN(Char)(run_char1, (void*)(intptr_t)c);
 }

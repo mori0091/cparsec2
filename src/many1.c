@@ -3,7 +3,7 @@
 #include "cparsec2.h"
 
 static const char* run_many1(void* arg, Source src, Ctx* ex) {
-  CharParser parser = (CharParser)arg;
+  PARSER(Char) parser = (PARSER(Char))arg;
   Ctx ctx;
   Buffer str = buf_new();
   TRY(&ctx) {
@@ -18,4 +18,6 @@ static const char* run_many1(void* arg, Source src, Ctx* ex) {
   }
 }
 
-StringParser many1(CharParser p) { return genParser(run_many1, p); }
+PARSER(String) many1(PARSER(Char) p) {
+  return PARSER_GEN(String)(run_many1, p);
+}

@@ -4,7 +4,7 @@
 
 struct token_arg {
   int type;
-  StringParser parser;
+  PARSER(String) parser;
 };
 
 static Token Token_new(int type, const char* str) {
@@ -27,21 +27,21 @@ static Token run_token(void* arg, Source src, Ctx* ex) {
   }
 }
 
-TokenParser token_c(int type, char c) {
+PARSER(Token) token_c(int type, char c) {
   return token(type, char1(c));
 }
 
-TokenParser token_s(int type, const char* s) {
+PARSER(Token) token_s(int type, const char* s) {
   return token(type, string1(s));
 }
 
-TokenParser token_Char(int type, CharParser p) {
+PARSER(Token) token_Char(int type, PARSER(Char) p) {
   return token_String(type, seq(p));
 }
 
-TokenParser token_String(int type, StringParser p) {
+PARSER(Token) token_String(int type, PARSER(String) p) {
   struct token_arg* arg = mem_malloc(sizeof(struct token_arg));
   arg->type = type;
   arg->parser = p;
-  return genParser(run_token, arg);
+  return PARSER_GEN(Token)(run_token, arg);
 }

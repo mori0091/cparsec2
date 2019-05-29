@@ -17,6 +17,6 @@ static const char* run_string1(void* arg, Source src, Ctx* ex) {
   }
 }
 
-StringParser string1(const char* s) {
-  return genParser(run_string1, (void*)s);
+PARSER(String) string1(const char* s) {
+  return PARSER_GEN(String)(run_string1, (void*)s);
 }

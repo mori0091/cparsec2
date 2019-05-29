@@ -4,7 +4,7 @@
 
 static const char* run_many(void* arg, Source src, Ctx* ex) {
   UNUSED(ex);
-  CharParser parser = (CharParser)arg;
+  PARSER(Char) parser = (PARSER(Char))arg;
   Buffer str = buf_new();
   Ctx ctx;
   TRY(&ctx) {
@@ -19,4 +19,6 @@ static const char* run_many(void* arg, Source src, Ctx* ex) {
   return buf_finish(&str);
 }
 
-StringParser many(CharParser p) { return genParser(run_many, p); }
+PARSER(String) many(PARSER(Char) p) {
+  return PARSER_GEN(String)(run_many, p);
+}

@@ -129,7 +129,7 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
 
 **** Step 2. Create parser by calling genParser(fun, arg)
 #+begin_src c
-  StringParser digit3 = genParser(run_digit3, NULL);
+  PARSER(String) digit3 = genParser(run_digit3, NULL);
 #+end_src
 
 **** Step 3. Then use your parser.
@@ -169,7 +169,7 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
     /* NOTE: THIS MUST BE CALLED ONCE AT FIRST. */
     cparsec2_init();
 
-    StringParser digit3 = genParser(run_digit3, NULL);
+    PARSER(String) digit3 = genParser(run_digit3, NULL);
     PARSE_TEST(digit3, "1234");   /* -> "123" */
     PARSE_TEST(digit3, "123");    /* -> "123" */
     PARSE_TEST(digit3, "12");     /* -> "error:too short" */
@@ -202,7 +202,7 @@ method to make parser from other parser(s)).
 
 Therefore, we can made the 1st example ~digit3~ more easily, as follows:
 #+begin_src c
-StringParser digit3 = seq(digit, digit, digit);
+  PARSER(String) digit3 = seq(digit, digit, digit);
 #+end_src
 
 That's all !

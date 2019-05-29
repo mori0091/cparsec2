@@ -3,7 +3,7 @@
 #include "cparsec2.h"
 
 static const char* run_seq_char(void* arg, Source src, Ctx* ex) {
-  CharParser* p = (CharParser*)arg;
+  PARSER(Char)* p = (PARSER(Char)*)arg;
   Buffer str = buf_new();
   Ctx ctx;
   TRY(&ctx) {
@@ -19,10 +19,10 @@ static const char* run_seq_char(void* arg, Source src, Ctx* ex) {
   }
 }
 
-StringParser seq_char(CharParser ps[]) {
+PARSER(String) seq_char(PARSER(Char) ps[]) {
   PtrBuffer buf = ptrbuf_new();
   while (*ps) {
     ptrbuf_push(&buf, *ps++);
   }
-  return genParser(run_seq_char, ptrbuf_finish(&buf));
+  return PARSER_GEN(String)(run_seq_char, ptrbuf_finish(&buf));
 }

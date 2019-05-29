@@ -92,26 +92,15 @@ char peek(Source src, Ctx* ctx);
 // drop head char
 void consume(Source src);
 
-// ---- building-block for making parser ----
-
-// clang-format off
-#define genParser(f, arg)                       \
-  _Generic((f)                                  \
-           , CharParserFn   : genCharParser     \
-           , StringParserFn : genStringParser   \
-           , TokenParserFn  : genTokenParser    \
-           )(f, arg)
-// clang-format on
-
 // ---- parser invocation ----
 
 // T parse(Parser<T> p, Souce src, Ctx *ctx)
 // clang-format off
 #define parse(p, src, ctx)                      \
   _Generic((p)                                  \
-           , CharParser   : parse_Char          \
-           , StringParser : parse_String        \
-           , TokenParser  : parse_Token         \
+           , PARSER(Char)   : PARSE(Char)       \
+           , PARSER(String) : PARSE(String)     \
+           , PARSER(Token)  : PARSE(Token)      \
            )(p, src, ctx)
 // clang-format on
 
@@ -126,35 +115,74 @@ void consume(Source src);
 // clang-format off
 #define PARSE_TEST_I(msg, p, input)             \
   _Generic((p)                                  \
-           , CharParser   : parseTest_Char      \
-           , StringParser : parseTest_String    \
-           , TokenParser  : parseTest_Token     \
+           , PARSER(Char)   : PARSETEST(Char)   \
+           , PARSER(String) : PARSETEST(String) \
+           , PARSER(Token)  : PARSETEST(Token)  \
            )(msg, p, input)
 // clang-format on
 
-// ---- CharParser ----
-typedef char (*CharParserFn)(void* arg, Source src, Ctx* ex);
-typedef struct stCharParser* CharParser;
-CharParser genCharParser(CharParserFn f, void* arg);
-char parse_Char(CharParser p, Source src, Ctx* ctx);
-bool parseTest_Char(const char* msg, CharParser p, const char* input);
+// ---- building-block for making parser ----
+// clang-format off
+#define genParser(f, arg)                           \
+  _Generic((f)                                      \
+           , PARSER_FN(Char)   : PARSER_GEN(Char)   \
+           , PARSER_FN(String) : PARSER_GEN(String) \
+           , PARSER_FN(Token)  : PARSER_GEN(Token)  \
+           )(f, arg)
+// clang-format off
 
-struct stCharParser {
-  CharParserFn run;
-  void* arg;
-};
+#define PARSER(T) T##Parser
+#define PARSER_FN(T) T##ParserFn
+#define PARSER_ST(T) st##T##Parser
+#define PARSER_GEN(T) gen##T##Parser
+#define PARSE(T) parse_##T
+#define PARSETEST(T) parseTest_##T
+#define SHOW(T) show_##T
+
+#define DECLARE_PARSER(T, R)                                          \
+  typedef R (*PARSER_FN(T))(void* arg, Source src, Ctx* ex);          \
+  typedef struct PARSER_ST(T) * PARSER(T);                            \
+  PARSER(T) PARSER_GEN(T)(PARSER_FN(T) f, void* arg);                 \
+  R PARSE(T)(PARSER(T) p, Source src, Ctx * ctx);                     \
+  bool PARSETEST(T)(const char* msg, PARSER(T) p, const char* input); \
+  void SHOW(T)(R val)
+
+#define DEFINE_PARSER(T, R)                                             \
+  struct PARSER_ST(T) {                                                 \
+    PARSER_FN(T) run;                                                   \
+    void* arg;                                                          \
+  };                                                                    \
+  PARSER(T) PARSER_GEN(T)(PARSER_FN(T) f, void* arg) {                  \
+    PARSER(T) p = mem_malloc(sizeof(struct PARSER_ST(T)));              \
+    p->run = f;                                                         \
+    p->arg = arg;                                                       \
+    return p;                                                           \
+  }                                                                     \
+  R PARSE(T)(PARSER(T) p, Source src, Ctx* ctx) {                       \
+    assert(ctx);                                                        \
+    return p->run(p->arg, src, ctx);                                    \
+  }                                                                     \
+  bool PARSETEST(T)(const char* msg, PARSER(T) p, const char* input) {  \
+    printf("%s", msg);                                                  \
+    Source src = Source_new(input);                                     \
+    Ctx ctx;                                                            \
+    TRY(&ctx) {                                                         \
+      SHOW(T)(parse(p, src, &ctx));                                     \
+      return true;                                                      \
+    }                                                                   \
+    else {                                                              \
+      printf("error:%s\n", ctx.msg);                                    \
+      mem_free((void*)ctx.msg);                                         \
+      return false;                                                     \
+    }                                                                   \
+  }                                                                     \
+  void SHOW(T)(R x)
+
+// ---- CharParser ----
+DECLARE_PARSER(Char, char);
 
 // ---- StringParser ----
-typedef const char* (*StringParserFn)(void* arg, Source src, Ctx* ex);
-typedef struct stStringParser* StringParser;
-StringParser genStringParser(StringParserFn f, void* arg);
-const char* parse_String(StringParser p, Source src, Ctx* ctx);
-bool parseTest_String(const char* msg, StringParser p, const char* input);
-
-struct stStringParser {
-  StringParserFn run;
-  void* arg;
-};
+DECLARE_PARSER(String, const char*);
 
 // ---- Token ----
 typedef struct stToken* Token;
@@ -169,16 +197,7 @@ struct stToken {
 };
 
 // ---- TokenParser ----
-typedef Token (*TokenParserFn)(void* arg, Source src, Ctx* ex);
-typedef struct stTokenParser* TokenParser;
-TokenParser genTokenParser(TokenParserFn f, void* arg);
-Token parse_Token(TokenParser p, Source src, Ctx* ctx);
-bool parseTest_Token(const char* msg, TokenParser p, const char* input);
-
-struct stTokenParser {
-  TokenParserFn run;
-  void* arg;
-};
+DECLARE_PARSER(Token, Token);
 
 // ---- predicates ----
 

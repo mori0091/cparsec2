@@ -3,8 +3,8 @@
 #include "cparsec2.h"
 
 struct cons_arg {
-  CharParser head;
-  StringParser tail;
+  PARSER(Char) head;
+  PARSER(String) tail;
 };
 
 static const char* run_cons_char(void* arg, Source src, Ctx* ex) {
@@ -22,9 +22,9 @@ static const char* run_cons_char(void* arg, Source src, Ctx* ex) {
   }
 }
 
-StringParser cons_char(CharParser p, StringParser ps) {
+PARSER(String) cons_char(PARSER(Char) p, PARSER(String) ps) {
   struct cons_arg* arg = mem_malloc(sizeof(struct cons_arg));
   arg->head = p;
   arg->tail = ps;
-  return genParser(run_cons_char, arg);
+  return PARSER_GEN(String)(run_cons_char, arg);
 }

@@ -8,27 +8,27 @@
 #undef parse
 #endif
 
-inline char parse(CharParser p, Source src) {
+inline char parse(PARSER(Char) p, Source src) {
   Ctx ctx;
-  TRY(&ctx) { return parse_Char(p, src, &ctx); }
+  TRY(&ctx) { return PARSE(Char)(p, src, &ctx); }
   else {
     std::string ex(ctx.msg);
     throw ex;
   }
 }
 
-inline std::string parse(StringParser p, Source src) {
+inline std::string parse(PARSER(String) p, Source src) {
   Ctx ctx;
-  TRY(&ctx) { return parse_String(p, src, &ctx); }
+  TRY(&ctx) { return PARSE(String)(p, src, &ctx); }
   else {
     std::string ex(ctx.msg);
     throw ex;
   }
 }
 
-inline Token parse(TokenParser p, Source src) {
+inline Token parse(PARSER(Token) p, Source src) {
   Ctx ctx;
-  TRY(&ctx) { return parse_Token(p, src, &ctx); }
+  TRY(&ctx) { return PARSE(Token)(p, src, &ctx); }
   else {
     std::string ex(ctx.msg);
     throw ex;
@@ -39,26 +39,26 @@ inline Token parse(TokenParser p, Source src) {
 #undef PARSE_TEST_I
 #endif
 
-inline bool PARSE_TEST_I(const char* msg, CharParser p,
+inline bool PARSE_TEST_I(const char* msg, PARSER(Char) p,
                          const char* input) {
-  return parseTest_Char(msg, p, input);
+  return PARSETEST(Char)(msg, p, input);
 }
 
-inline bool PARSE_TEST_I(const char* msg, StringParser p,
+inline bool PARSE_TEST_I(const char* msg, PARSER(String) p,
                          const char* input) {
-  return parseTest_String(msg, p, input);
+  return PARSETEST(String)(msg, p, input);
 }
 
-inline bool PARSE_TEST_I(const char* msg, TokenParser p,
+inline bool PARSE_TEST_I(const char* msg, PARSER(Token) p,
                          const char* input) {
-  return parseTest_Token(msg, p, input);
+  return PARSETEST(Token)(msg, p, input);
 }
 
 #ifdef seq
 #undef seq
 template <typename... Parser>
-inline StringParser seq(CharParser p, Parser... args) {
-  CharParser ps[] = {p, args..., NULL};
+inline PARSER(String) seq(PARSER(Char) p, Parser... args) {
+  PARSER(Char) ps[] = {p, args..., NULL};
   return seq_char(ps);
 }
 #endif
@@ -68,21 +68,21 @@ inline StringParser seq(CharParser p, Parser... args) {
 
 #ifdef cons
 #undef cons
-inline StringParser cons(CharParser p, StringParser ps) {
+inline PARSER(String) cons(PARSER(Char) p, PARSER(String) ps) {
   return cons_char(p, ps);
 }
 #endif
 
 #ifdef token
 #undef token
-inline TokenParser token(int type, char c) { return token_c(type, c); }
-inline TokenParser token(int type, const char* s) {
+inline PARSER(Token) token(int type, char c) { return token_c(type, c); }
+inline PARSER(Token) token(int type, const char* s) {
   return token_s(type, s);
 }
-inline TokenParser token(int type, CharParser p) {
+inline PARSER(Token) token(int type, PARSER(Char) p) {
   return token_Char(type, p);
 }
-inline TokenParser token(int type, StringParser p) {
+inline PARSER(Token) token(int type, PARSER(String) p) {
   return token_String(type, p);
 }
 #endif

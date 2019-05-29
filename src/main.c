@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
   PARSE_TEST(string1("a1234"),
              "a123bc"); /* "error:expects '4' but was 'b'" */
 
-  StringParser digit3 = genParser(run_digit3, NULL);
+  PARSER(String) digit3 = genParser(run_digit3, NULL);
   PARSE_TEST(digit3, "1234"); /* "123" */
   PARSE_TEST(digit3, "123");  /* "123" */
   PARSE_TEST(digit3, "12");   /* "error:too short" */
@@ -115,7 +115,7 @@ int main(int argc, char** argv) {
   PARSE_TEST(cons(upper, digit3), "A123"); /* "A123" */
   PARSE_TEST(cons(upper, digit3), "a123"); /* "error:not satisfy" */
 
-  TokenParser number = token(TK_NUMBER, many1(digit));
+  PARSER(Token) number = token(TK_NUMBER, many1(digit));
   PARSE_TEST(number, "1234"); /* "<Token:0,"1234">" */
   PARSE_TEST(number, "123");  /* "<Token:0,"123">" */
   PARSE_TEST(number, "12");   /* "<Token:0,"12">" */
@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
   PARSE_TEST(number, "");     /* "error:too short" */
   PARSE_TEST(number, "a123"); /* "error:not satisfy" */
 
-  TokenParser plus = token('+', (char)'+');
+  PARSER(Token) plus = token('+', (char)'+');
   PARSE_TEST(plus, "1 + 2"); /* "error:expects '+' but was '1'" */
   PARSE_TEST(plus, " + 2");  /* "<Token:?,"+"> */
   PARSE_TEST(plus, " 2");    /* "error:expects '+' but was '2'" */

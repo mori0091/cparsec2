@@ -22,8 +22,8 @@ static char run_satisfy(void* arg, Source src, Ctx* ex) {
   }
 }
 
-CharParser satisfy(Predicate pred) {
+PARSER(Char) satisfy(Predicate pred) {
   struct satisfy_arg* arg = mem_malloc(sizeof(struct satisfy_arg));
   arg->pred = pred;
-  return genParser(run_satisfy, arg);
+  return PARSER_GEN(Char)(run_satisfy, arg);
 }

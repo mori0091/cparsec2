@@ -151,110 +151,18 @@ void consume(Source src) {
   src->p++;
 }
 
-// ---- show ----
-// clang-format off
-#define show(x)                                 \
-  _Generic((x)                                  \
-           , char        : show_Char            \
-           , const char* : show_String          \
-           , Token       : show_Token           \
-           )(x)
-// clang-format on
-
-void show_Char(char x) { printf("'%c'\n", x); }
-
-void show_String(const char* x) { printf("\"%s\"\n", x); }
-
-void show_Token(Token x) {
-  printf("<Token:%d,\"%s\">\n", x->type, x->str);
-}
-
 // ---- CharParser ----
 
-CharParser genCharParser(CharParserFn f, void* arg) {
-  CharParser p = mem_malloc(sizeof(struct stCharParser));
-  p->run = f;
-  p->arg = arg;
-  return p;
-}
-
-char parse_Char(CharParser p, Source src, Ctx* ctx) {
-  assert(ctx);
-  return p->run(p->arg, src, ctx);
-}
-
-bool parseTest_Char(const char* msg, CharParser p, const char* input) {
-  printf(msg);
-  Source src = Source_new(input);
-  Ctx ctx;
-  TRY(&ctx) {
-    show(parse(p, src, &ctx));
-    return true;
-  }
-  else {
-    printf("error:%s\n", ctx.msg);
-    mem_free((void*)ctx.msg);
-    return false;
-  }
-}
+DEFINE_PARSER(Char, char) { printf("'%c'\n", x); }
 
 // ---- StringParser ----
 
-StringParser genStringParser(StringParserFn f, void* arg) {
-  StringParser p = mem_malloc(sizeof(struct stStringParser));
-  p->run = f;
-  p->arg = arg;
-  return p;
-}
-
-const char* parse_String(StringParser p, Source src, Ctx* ctx) {
-  assert(ctx);
-  return p->run(p->arg, src, ctx);
-}
-
-bool parseTest_String(const char* msg, StringParser p,
-                      const char* input) {
-  printf(msg);
-  Source src = Source_new(input);
-  Ctx ctx;
-  TRY(&ctx) {
-    show(parse(p, src, &ctx));
-    return true;
-  }
-  else {
-    printf("error:%s\n", ctx.msg);
-    mem_free((void*)ctx.msg);
-    return false;
-  }
-}
+DEFINE_PARSER(String, const char*) { printf("\"%s\"\n", x); }
 
 // ---- TokenParser ----
 
-TokenParser genTokenParser(TokenParserFn f, void* arg) {
-  TokenParser p = mem_malloc(sizeof(struct stTokenParser));
-  p->run = f;
-  p->arg = arg;
-  return p;
-}
-
-Token parse_Token(TokenParser p, Source src, Ctx* ctx) {
-  assert(ctx);
-  return p->run(p->arg, src, ctx);
-}
-
-bool parseTest_Token(const char* msg, TokenParser p, const char* input) {
-  printf(msg);
-  Source src = Source_new(input);
-  Ctx ctx;
-  TRY(&ctx) {
-    show(parse(p, src, &ctx));
-    return true;
-  }
-  else {
-    printf("error:%s\n", ctx.msg);
-    mem_free((void*)ctx.msg);
-    return false;
-  }
+DEFINE_PARSER(Token, Token) {
+  printf("<Token:%d,\"%s\">\n", x->type, x->str);
 }
 
 // ---- predicates ----
