@@ -105,15 +105,7 @@ void consume(Source src);
 #define PARSE_TEST(p, input)                                             \
   PARSE_TEST_I(mem_printf("%s \"%s\" => ", #p, input), p, input)
 
-// clang-format off
-#define PARSE_TEST_I(msg, p, input)             \
-  _Generic((p)                                  \
-           , PARSER(Char)   : PARSETEST(Char)   \
-           , PARSER(String) : PARSETEST(String) \
-           , PARSER(Token)  : PARSETEST(Token)  \
-           , PARSER(Int)    : PARSETEST(Int)    \
-           )(msg, p, input)
-// clang-format on
+#define PARSE_TEST_I(msg, p, input) (p->test(msg, p, input))
 
 // ---- building-block for making parser ----
 
@@ -128,19 +120,21 @@ void consume(Source src);
 #define DECLARE_PARSER(T, R)                                          \
   typedef R (*PARSER_FN(T))(void* arg, Source src, Ctx* ex);          \
   typedef struct PARSER_ST(T) * PARSER(T);                            \
+  struct PARSER_ST(T) {                                               \
+    PARSER_FN(T) run;                                                 \
+    bool (*test)(const char* msg, PARSER(T) p, const char* input);    \
+    void* arg;                                                        \
+  };                                                                  \
   PARSER(T) PARSER_GEN(T)(PARSER_FN(T) f, void* arg);                 \
   R PARSE(T)(PARSER(T) p, Source src, Ctx * ctx);                     \
   bool PARSETEST(T)(const char* msg, PARSER(T) p, const char* input); \
   void SHOW(T)(R val)
 
 #define DEFINE_PARSER(T, R)                                             \
-  struct PARSER_ST(T) {                                                 \
-    PARSER_FN(T) run;                                                   \
-    void* arg;                                                          \
-  };                                                                    \
   PARSER(T) PARSER_GEN(T)(PARSER_FN(T) f, void* arg) {                  \
     PARSER(T) p = mem_malloc(sizeof(struct PARSER_ST(T)));              \
     p->run = f;                                                         \
+    p->test = PARSETEST(T);                                             \
     p->arg = arg;                                                       \
     return p;                                                           \
   }                                                                     \

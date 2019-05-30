@@ -8,9 +8,10 @@
 #undef parse
 #endif
 
-inline char parse(PARSER(Char) p, Source src) {
+template <typename Parser>
+inline auto parse(Parser p, Source src) {
   Ctx ctx;
-  TRY(&ctx) { return PARSE(Char)(p, src, &ctx); }
+  TRY(&ctx) { return p->run(p->arg, src, &ctx); }
   else {
     std::string ex(ctx.msg);
     throw ex;
