@@ -127,9 +127,9 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
   }
 #+end_src
 
-**** Step 2. Create parser by calling genParser(fun, arg)
+**** Step 2. Create parser by calling PARSER_GEN(T)(fun, arg)
 #+begin_src c
-  PARSER(String) digit3 = genParser(run_digit3, NULL);
+  PARSER(String) digit3 = PARSER_GEN(String)(run_digit3, NULL);
 #+end_src
 
 **** Step 3. Then use your parser.
@@ -169,7 +169,7 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
     /* NOTE: THIS MUST BE CALLED ONCE AT FIRST. */
     cparsec2_init();
 
-    PARSER(String) digit3 = genParser(run_digit3, NULL);
+    PARSER(String) digit3 = PARSER_GEN(String)(run_digit3, NULL);
     PARSE_TEST(digit3, "1234");   /* -> "123" */
     PARSE_TEST(digit3, "123");    /* -> "123" */
     PARSE_TEST(digit3, "12");     /* -> "error:too short" */
@@ -234,10 +234,6 @@ No need to define a custom function body in case of ~digit3~. Awesome!
 - PARSE_TEST(p, text) :: 
      Same as ~parseTest~ and also print ~p text~. (for debug purpose)\\
      Return ~true~ if passed, ~false~ if failed.
-- genParser(f, arg)     :: 
-     Create new parser instance.\\
-     ~f~ is a function body of the parser, and ~arg~ is argument (may be NULL)
-     to be passed to ~f~ when the parser is applied.
 
 *** Exception handling
 :PROPERTIES:

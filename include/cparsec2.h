@@ -124,15 +124,6 @@ void consume(Source src);
 // clang-format on
 
 // ---- building-block for making parser ----
-// clang-format off
-#define genParser(f, arg)                           \
-  _Generic((f)                                      \
-           , PARSER_FN(Char)   : PARSER_GEN(Char)   \
-           , PARSER_FN(String) : PARSER_GEN(String) \
-           , PARSER_FN(Token)  : PARSER_GEN(Token)  \
-           , PARSER_FN(Int)    : PARSER_GEN(Int)    \
-           )(f, arg)
-// clang-format off
 
 #define PARSER(T) T##Parser
 #define PARSER_FN(T) T##ParserFn
