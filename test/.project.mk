@@ -15,5 +15,7 @@ TESTFLAGS += -i
 
 $(TARGET): ../lib/libcparsec2.a
 
-../lib/libcparsec2.a:
+../lib/libcparsec2.a: depend
+
+depend:
 	$(MAKE) lib -C ..
