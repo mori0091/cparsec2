@@ -161,7 +161,7 @@ void consume(Source src);
     Source src = Source_new(input);                                     \
     Ctx ctx;                                                            \
     TRY(&ctx) {                                                         \
-      SHOW(T)(parse(p, src, &ctx));                                     \
+      SHOW(T)(PARSE(T)(p, src, &ctx));                                  \
       return true;                                                      \
     }                                                                   \
     else {                                                              \
