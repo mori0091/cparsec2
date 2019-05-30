@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
   PARSE_TEST(string1("a1234"),
              "a123bc"); /* "error:expects '4' but was 'b'" */
 
-  PARSER(String) digit3 = genParser(run_digit3, NULL);
+  PARSER(String) digit3 = PARSER_GEN(String)(run_digit3, NULL);
   PARSE_TEST(digit3, "1234"); /* "123" */
   PARSE_TEST(digit3, "123");  /* "123" */
   PARSE_TEST(digit3, "12");   /* "error:too short" */
