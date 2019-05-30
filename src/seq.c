@@ -8,7 +8,8 @@ static const char* run_seq_char(void* arg, Source src, Ctx* ex) {
   Ctx ctx;
   TRY(&ctx) {
     while (*p) {
-      buf_push(&str, parse(*p++, src, &ctx));
+      buf_push(&str, parse(*p, src, &ctx));
+      p++;
     }
     return buf_finish(&str);
   }

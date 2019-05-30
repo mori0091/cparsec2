@@ -19,53 +19,11 @@ inline char parse(PARSER(Char) p, Source src) {
 
 inline std::string parse(PARSER(String) p, Source src) {
   Ctx ctx;
-  TRY(&ctx) { return PARSE(String)(p, src, &ctx); }
+  TRY(&ctx) { return p->run(p->arg, src, &ctx); }
   else {
     std::string ex(ctx.msg);
     throw ex;
   }
-}
-
-inline Token parse(PARSER(Token) p, Source src) {
-  Ctx ctx;
-  TRY(&ctx) { return PARSE(Token)(p, src, &ctx); }
-  else {
-    std::string ex(ctx.msg);
-    throw ex;
-  }
-}
-
-inline int parse(PARSER(Int) p, Source src) {
-  Ctx ctx;
-  TRY(&ctx) { return PARSE(Int)(p, src, &ctx); }
-  else {
-    std::string ex(ctx.msg);
-    throw ex;
-  }
-}
-
-#ifdef PARSE_TEST_I
-#undef PARSE_TEST_I
-#endif
-
-inline bool PARSE_TEST_I(const char* msg, PARSER(Char) p,
-                         const char* input) {
-  return PARSETEST(Char)(msg, p, input);
-}
-
-inline bool PARSE_TEST_I(const char* msg, PARSER(String) p,
-                         const char* input) {
-  return PARSETEST(String)(msg, p, input);
-}
-
-inline bool PARSE_TEST_I(const char* msg, PARSER(Token) p,
-                         const char* input) {
-  return PARSETEST(Token)(msg, p, input);
-}
-
-inline bool PARSE_TEST_I(const char* msg, PARSER(Int) p,
-                         const char* input) {
-  return PARSETEST(Int)(msg, p, input);
 }
 
 #ifdef seq

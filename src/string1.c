@@ -8,7 +8,8 @@ static const char* run_string1(void* arg, Source src, Ctx* ex) {
   TRY(&ctx) {
     const char* p = expected;
     while (*p) {
-      parse(char1(*p++), src, &ctx);
+      parse(char1(*p), src, &ctx);
+      p++;
     }
     return expected;
   }

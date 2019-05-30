@@ -95,15 +95,7 @@ void consume(Source src);
 // ---- parser invocation ----
 
 // T parse(Parser<T> p, Souce src, Ctx *ctx)
-// clang-format off
-#define parse(p, src, ctx)                      \
-  _Generic((p)                                  \
-           , PARSER(Char)   : PARSE(Char)       \
-           , PARSER(String) : PARSE(String)     \
-           , PARSER(Token)  : PARSE(Token)      \
-           , PARSER(Int)    : PARSE(Int)        \
-           )(p, src, ctx)
-// clang-format on
+#define parse(p, src, ctx) ((p)->run((p)->arg, src, ctx))
 
 // ---- parser invocation (for debug purpose) ----
 
