@@ -39,7 +39,7 @@ test: $(TARGET)
 	./$(TARGET) $(TESTFLAGS)
 
 clean:
-	@rm -f $(TARGET) $(LIBTARGET) $(OBJS) $(DEPS) $(COVS) *~
+	@rm -f $(TARGET) $(TARGET).exe $(LIBTARGET) $(OBJS) $(DEPS) $(COVS) *~
 	@rm -df obj bin lib
 
 $(TARGET): $(OBJS)
