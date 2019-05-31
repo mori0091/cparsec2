@@ -17,7 +17,7 @@ jobs:
       - image: buildpack-deps:18.04
     steps:
       - checkout
-      - run: CFLAGS='-coverage' LDFLAGS='-coverage' sh ./build.sh -s test
+      - run: CXXFLAGS='-coverage' CFLAGS='-coverage' LDFLAGS='-coverage' sh ./build.sh -s test
       - run: bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
 workflows:
   version: 2
