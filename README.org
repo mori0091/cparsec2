@@ -38,7 +38,7 @@ The *CPARSEC2* is a parser combinator library for C/C++ language.
 
 1. It's my exercise :laughing:
 2. Maybe useful to develop C compiler written in C
-3. Maybe useful to testing framework for C
+3. Maybe useful to develop a testing framework for C
 4. To research more useful usecase of ~_Generic~ selector of C11
 5. etc.
 
@@ -368,7 +368,7 @@ Example: 'mult.c'
 To apply a parser, use ~parse(p, src, ctx)~, ~parseTest(p, text)~ and
 ~PARSE_TEST(p, text)~ macros. These macros are fully generic and easy to use.
 
-In the below exsample, using ~parse(p, src, ex)~.
+In the below example, using ~parse(p, src, ex)~.
 
 Example: 'main.c'
 #+begin_src c
