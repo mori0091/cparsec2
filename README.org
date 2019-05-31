@@ -48,7 +48,7 @@ The *CPARSEC2* is a parser combinator library for C/C++ language.
 :END:
 
 To build anything all in the *CPARSEC2* project, it is convenient to use
-~build.sh~ - a batch-~make~ shell script.
+~build.sh~ - a /batch-make/ shell script.
 
 - Usage :: build.sh [options] [target] ...
 
