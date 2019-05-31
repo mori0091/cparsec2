@@ -116,6 +116,8 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
 #+end_src
 
 *** Finally, you can get the 1st example as follows:
+
+See also [[file:example/digit3/][example/digit3]] folder
 #+begin_src c
   #include "cparsec2.h"
 
@@ -184,6 +186,26 @@ That's all !
 
 No need to define a custom function body in case of ~digit3~. Awesome!
 
+See also [[file:example/digit3b/][example/digit3b]] folder
+#+begin_src c
+  #include "cparsec2.h"
+
+  int main(int argc, char** argv) {
+    UNUSED(argc);
+    UNUSED(argv);
+
+    /* NOTE: THIS MUST BE CALLED ONCE AT FIRST. */
+    cparsec2_init();
+
+    PARSER(String) digit3 = seq(digit, digit, digit);
+    PARSE_TEST(digit3, "1234");   /* -> "123" */
+    PARSE_TEST(digit3, "123");    /* -> "123" */
+    PARSE_TEST(digit3, "12");     /* -> "error:too short" */
+    PARSE_TEST(digit3, "a123");   /* -> "error:not satisfy" */
+
+    return 0;
+  }
+#+end_src
 
 * API
 :PROPERTIES:
