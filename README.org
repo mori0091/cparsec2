@@ -7,98 +7,73 @@
 
 This project is an exercise to construct *parsec* like library for C11.
 
-- [[#how-to-build-cparsec2-library][How to build CPARSEC2 library]]
-- [[#how-to-build-andor-run-unit-tests][How to build and/or run unit-tests]]
+- [[#what-is-this][What is this?]]
+- [[#why-for-c11][Why for C11?]]
+
+- [[#how-to-build][How to build]]
 - [[#tutorial][Tutorial]]
 - [[#api][API]]
 
-** How to build CPARSEC2 library
+* What is this?
 :PROPERTIES:
-:CUSTOM_ID: how-to-build-cparsec2-library
+:CUSTOM_ID: what-is-this
 :END:
 
-In this project, using GNU make command to build and test.\\
-Run =make= command as follows. (e.g. type =make= =Enter= at command-line)
+The *CPARSEC2* is a parser combinator library for C/C++ language.
 
-To build all: (=bin/cparsec2=, =lib/libcparsec2.a=)
-#+begin_src shell
-# at the top of project directory
-make
-#+end_src
+- Supporting C/C++ standards ::
+  - C11
+  - C++17
+  
+- Supporting OS/Environments :: 
+  - *Msys* (MSYS2 on 64bit Windows)
+  - *Mingw* (MINGW64 on 64bit Windows)
+  - *Ubuntu 18.04* (including WSL - Windows Subsystem for Linux)
+  - or else (probably works well but not tested)
 
-To build executable file only: (=bin/cparsec2=)
-#+begin_src shell
-# at the top of project directory
-make build
-#+end_src
-
-To build archive file (i.e. library) only: (=lib/libcparsec2.a=)
-#+begin_src shell
-# at the top of project directory
-make lib
-#+end_src
-
-To run sample application: (=bin/cparsec2=)
-#+begin_src shell
-# at the top of project directory
-make test
-#+end_src
-
-To cleanup:
-#+begin_src shell
-# at the top of project directory
-make clean
-#+end_src
-
-
-** How to build and/or run unit-tests
+* Why for C11?
 :PROPERTIES:
-:CUSTOM_ID: how-to-build-andor-run-unit-tests
+:CUSTOM_ID: why-for-c11
 :END:
 
-This project uses [[https://github.com/catchorg/Catch2][Catch2]] - A modern, C++-native, header-only, test framework for
-unit-tests.
+1. It's my exercise :laughing:
+2. Maybe useful to develop C compiler written in C
+3. Maybe useful to testing framework for C
+4. To research more useful usecase of ~_Generic~ selector of C11
+5. etc.
 
-All unit-tests can be built and/or ran by GNU make command.
+* How to build
+:PROPERTIES:
+:CUSTOM_ID: how-to-build
+:END:
 
-To build unit-tests: (=test/tests=)
+To build anything all in the *CPARSEC2* project, it is convenient to use
+~build.sh~ - a batch-~make~ shell script.
+
+- Usage :: build.sh [options] [target] ...
+
+~build.sh [options] [target] ...~ run ~make -C <dir> [options] [target] ...~ for
+all directory ~<dir>~ in the project where a =GNUmakefile= or a =Makefile=
+exists.
+
+To build and test anything all in the project:
 #+begin_src shell
 # at the top of project directory
-make -C test
-# or at the 'test' directory
-cd test
-make
-#+end_src
+./build.sh all test
+#+end_src shell
 
-To run unit-tests: (=test/tests=)
-#+begin_src shell
-# at the top of project directory
-make test -C test
-# or at the 'test' directory
-cd test
-make test
-#+end_src
+*See also [[file:docs/HOW_TO_BUILD.org][HOW TO BUILD]] to build/test each subproject individually.*
 
-To cleanup unit-tests:
-#+begin_src shell
-# at the top of project directory
-make clean -C test
-# or at the 'test' directory
-cd test
-make clean
-#+end_src
-
-
-** Tutorial
+* Tutorial
 :PROPERTIES:
 :CUSTOM_ID: tutorial
 :END:
 
-*** How to make your parser
+** How to make your parser
 
 Let's create a parser named ~digit3~, which parses three digits.
 
-**** Step 1. Define function body of your parser.
+*** Step 1. Define function body of your parser.
 
 In this example, [[#exception_handling][Exception Handling]] mechanism is used:
 - Define ~Ctx ctx~ object
@@ -127,12 +102,12 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
   }
 #+end_src
 
-**** Step 2. Create parser by calling PARSER_GEN(T)(fun, arg)
+*** Step 2. Create parser by calling PARSER_GEN(T)(fun, arg)
 #+begin_src c
   PARSER(String) digit3 = PARSER_GEN(String)(run_digit3, NULL);
 #+end_src
 
-**** Step 3. Then use your parser.
+*** Step 3. Then use your parser.
 #+begin_src c
   PARSE_TEST(digit3, "1234");   /* -> "123" */
   PARSE_TEST(digit3, "123");    /* -> "123" */
@@ -140,7 +115,7 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
   PARSE_TEST(digit3, "a123");   /* -> "error:not satisfy" */
 #+end_src
 
-**** Finally, you can get the 1st example as follows:
+*** Finally, you can get the 1st example as follows:
 #+begin_src c
   #include "cparsec2.h"
 
@@ -179,7 +154,7 @@ In this example, [[#exception_handling][Exception Handling]] mechanism is used:
   }
 #+end_src
 
-*** You can use 'parser combinator' to make new parser
+** You can use 'parser combinator' to make new parser
 
 To make the 1st example ~digit3~ parser, we used pre-defined built-in parser
 ~digit~. And we made the custom function body such as ~run_digit3()~ for the
@@ -210,12 +185,12 @@ That's all !
 No need to define a custom function body in case of ~digit3~. Awesome!
 
 
-** API
+* API
 :PROPERTIES:
 :CUSTOM_ID: api
 :END:
 
-*** Core API
+** Core API
 - cparsec2_init()       :: 
      Initialize cparsec2 library.\\
      This must be called once at first.
@@ -235,7 +210,7 @@ No need to define a custom function body in case of ~digit3~. Awesome!
      Same as ~parseTest~ and also print ~p text~. (for debug purpose)\\
      Return ~true~ if passed, ~false~ if failed.
 
-*** Exception handling
+** Exception handling
 :PROPERTIES:
 :CUSTOM_ID: exception_handling
 :END:
@@ -261,7 +236,7 @@ Example:
   }
 #+end_src
 
-*** CharParser
+** CharParser
 - anyChar               :: 
      A CharParser which parse any one char
 - digit                 :: 
@@ -281,7 +256,7 @@ Example:
 - satisfy(pred)         :: 
      Create a CharParser which parse a char ~c~ satisfying ~pred(c) == true~
 
-*** StringParser
+** StringParser
 - spaces                :: 
      A StringParser which parse zero or more whitespaces (i.e. space, TAB, LF, CR)
 - many(p)               :: 
@@ -301,7 +276,7 @@ Example:
      Create a StringParser which parse the given string.\\
      The string ~s~ is used as expectation to parse a string.
 
-*** TokenParser
+** TokenParser
 - token(type, p)        :: 
      Create a TokenParser which parse a token.\\
      An enum TokenType ~type~ specify the kind of token, and ~p~ is used to
@@ -315,14 +290,14 @@ Example:
     - ~StringParser~
   - NOTE: ~token(type, p)~ is *experimental*. Maybe API will be changed.
 
-*** Building block of PARSER(T) class
+** Building block of PARSER(T) class
 
-**** PARSER(T) class
+*** PARSER(T) class
 
 - PARSER(T)             :: 
      Type of parser class. (ex. ~PARSER(Char)~ is ~CharParser~)
 
-**** Declare and Define PASER(T) class
+*** Declare and Define PASER(T) class
 
 - DECLARE_PARSER(T, R)  :: 
      Declare a parser class ~PARSER(T)~, whose instance return a value of type
@@ -352,7 +327,7 @@ Example: 'IntParser.c'
   }
 #+end_src
 
-**** Construct an instance of PARSER(T) class
+*** Construct an instance of PARSER(T) class
 
 - PARSER(T) PARSER_GEN(T)(PARSER_FN(T) f, void* arg) :: 
      Create new instance of ~PARSER(T)~.\\
@@ -388,7 +363,7 @@ Example: 'mult.c'
   }
 #+end_src
 
-**** Apply an instance of PARSER(T) to a text
+*** Apply an instance of PARSER(T) to a text
 
 To apply a parser, use ~parse(p, src, ctx)~, ~parseTest(p, text)~ and
 ~PARSE_TEST(p, text)~ macros. These macros are fully generic and easy to use.
