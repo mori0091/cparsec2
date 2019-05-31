@@ -7,9 +7,9 @@
 *.o
 *.s
 *.so
-/bin/*
-/lib/*
-/obj/*
+/**/bin
+/**/lib
+/**/obj
 /test/tests
 /tmp*
 .dir-locals.el
