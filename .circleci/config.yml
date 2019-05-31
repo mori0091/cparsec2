@@ -5,20 +5,19 @@ jobs:
       - image: buildpack-deps:18.04
     steps:
       - checkout
-      - run: make -s
+      - run: ./build.sh -s
   test:
     docker:
       - image: buildpack-deps:18.04
     steps:
       - checkout
-      - run: make test -s
-      - run: make test -s -C test
+      - run: ./build.sh -s test
   coverage:
     docker:
       - image: buildpack-deps:18.04
     steps:
       - checkout
-      - run: CFLAGS='-coverage' LDFLAGS='-coverage' make test -s -C test
+      - run: CFLAGS='-coverage' LDFLAGS='-coverage' ./build.sh -s test
       - run: bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
 workflows:
   version: 2
