@@ -235,9 +235,20 @@ StringParser string1(const char* s);
 #define EITHER(T) either##T
 #define DECLARE_EITHER(T) PARSER(T) EITHER(T)(PARSER(T) p1, PARSER(T) p2)
 
+DECLARE_EITHER(Char);
 DECLARE_EITHER(String);
-#define either(p1, p2)                                                   \
-  _Generic((p1), StringParser : EITHER(String))(p1, p2)
+DECLARE_EITHER(Int);
+DECLARE_EITHER(Token);
+
+// clang-format off
+#define either(p1, p2)                          \
+  _Generic((p1)                                 \
+           , PARSER(Char)   : EITHER(Char)      \
+           , PARSER(String) : EITHER(String)    \
+           , PARSER(Int)    : EITHER(Int)       \
+           , PARSER(Token)  : EITHER(Token)     \
+           )(p1, p2)
+// clang-format on
 
 // Parser<Token> token(enum TokenType type, T p);
 // clang-format off

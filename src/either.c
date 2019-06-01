@@ -17,10 +17,14 @@
     }                                                                    \
   }                                                                      \
   PARSER(T) EITHER(T)(PARSER(T) p1, PARSER(T) p2) {                      \
-    PARSER(T)* arg = mem_malloc(sizeof(PARSER(T)) * 2);                  \
+    PARSER(T)* arg = mem_malloc(sizeof(PARSER(T)[2]));                   \
     arg[0] = p1;                                                         \
     arg[1] = p2;                                                         \
     return PARSER_GEN(T)(EITHER_FN(T), arg);                             \
-  }
+  }                                                                      \
+  _Static_assert(1, "")
 
-DEFINE_EITHER(String, const char*)
+DEFINE_EITHER(Char, char);
+DEFINE_EITHER(String, const char*);
+DEFINE_EITHER(Int, int);
+DEFINE_EITHER(Token, Token);

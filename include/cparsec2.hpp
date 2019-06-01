@@ -48,8 +48,17 @@ inline PARSER(String) cons(PARSER(Char) p, PARSER(String) ps) {
 
 #ifdef either
 #undef either
+inline PARSER(Char) either(PARSER(Char) p1, PARSER(Char) p2) {
+  return EITHER(Char)(p1, p2);
+}
 inline PARSER(String) either(PARSER(String) p1, PARSER(String) p2) {
   return EITHER(String)(p1, p2);
+}
+inline PARSER(Int) either(PARSER(Int) p1, PARSER(Int) p2) {
+  return EITHER(Int)(p1, p2);
+}
+inline PARSER(Token) either(PARSER(Token) p1, PARSER(Token) p2) {
+  return EITHER(Token)(p1, p2);
 }
 #endif
 
