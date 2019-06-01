@@ -3,11 +3,9 @@
 
 * CPARSEC2 - a parser combinator library for C language
 
-  #+ATTR_HTML: title="Codacy Badge"
-  [[https://app.codacy.com/app/mori-d/cparsec2?utm_source=github.com&utm_medium=referral&utm_content=mori0091/cparsec2&utm_campaign=Badge_Grade_Dashboard][file:https://api.codacy.com/project/badge/Grade/21027a9b7b414ad796863c3e855370ce]]
 [[https://circleci.com/gh/mori0091/cparsec2][https://circleci.com/gh/mori0091/cparsec2.svg?style=shield]]
 [[https://codecov.io/gh/mori0091/cparsec2][https://codecov.io/gh/mori0091/cparsec2/branch/master/graph/badge.svg]]
-[[https://app.codacy.com/project/mori-d/cparsec2/dashboard][https://api.codacy.com/project/badge/Grade/3884708954694573829f978709ff6dae]]
+[[https://app.codacy.com/project/mori-d/cparsec2/dashboard][{Codacy}]]
 
 This project is an exercise to construct *parsec* like library for C11.
 
