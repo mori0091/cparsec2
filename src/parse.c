@@ -130,11 +130,6 @@ _Noreturn void cthrow(Ctx* ctx, const char* msg) {
 
 // ---- source of input character sequence ----
 
-struct stSource {
-  const char* input; /* whole input */
-  const char* p;     /* pointer to next char */
-};
-
 Source Source_new(const char* input) {
   Source src = mem_malloc(sizeof(struct stSource));
   src->input = input;

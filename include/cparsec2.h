@@ -85,6 +85,11 @@ NORETURN void cthrow(Ctx* ctx, const char* msg);
 
 typedef struct stSource* Source;
 
+struct stSource {
+  const char* input; /* whole input */
+  const char* p;     /* pointer to next char */
+};
+
 // Construct new Source object
 Source Source_new(const char* input);
 // peek head char
@@ -117,45 +122,45 @@ void consume(Source src);
 #define PARSETEST(T) parseTest_##T
 #define SHOW(T) show_##T
 
-#define DECLARE_PARSER(T, R)                                          \
-  typedef R (*PARSER_FN(T))(void* arg, Source src, Ctx* ex);          \
-  typedef struct PARSER_ST(T) * PARSER(T);                            \
-  struct PARSER_ST(T) {                                               \
-    PARSER_FN(T) run;                                                 \
-    bool (*test)(const char* msg, PARSER(T) p, const char* input);    \
-    void* arg;                                                        \
-  };                                                                  \
-  PARSER(T) PARSER_GEN(T)(PARSER_FN(T) f, void* arg);                 \
-  R PARSE(T)(PARSER(T) p, Source src, Ctx * ctx);                     \
-  bool PARSETEST(T)(const char* msg, PARSER(T) p, const char* input); \
+#define DECLARE_PARSER(T, R)                                             \
+  typedef R (*PARSER_FN(T))(void* arg, Source src, Ctx* ex);             \
+  typedef struct PARSER_ST(T) * PARSER(T);                               \
+  struct PARSER_ST(T) {                                                  \
+    PARSER_FN(T) run;                                                    \
+    bool (*test)(const char* msg, PARSER(T) p, const char* input);       \
+    void* arg;                                                           \
+  };                                                                     \
+  PARSER(T) PARSER_GEN(T)(PARSER_FN(T) f, void* arg);                    \
+  R PARSE(T)(PARSER(T) p, Source src, Ctx * ctx);                        \
+  bool PARSETEST(T)(const char* msg, PARSER(T) p, const char* input);    \
   void SHOW(T)(R val)
 
-#define DEFINE_PARSER(T, R)                                             \
-  PARSER(T) PARSER_GEN(T)(PARSER_FN(T) f, void* arg) {                  \
-    PARSER(T) p = mem_malloc(sizeof(struct PARSER_ST(T)));              \
-    p->run = f;                                                         \
-    p->test = PARSETEST(T);                                             \
-    p->arg = arg;                                                       \
-    return p;                                                           \
-  }                                                                     \
-  R PARSE(T)(PARSER(T) p, Source src, Ctx* ctx) {                       \
-    assert(ctx);                                                        \
-    return p->run(p->arg, src, ctx);                                    \
-  }                                                                     \
-  bool PARSETEST(T)(const char* msg, PARSER(T) p, const char* input) {  \
-    printf("%s", msg);                                                  \
-    Source src = Source_new(input);                                     \
-    Ctx ctx;                                                            \
-    TRY(&ctx) {                                                         \
-      SHOW(T)(PARSE(T)(p, src, &ctx));                                  \
-      return true;                                                      \
-    }                                                                   \
-    else {                                                              \
-      printf("error:%s\n", ctx.msg);                                    \
-      mem_free((void*)ctx.msg);                                         \
-      return false;                                                     \
-    }                                                                   \
-  }                                                                     \
+#define DEFINE_PARSER(T, R)                                              \
+  PARSER(T) PARSER_GEN(T)(PARSER_FN(T) f, void* arg) {                   \
+    PARSER(T) p = mem_malloc(sizeof(struct PARSER_ST(T)));               \
+    p->run = f;                                                          \
+    p->test = PARSETEST(T);                                              \
+    p->arg = arg;                                                        \
+    return p;                                                            \
+  }                                                                      \
+  R PARSE(T)(PARSER(T) p, Source src, Ctx * ctx) {                       \
+    assert(ctx);                                                         \
+    return p->run(p->arg, src, ctx);                                     \
+  }                                                                      \
+  bool PARSETEST(T)(const char* msg, PARSER(T) p, const char* input) {   \
+    printf("%s", msg);                                                   \
+    Source src = Source_new(input);                                      \
+    Ctx ctx;                                                             \
+    TRY(&ctx) {                                                          \
+      SHOW(T)(PARSE(T)(p, src, &ctx));                                   \
+      return true;                                                       \
+    }                                                                    \
+    else {                                                               \
+      printf("error:%s\n", ctx.msg);                                     \
+      mem_free((void*)ctx.msg);                                          \
+      return false;                                                      \
+    }                                                                    \
+  }                                                                      \
   void SHOW(T)(R x)
 
 // ---- CharParser ----
@@ -225,6 +230,8 @@ StringParser cons_char(CharParser p, StringParser ps);
 
 // Parser<String> string1(const char* s);
 StringParser string1(const char* s);
+
+StringParser either(StringParser p1, StringParser p2);
 
 // Parser<Token> token(enum TokenType type, T p);
 // clang-format off
