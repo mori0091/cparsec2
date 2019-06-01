@@ -48,6 +48,12 @@ inline PARSER(String) cons(PARSER(Char) p, PARSER(String) ps) {
 
 #ifdef either
 #undef either
+inline PARSER(Char) either(char p1, char p2) {
+  return EITHER(c)(p1, p2);
+}
+inline PARSER(String) either(const char* p1, const char* p2) {
+  return EITHER(s)(p1, p2);
+}
 inline PARSER(Char) either(PARSER(Char) p1, PARSER(Char) p2) {
   return EITHER(Char)(p1, p2);
 }
@@ -64,14 +70,16 @@ inline PARSER(Token) either(PARSER(Token) p1, PARSER(Token) p2) {
 
 #ifdef token
 #undef token
-inline PARSER(Token) token(int type, char c) { return token_c(type, c); }
+inline PARSER(Token) token(int type, char c) {
+  return TOKEN(c)(type, c);
+}
 inline PARSER(Token) token(int type, const char* s) {
-  return token_s(type, s);
+  return TOKEN(s)(type, s);
 }
 inline PARSER(Token) token(int type, PARSER(Char) p) {
-  return token_Char(type, p);
+  return TOKEN(Char)(type, p);
 }
 inline PARSER(Token) token(int type, PARSER(String) p) {
-  return token_String(type, p);
+  return TOKEN(String)(type, p);
 }
 #endif

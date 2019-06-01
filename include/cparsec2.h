@@ -201,48 +201,44 @@ bool is_space(char c);
 
 // ---- built-in parsers ----
 
-extern CharParser anyChar;
-extern CharParser digit;
-extern CharParser lower;
-extern CharParser upper;
-extern CharParser alpha;
-extern CharParser alnum;
-extern CharParser letter;
-extern StringParser spaces;
+extern PARSER(Char) anyChar;
+extern PARSER(Char) digit;
+extern PARSER(Char) lower;
+extern PARSER(Char) upper;
+extern PARSER(Char) alpha;
+extern PARSER(Char) alnum;
+extern PARSER(Char) letter;
+extern PARSER(String) spaces;
 
 // ---- parser generators, and parser combinators ----
 
-CharParser char1(char c);
-CharParser satisfy(Predicate pred);
+PARSER(Char) char1(char c);
+PARSER(Char) satisfy(Predicate pred);
 
-StringParser many(CharParser p);
-StringParser many1(CharParser p);
+PARSER(String) many(PARSER(Char) p);
+PARSER(String) many1(PARSER(Char) p);
 
 // Parser<T[]> seq(Parser<T> p, ...);
 #define seq(...) SEQ_I(__VA_ARGS__, NULL)
 #define SEQ_I(p, ...)                                                    \
-  _Generic((p), CharParser : seq_char)((CharParser[]){p, __VA_ARGS__})
-StringParser seq_char(CharParser ps[]);
+  _Generic((p), PARSER(Char) : seq_char)((PARSER(Char)[]){p, __VA_ARGS__})
+
+PARSER(String) seq_char(PARSER(Char) ps[]);
 
 // Parser<T[]> cons(Parser<T> p, Parser<T[]> ps);
-#define cons(p, ps) _Generic((p), CharParser : cons_char)(p, ps)
-StringParser cons_char(CharParser p, StringParser ps);
+#define cons(p, ps) _Generic((p), PARSER(Char) : cons_char)(p, ps)
+PARSER(String) cons_char(PARSER(Char) p, PARSER(String) ps);
 
 // Parser<String> string1(const char* s);
-StringParser string1(const char* s);
+PARSER(String) string1(const char* s);
 
 // Parser<T> either(Parser<T> p1, Parser<T> p2);
-#define EITHER(T) either##T
-#define DECLARE_EITHER(T) PARSER(T) EITHER(T)(PARSER(T) p1, PARSER(T) p2)
-
-DECLARE_EITHER(Char);
-DECLARE_EITHER(String);
-DECLARE_EITHER(Int);
-DECLARE_EITHER(Token);
-
+#define EITHER(T) either_##T
 // clang-format off
 #define either(p1, p2)                          \
   _Generic((p1)                                 \
+           , char           : EITHER(c)         \
+           , const char*    : EITHER(s)         \
            , PARSER(Char)   : EITHER(Char)      \
            , PARSER(String) : EITHER(String)    \
            , PARSER(Int)    : EITHER(Int)       \
@@ -250,21 +246,29 @@ DECLARE_EITHER(Token);
            )(p1, p2)
 // clang-format on
 
+PARSER(Char) EITHER(c)(char c1, char c2);
+PARSER(String) EITHER(s)(const char* s1, const char* s2);
+PARSER(Char) EITHER(Char)(PARSER(Char) p1, PARSER(Char) p2);
+PARSER(String) EITHER(String)(PARSER(String) p1, PARSER(String) p2);
+PARSER(Int) EITHER(Int)(PARSER(Int) p1, PARSER(Int) p2);
+PARSER(Token) EITHER(Token)(PARSER(Token) p1, PARSER(Token) p2);
+
 // Parser<Token> token(enum TokenType type, T p);
+#define TOKEN(T) token_##T
 // clang-format off
 #define token(type, p)                          \
   _Generic((p)                                  \
-           , char         : token_c             \
-           , const char*  : token_s             \
-           , CharParser   : token_Char          \
-           , StringParser : token_String        \
+           , char           : TOKEN(c)          \
+           , const char*    : TOKEN(s)          \
+           , PARSER(Char)   : TOKEN(Char)       \
+           , PARSER(String) : TOKEN(String)     \
            )(type, p)
 // clang-format on
 
-TokenParser token_c(int type, char c);
-TokenParser token_s(int type, const char* s);
-TokenParser token_Char(int type, CharParser p);
-TokenParser token_String(int type, StringParser p);
+PARSER(Token) TOKEN(c)(int type, char c);
+PARSER(Token) TOKEN(s)(int type, const char* s);
+PARSER(Token) TOKEN(Char)(int type, PARSER(Char) p);
+PARSER(Token) TOKEN(String)(int type, PARSER(String) p);
 
 #ifdef __cplusplus
 }

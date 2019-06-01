@@ -27,19 +27,19 @@ static Token run_token(void* arg, Source src, Ctx* ex) {
   }
 }
 
-PARSER(Token) token_c(int type, char c) {
+PARSER(Token) TOKEN(c)(int type, char c) {
   return token(type, char1(c));
 }
 
-PARSER(Token) token_s(int type, const char* s) {
+PARSER(Token) TOKEN(s)(int type, const char* s) {
   return token(type, string1(s));
 }
 
-PARSER(Token) token_Char(int type, PARSER(Char) p) {
-  return token_String(type, seq(p));
+PARSER(Token) TOKEN(Char)(int type, PARSER(Char) p) {
+  return token(type, seq(p));
 }
 
-PARSER(Token) token_String(int type, PARSER(String) p) {
+PARSER(Token) TOKEN(String)(int type, PARSER(String) p) {
   struct token_arg* arg = mem_malloc(sizeof(struct token_arg));
   arg->type = type;
   arg->parser = p;
