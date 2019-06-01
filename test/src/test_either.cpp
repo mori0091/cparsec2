@@ -6,7 +6,7 @@
 SCENARIO("either(string1(\"ab\"), string1(\"bc\"))", "[cparsec2][parser][either]") {
   cparsec2_init();
   GIVEN("PARSER(String) p = either(string1(\"ab\"), string1(\"bc\"))") {
-    PARSER(String)p = either(string1("ab"), string1("bc"));
+    PARSER(String) p = either(string1("ab"), string1("bc"));
     WHEN("applied to an input: \"ab\"") {
       Source src = Source_new("ab");
       THEN("results \"ab\"") {

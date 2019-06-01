@@ -2,24 +2,25 @@
 
 #include "cparsec2.h"
 
-static const char* run_either(void* arg, Source src, Ctx* ex) {
-  PARSER(String)* p = (PARSER(String)*)arg;
-  const char* state = src->p;
-  Ctx ctx;
-  TRY(&ctx) {
-    return parse(p[0], src, &ctx);
+#define EITHER_FN(T) run_either##T
+#define DEFINE_EITHER(T, R)                                              \
+  static R EITHER_FN(T)(void* arg, Source src, Ctx* ex) {                \
+    PARSER(T)* p = (PARSER(T)*)arg;                                      \
+    const char* state = src->p;                                          \
+    Ctx ctx;                                                             \
+    TRY(&ctx) { return parse(p[0], src, &ctx); }                         \
+    else if (state != src->p) {                                          \
+      cthrow(ex, ctx.msg);                                               \
+    }                                                                    \
+    else {                                                               \
+      return parse(p[1], src, ex);                                       \
+    }                                                                    \
+  }                                                                      \
+  PARSER(T) EITHER(T)(PARSER(T) p1, PARSER(T) p2) {                      \
+    PARSER(T)* arg = mem_malloc(sizeof(PARSER(T)) * 2);                  \
+    arg[0] = p1;                                                         \
+    arg[1] = p2;                                                         \
+    return PARSER_GEN(T)(EITHER_FN(T), arg);                             \
   }
-  else if (state != src->p) {
-    cthrow(ex, ctx.msg);
-  }
-  else {
-    return parse(p[1], src, ex);
-  }
-}
 
-PARSER(String) either(PARSER(String) p1, PARSER(String) p2) {
-  PARSER(String)* arg = mem_malloc(sizeof(PARSER(String)) * 2);
-  arg[0] = p1;
-  arg[1] = p2;
-  return PARSER_GEN(String)(run_either, arg);
-}
+DEFINE_EITHER(String, const char*)

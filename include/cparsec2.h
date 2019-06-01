@@ -231,7 +231,13 @@ StringParser cons_char(CharParser p, StringParser ps);
 // Parser<String> string1(const char* s);
 StringParser string1(const char* s);
 
-StringParser either(StringParser p1, StringParser p2);
+// Parser<T> either(Parser<T> p1, Parser<T> p2);
+#define EITHER(T) either##T
+#define DECLARE_EITHER(T) PARSER(T) EITHER(T)(PARSER(T) p1, PARSER(T) p2)
+
+DECLARE_EITHER(String);
+#define either(p1, p2)                                                   \
+  _Generic((p1), StringParser : EITHER(String))(p1, p2)
 
 // Parser<Token> token(enum TokenType type, T p);
 // clang-format off

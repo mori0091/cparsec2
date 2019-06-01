@@ -46,6 +46,13 @@ inline PARSER(String) cons(PARSER(Char) p, PARSER(String) ps) {
 }
 #endif
 
+#ifdef either
+#undef either
+inline PARSER(String) either(PARSER(String) p1, PARSER(String) p2) {
+  return EITHER(String)(p1, p2);
+}
+#endif
+
 #ifdef token
 #undef token
 inline PARSER(Token) token(int type, char c) { return token_c(type, c); }
