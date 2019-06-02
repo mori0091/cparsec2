@@ -253,6 +253,27 @@ PARSER(String) EITHER(String)(PARSER(String) p1, PARSER(String) p2);
 PARSER(Int) EITHER(Int)(PARSER(Int) p1, PARSER(Int) p2);
 PARSER(Token) EITHER(Token)(PARSER(Token) p1, PARSER(Token) p2);
 
+// Parser<T> tryp(Parser<T> p);
+#define TRYP(T) tryp_##T
+// clang-format off
+#define tryp(p)                                 \
+  _Generic((p)                                  \
+           , char           : TRYP(c)           \
+           , const char*    : TRYP(s)           \
+           , PARSER(Char)   : TRYP(Char)        \
+           , PARSER(String) : TRYP(String)      \
+           , PARSER(Int)    : TRYP(Int)         \
+           , PARSER(Token)  : TRYP(Token)       \
+           )(p)
+// clang-format on
+
+PARSER(Char) TRYP(c)(char c);
+PARSER(String) TRYP(s)(const char* s);
+PARSER(Char) TRYP(Char)(PARSER(Char) p);
+PARSER(String) TRYP(String)(PARSER(String) p);
+PARSER(Int) TRYP(Int)(PARSER(Int) p);
+PARSER(Token) TRYP(Token)(PARSER(Token) p);
+
 // Parser<Token> token(enum TokenType type, T p);
 #define TOKEN(T) token_##T
 // clang-format off

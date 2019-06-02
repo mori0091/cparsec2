@@ -68,6 +68,28 @@ inline PARSER(Token) either(PARSER(Token) p1, PARSER(Token) p2) {
 }
 #endif
 
+#ifdef tryp
+#undef tryp
+inline PARSER(Char) tryp(char p) {
+  return TRYP(c)(p);
+}
+inline PARSER(String) tryp(const char* p) {
+  return TRYP(s)(p);
+}
+inline PARSER(Char) tryp(PARSER(Char) p) {
+  return TRYP(Char)(p);
+}
+inline PARSER(String) tryp(PARSER(String) p) {
+  return TRYP(String)(p);
+}
+inline PARSER(Int) tryp(PARSER(Int) p) {
+  return TRYP(Int)(p);
+}
+inline PARSER(Token) tryp(PARSER(Token) p) {
+  return TRYP(Token)(p);
+}
+#endif
+
 #ifdef token
 #undef token
 inline PARSER(Token) token(int type, char c) {
