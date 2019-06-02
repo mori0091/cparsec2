@@ -314,6 +314,40 @@ Example:
     - ~StringParser~
   - NOTE: ~token(type, p)~ is *experimental*. Maybe API will be changed.
 
+** Parser-combinator 'either(p1, p2)'
+- CharParser either(char c1, char c2) :: 
+     Create a CharParser. Same as ~either(char1(c1), char1(c2))~.
+- StringParser either(const char* s1, const char* s2) :: 
+     Create a StringParser. Same as ~either(string1(c1), string1(c2))~.
+
+- PARSER(T) either(PARSER(T) p1, PARSER(T) p2) ::
+     Create a PARSER(T), which
+  - return result of ~p1~ if ~p1~ success,
+  - if ~p1~ consumed one or more chars and failed, throw error of ~p1~,
+  - if ~p1~ consumed no chars and failed, return result of ~p2~, or
+  - throw error of ~p2~
+  - NOTE: ~T~ must be one of the following:
+    - ~Char~
+    - ~String~
+    - ~Int~
+    - ~Token~
+
+** Parser-combinator 'tryp(p)'
+- CharParser tryp(char c) ::
+     Create a CharParser. Same as ~tryp(char1(c))~.
+- StringParser tryp(const char* s) ::
+     Create a StringParser. Same as ~tryp(string1(s))~.
+
+- PARSER(T) tryp(PARSER(T) p) ::
+     Create a PARSER(T), which
+  - return result of ~p~ if ~p~ success,
+  - otherwise rewind the input-state back then throw error of ~p~.
+  - NOTE: ~T~ must be one of the following:
+    - ~Char~
+    - ~String~
+    - ~Int~
+    - ~Token~
+
 ** Building block of PARSER(T) class
 
 *** PARSER(T) class
