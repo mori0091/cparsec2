@@ -27,14 +27,6 @@ static Token run_token(void* arg, Source src, Ctx* ex) {
   }
 }
 
-PARSER(Token) TOKEN(c)(int type, char c) {
-  return token(type, char1(c));
-}
-
-PARSER(Token) TOKEN(s)(int type, const char* s) {
-  return token(type, string1(s));
-}
-
 PARSER(Token) TOKEN(Char)(int type, PARSER(Char) p) {
   return token(type, seq(p));
 }

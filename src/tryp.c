@@ -19,14 +19,6 @@
   }                                                                      \
   _Static_assert(1, "")
 
-PARSER(Char) TRYP(c)(char c) {
-  return TRYP(Char)(char1(c));
-}
-
-PARSER(String) TRYP(s)(const char* s) {
-  return TRYP(String)(string1(s));
-}
-
 DEFINE_TRYP(Char, char);
 DEFINE_TRYP(String, const char*);
 DEFINE_TRYP(Int, int);

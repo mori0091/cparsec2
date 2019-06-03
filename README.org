@@ -317,8 +317,16 @@ Example:
 ** Parser-combinator 'either(p1, p2)'
 - CharParser either(char c1, char c2) :: 
      Create a CharParser. Same as ~either(char1(c1), char1(c2))~.
+- CharParser either(char c, CharParser p) :: 
+     Create a CharParser. Same as ~either(char1(c), p))~.
+- CharParser either(CharParser p, char c) :: 
+     Create a CharParser. Same as ~either(p, char1(c)))~.
 - StringParser either(const char* s1, const char* s2) :: 
-     Create a StringParser. Same as ~either(string1(c1), string1(c2))~.
+     Create a StringParser. Same as ~either(string1(s1), string1(s2))~.
+- StringParser either(const char* s, StringParser p) :: 
+     Create a StringParser. Same as ~either(string1(s), p)~.
+- StringParser either(StringParser p, const char* s) :: 
+     Create a StringParser. Same as ~either(p, string1(s))~.
 
 - PARSER(T) either(PARSER(T) p1, PARSER(T) p2) ::
      Create a PARSER(T), which

@@ -128,6 +128,16 @@ int main(int argc, char** argv) {
   PARSE_TEST(plus, " + 2");  /* "<Token:?,"+"> */
   PARSE_TEST(plus, " 2");    /* "error:expects '+' but was '2'" */
 
+  PARSE_TEST(either("ab", "bc"), "ab"); /* "ab" */
+  PARSE_TEST(either("ab", "bc"), "bc"); /* "bc" */
+  PARSE_TEST(either("ab", "bc"), "ac"); /* "error:expects 'b' but was 'c'" */
+  PARSE_TEST(either("ab", "ac"), "ac"); /* "error:expects 'b' but was 'c'" */
+
+  PARSE_TEST(either(tryp("ab"), "bc"), "ab"); /* "ab" */
+  PARSE_TEST(either(tryp("ab"), "bc"), "bc"); /* "bc" */
+  PARSE_TEST(either(tryp("ab"), "bc"), "ac"); /* "error:expects 'b' but was 'a'" */
+  PARSE_TEST(either(tryp("ab"), "ac"), "ac"); /* "ac" */
+
   cparsec2_end();
 
   return 0;

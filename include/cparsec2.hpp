@@ -48,14 +48,26 @@ inline PARSER(String) cons(PARSER(Char) p, PARSER(String) ps) {
 
 #ifdef either
 #undef either
-inline PARSER(Char) either(char p1, char p2) {
-  return EITHER(c)(p1, p2);
+inline PARSER(Char) either(char c1, char c2) {
+  return EITHER(Char)(char1(c1), char1(c2));
 }
-inline PARSER(String) either(const char* p1, const char* p2) {
-  return EITHER(s)(p1, p2);
+inline PARSER(Char) either(char c, PARSER(Char) p) {
+  return EITHER(Char)(char1(c), p);
+}
+inline PARSER(Char) either(PARSER(Char) p, char c) {
+  return EITHER(Char)(p, char1(c));
 }
 inline PARSER(Char) either(PARSER(Char) p1, PARSER(Char) p2) {
   return EITHER(Char)(p1, p2);
+}
+inline PARSER(String) either(const char* s1, const char* s2) {
+  return EITHER(String)(string1(s1), string1(s2));
+}
+inline PARSER(String) either(const char* s, PARSER(String) p) {
+  return EITHER(String)(string1(s), p);
+}
+inline PARSER(String) either(PARSER(String) p, const char* s) {
+  return EITHER(String)(p, string1(s));
 }
 inline PARSER(String) either(PARSER(String) p1, PARSER(String) p2) {
   return EITHER(String)(p1, p2);
@@ -71,13 +83,13 @@ inline PARSER(Token) either(PARSER(Token) p1, PARSER(Token) p2) {
 #ifdef tryp
 #undef tryp
 inline PARSER(Char) tryp(char p) {
-  return TRYP(c)(p);
-}
-inline PARSER(String) tryp(const char* p) {
-  return TRYP(s)(p);
+  return TRYP(Char)(char1(p));
 }
 inline PARSER(Char) tryp(PARSER(Char) p) {
   return TRYP(Char)(p);
+}
+inline PARSER(String) tryp(const char* s) {
+  return TRYP(String)(string1(s));
 }
 inline PARSER(String) tryp(PARSER(String) p) {
   return TRYP(String)(p);
@@ -93,13 +105,13 @@ inline PARSER(Token) tryp(PARSER(Token) p) {
 #ifdef token
 #undef token
 inline PARSER(Token) token(int type, char c) {
-  return TOKEN(c)(type, c);
-}
-inline PARSER(Token) token(int type, const char* s) {
-  return TOKEN(s)(type, s);
+  return TOKEN(Char)(type, char1(c));
 }
 inline PARSER(Token) token(int type, PARSER(Char) p) {
   return TOKEN(Char)(type, p);
+}
+inline PARSER(Token) token(int type, const char* s) {
+  return TOKEN(String)(type, string1(s));
 }
 inline PARSER(Token) token(int type, PARSER(String) p) {
   return TOKEN(String)(type, p);

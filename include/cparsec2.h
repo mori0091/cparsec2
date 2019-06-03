@@ -120,6 +120,7 @@ void consume(Source src);
 #define PARSER_GEN(T) gen##T##Parser
 #define PARSE(T) parse_##T
 #define PARSETEST(T) parseTest_##T
+#define PARSER_ID_FN(T) T##ParserIdentityFn
 #define SHOW(T) show_##T
 
 #define DECLARE_PARSER(T, R)                                             \
@@ -133,6 +134,7 @@ void consume(Source src);
   PARSER(T) PARSER_GEN(T)(PARSER_FN(T) f, void* arg);                    \
   R PARSE(T)(PARSER(T) p, Source src, Ctx * ctx);                        \
   bool PARSETEST(T)(const char* msg, PARSER(T) p, const char* input);    \
+  PARSER(T) PARSER_ID_FN(T)(PARSER(T) p);                                \
   void SHOW(T)(R val)
 
 #define DEFINE_PARSER(T, R)                                              \
@@ -161,6 +163,7 @@ void consume(Source src);
       return false;                                                      \
     }                                                                    \
   }                                                                      \
+  PARSER(T) PARSER_ID_FN(T)(PARSER(T) p) { return p; }                   \
   void SHOW(T)(R x)
 
 // ---- CharParser ----
@@ -232,22 +235,31 @@ PARSER(String) cons_char(PARSER(Char) p, PARSER(String) ps);
 // Parser<String> string1(const char* s);
 PARSER(String) string1(const char* s);
 
+// clang-format off
+#define PARSER_CAST(x)                              \
+  _Generic((x)                                      \
+           , char           : char1                 \
+           , char*          : string1               \
+           , const char*    : string1               \
+           , PARSER(Char)   : PARSER_ID_FN(Char)    \
+           , PARSER(String) : PARSER_ID_FN(String)  \
+           , PARSER(Int)    : PARSER_ID_FN(Int)     \
+           , PARSER(Token)  : PARSER_ID_FN(Token)   \
+           )(x)
+// clang-format on
+
 // Parser<T> either(Parser<T> p1, Parser<T> p2);
 #define EITHER(T) either_##T
 // clang-format off
-#define either(p1, p2)                          \
-  _Generic((p1)                                 \
-           , char           : EITHER(c)         \
-           , const char*    : EITHER(s)         \
-           , PARSER(Char)   : EITHER(Char)      \
-           , PARSER(String) : EITHER(String)    \
-           , PARSER(Int)    : EITHER(Int)       \
-           , PARSER(Token)  : EITHER(Token)     \
-           )(p1, p2)
+#define either(p1, p2)                              \
+  _Generic((PARSER_CAST(p1))                        \
+           , PARSER(Char)   : EITHER(Char)          \
+           , PARSER(String) : EITHER(String)        \
+           , PARSER(Int)    : EITHER(Int)           \
+           , PARSER(Token)  : EITHER(Token)         \
+           )((PARSER_CAST(p1)), (PARSER_CAST(p2)))
 // clang-format on
 
-PARSER(Char) EITHER(c)(char c1, char c2);
-PARSER(String) EITHER(s)(const char* s1, const char* s2);
 PARSER(Char) EITHER(Char)(PARSER(Char) p1, PARSER(Char) p2);
 PARSER(String) EITHER(String)(PARSER(String) p1, PARSER(String) p2);
 PARSER(Int) EITHER(Int)(PARSER(Int) p1, PARSER(Int) p2);
@@ -257,18 +269,14 @@ PARSER(Token) EITHER(Token)(PARSER(Token) p1, PARSER(Token) p2);
 #define TRYP(T) tryp_##T
 // clang-format off
 #define tryp(p)                                 \
-  _Generic((p)                                  \
-           , char           : TRYP(c)           \
-           , const char*    : TRYP(s)           \
+  _Generic((PARSER_CAST(p))                     \
            , PARSER(Char)   : TRYP(Char)        \
            , PARSER(String) : TRYP(String)      \
            , PARSER(Int)    : TRYP(Int)         \
            , PARSER(Token)  : TRYP(Token)       \
-           )(p)
+           )(PARSER_CAST(p))
 // clang-format on
 
-PARSER(Char) TRYP(c)(char c);
-PARSER(String) TRYP(s)(const char* s);
 PARSER(Char) TRYP(Char)(PARSER(Char) p);
 PARSER(String) TRYP(String)(PARSER(String) p);
 PARSER(Int) TRYP(Int)(PARSER(Int) p);
@@ -278,16 +286,12 @@ PARSER(Token) TRYP(Token)(PARSER(Token) p);
 #define TOKEN(T) token_##T
 // clang-format off
 #define token(type, p)                          \
-  _Generic((p)                                  \
-           , char           : TOKEN(c)          \
-           , const char*    : TOKEN(s)          \
+  _Generic((PARSER_CAST(p))                     \
            , PARSER(Char)   : TOKEN(Char)       \
            , PARSER(String) : TOKEN(String)     \
-           )(type, p)
+           )(type, PARSER_CAST(p))
 // clang-format on
 
-PARSER(Token) TOKEN(c)(int type, char c);
-PARSER(Token) TOKEN(s)(int type, const char* s);
 PARSER(Token) TOKEN(Char)(int type, PARSER(Char) p);
 PARSER(Token) TOKEN(String)(int type, PARSER(String) p);
 

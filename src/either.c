@@ -24,14 +24,6 @@
   }                                                                      \
   _Static_assert(1, "")
 
-PARSER(Char) EITHER(c)(char c1, char c2) {
-  return EITHER(Char)(char1(c1), char1(c2));
-}
-
-PARSER(String) EITHER(s)(const char* s1, const char* s2) {
-  return EITHER(String)(string1(s1), string1(s2));
-}
-
 DEFINE_EITHER(Char, char);
 DEFINE_EITHER(String, const char*);
 DEFINE_EITHER(Int, int);
