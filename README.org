@@ -72,7 +72,7 @@ To build and test anything all in the project:
 :CUSTOM_ID: sample-applications
 :END:
 
-- [[file:example/calc/README.org][calc]] - A simple calculator
+- [[file:example/calc][calc]] - A simple calculator
 
 * Tutorial
 :PROPERTIES:
