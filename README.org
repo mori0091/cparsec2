@@ -13,6 +13,7 @@ This project is an exercise to construct *parsec* like library for C11.
 - [[#why-for-c11][Why for C11?]]
 
 - [[#how-to-build][How to build]]
+- [[#sample-applications][Sample Applications]]
 - [[#tutorial][Tutorial]]
 - [[#api][API]]
 
@@ -65,6 +66,13 @@ To build and test anything all in the project:
 #+end_src shell
 
 *See also [[file:docs/HOW_TO_BUILD.org][HOW TO BUILD]] to build/test each subproject individually.*
+
+* Sample Applications
+:PROPERTIES:
+:CUSTOM_ID: sample-applications
+:END:
+
+- [[file:example/calc/README.org][calc]] - A simple calculator
 
 * Tutorial
 :PROPERTIES:

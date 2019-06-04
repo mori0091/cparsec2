@@ -1,0 +1,25 @@
+# -*- coding: utf-8-unix -*-
+#+STARTUP: showall indent
+
+* A simple calculator
+
+~calc~ - a simple calculator - is a sample application using CPARSEC2 library
+ 
+~calc~ parse and evaluate an integer arithmetic expression, and print result.
+
+* How to build
+#+begin_src shell
+make
+#+end_src
+
+* Usage
+
+- Usage :: calc <expression>
+
+#+BEGIN_src shell
+$ ./bin/calc '10 + 2 * 3'
+16
+
+$ ./bin/calc '(10 + 2) * 3'
+36
+#+end_src
