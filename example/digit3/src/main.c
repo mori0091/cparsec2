@@ -6,15 +6,15 @@ const char* run_digit3(void* arg, Source src, Ctx* ex) {
 
   Buffer str = buf_new();
   Ctx ctx;
-  TRY(&ctx) {                   /* try */
+  TRY(&ctx) { /* try */
     for (int i = 0; i < 3; ++i) {
       buf_push(&str, parse(digit, src, &ctx));
     }
     return buf_finish(&str);
   }
-  else {                        /* catch */
+  else { /* catch */
     mem_free(str.data);
-    cthrow(ex, ctx.msg);        /* re-throw */
+    cthrow(ex, ctx.msg); /* re-throw */
   }
 }
 
@@ -26,10 +26,10 @@ int main(int argc, char** argv) {
   cparsec2_init();
 
   PARSER(String) digit3 = PARSER_GEN(String)(run_digit3, NULL);
-  PARSE_TEST(digit3, "1234");   /* -> "123" */
-  PARSE_TEST(digit3, "123");    /* -> "123" */
-  PARSE_TEST(digit3, "12");     /* -> "error:too short" */
-  PARSE_TEST(digit3, "a123");   /* -> "error:not satisfy" */
+  PARSE_TEST(digit3, "1234"); /* -> "123" */
+  PARSE_TEST(digit3, "123");  /* -> "123" */
+  PARSE_TEST(digit3, "12");   /* -> "error:too short" */
+  PARSE_TEST(digit3, "a123"); /* -> "error:not satisfy" */
 
   return 0;
 }

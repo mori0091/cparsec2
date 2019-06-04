@@ -152,11 +152,15 @@ void consume(Source src) {
 
 // ---- CharParser ----
 
-DEFINE_PARSER(Char, char) { printf("'%c'\n", x); }
+DEFINE_PARSER(Char, char) {
+  printf("'%c'\n", x);
+}
 
 // ---- StringParser ----
 
-DEFINE_PARSER(String, const char*) { printf("\"%s\"\n", x); }
+DEFINE_PARSER(String, const char*) {
+  printf("\"%s\"\n", x);
+}
 
 // ---- TokenParser ----
 

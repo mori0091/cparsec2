@@ -2,7 +2,9 @@
 
 #include "cparsec2.h"
 
-Buffer buf_new(void) { return (Buffer){0}; }
+Buffer buf_new(void) {
+  return (Buffer){0};
+}
 
 void buf_ensure(Buffer* b) {
   if (!b->data) {
@@ -32,7 +34,9 @@ char* buf_finish(Buffer* b) {
   return b->data;
 }
 
-PtrBuffer ptrbuf_new(void) { return (PtrBuffer){0}; }
+PtrBuffer ptrbuf_new(void) {
+  return (PtrBuffer){0};
+}
 
 void ptrbuf_ensure(PtrBuffer* b) {
   int elemSize = sizeof(void*);

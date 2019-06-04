@@ -1,7 +1,7 @@
 /* -*- coding: utf-8-unix -*- */
 
-#include <stdio.h>
 #include "mult.h"
+#include <stdio.h>
 
 int main(int argc, char** argv) {
   UNUSED(argc);

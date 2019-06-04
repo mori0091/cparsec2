@@ -8,7 +8,9 @@ SCENARIO("char1(c)", "[cparsec2][parser][char1]") {
   GIVEN("an input: \"abc\" ") {
     Source src = Source_new("abc");
     WHEN("apply char1('a')") {
-      THEN("results 'a'") { REQUIRE('a' == parse(char1('a'), src)); }
+      THEN("results 'a'") {
+        REQUIRE('a' == parse(char1('a'), src));
+      }
     }
     WHEN("apply char1('b')") {
       THEN("cause exception(\"expects 'b' but was 'a'\")") {

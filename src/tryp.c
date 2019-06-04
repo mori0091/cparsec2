@@ -8,7 +8,9 @@
     PARSER(T) p = (PARSER(T))arg;                                        \
     const char* state = src->p;                                          \
     Ctx ctx;                                                             \
-    TRY(&ctx) { return parse(p, src, &ctx); }                            \
+    TRY(&ctx) {                                                          \
+      return parse(p, src, &ctx);                                        \
+    }                                                                    \
     else {                                                               \
       src->p = state;                                                    \
       cthrow(ex, ctx.msg);                                               \

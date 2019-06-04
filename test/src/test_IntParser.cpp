@@ -16,7 +16,9 @@ SCENARIO("PARSER(Int) number", "[cparsec2][parser][IntParser]") {
   GIVEN("an input: \"100\"") {
     Source src = Source_new("100");
     WHEN("apply number") {
-      THEN("results 100") { REQUIRE(100 == parse(number, src)); }
+      THEN("results 100") {
+        REQUIRE(100 == parse(number, src));
+      }
     }
   }
   GIVEN("an input: \"100+200\"") {
@@ -32,7 +34,9 @@ SCENARIO("PARSER(Int) number", "[cparsec2][parser][IntParser]") {
               int y = parse(number, src);
               THEN("results y = 200") {
                 REQUIRE(y == 200);
-                AND_THEN("x + y = 300") { REQUIRE(x + y == 300); }
+                AND_THEN("x + y = 300") {
+                  REQUIRE(x + y == 300);
+                }
               }
             }
           }

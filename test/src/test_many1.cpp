@@ -1,7 +1,7 @@
 /* -*- coding: utf-8-unix -*- */
 
-#include <cparsec2.hpp>
 #include <catch.hpp>
+#include <cparsec2.hpp>
 
 SCENARIO("many1(p)", "[cparsec2][parser][many1]") {
   cparsec2_init();

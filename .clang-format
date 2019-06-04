@@ -1,5 +1,11 @@
 # -*- coding:utf-8-unix -*-
 BasedOnStyle: LLVM
+AlignAfterOpenBracket: Align
 AlignEscapedNewlines: Right
+AlignTrailingComments: true
 ColumnLimit: 74
 PointerAlignment: Left
+AllowShortBlocksOnASingleLine: false
+AllowShortFunctionsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: Yes

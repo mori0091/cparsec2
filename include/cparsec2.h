@@ -163,7 +163,9 @@ void consume(Source src);
       return false;                                                      \
     }                                                                    \
   }                                                                      \
-  PARSER(T) PARSER_ID_FN(T)(PARSER(T) p) { return p; }                   \
+  PARSER(T) PARSER_ID_FN(T)(PARSER(T) p) {                               \
+    return p;                                                            \
+  }                                                                      \
   void SHOW(T)(R x)
 
 // ---- CharParser ----

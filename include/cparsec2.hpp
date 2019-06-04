@@ -11,7 +11,9 @@
 template <typename Parser>
 inline auto parse(Parser p, Source src) {
   Ctx ctx;
-  TRY(&ctx) { return p->run(p->arg, src, &ctx); }
+  TRY(&ctx) {
+    return p->run(p->arg, src, &ctx);
+  }
   else {
     std::string ex(ctx.msg);
     throw ex;
@@ -20,7 +22,9 @@ inline auto parse(Parser p, Source src) {
 
 inline std::string parse(PARSER(String) p, Source src) {
   Ctx ctx;
-  TRY(&ctx) { return p->run(p->arg, src, &ctx); }
+  TRY(&ctx) {
+    return p->run(p->arg, src, &ctx);
+  }
   else {
     std::string ex(ctx.msg);
     throw ex;

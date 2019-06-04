@@ -41,19 +41,22 @@ SCENARIO("tryp(p)", "[cparsec2][parser][tryp]") {
     }
     WHEN("an input was \"ac\"") {
       Source src = Source_new("ac");
-      THEN("applied 'p' causes an exception \"expects 'b' but was 'a'\"") {
+      THEN("applied 'p' causes an exception "
+           "\"expects 'b' but was 'a'\"") {
         REQUIRE_THROWS_WITH(parse(p, src), "expects 'b' but was 'a'");
       }
     }
     WHEN("an input was \"bd\"") {
       Source src = Source_new("bd");
-      THEN("applied 'p' causes an exception \"expects 'c' but was 'd'\"") {
+      THEN("applied 'p' causes an exception "
+           "\"expects 'c' but was 'd'\"") {
         REQUIRE_THROWS_WITH(parse(p, src), "expects 'c' but was 'd'");
       }
     }
     WHEN("an input was \"b\"") {
       Source src = Source_new("b");
-      THEN("applied 'p' causes an exception \"too short\"") {
+      THEN("applied 'p' causes an exception "
+           "\"too short\"") {
         REQUIRE_THROWS_WITH(parse(p, src), "too short");
       }
     }

@@ -16,7 +16,9 @@ SCENARIO("many(p)", "[cparsec2][parser][many]") {
   GIVEN("an input \"aaabbb\"") {
     Source src = Source_new("aaabbb");
     WHEN("apply many(digit)") {
-      THEN("results \"\"") { REQUIRE("" == parse(many(digit), src)); }
+      THEN("results \"\"") {
+        REQUIRE("" == parse(many(digit), src));
+      }
     }
     WHEN("apply many(char1('a'))") {
       AND_WHEN("apply many(char1('c'))") {

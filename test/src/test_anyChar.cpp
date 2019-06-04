@@ -8,7 +8,9 @@ SCENARIO("anyChar", "[cparsec2][parser][anyChar]") {
   GIVEN("an input \"abc\" ") {
     Source src = Source_new("abc");
     WHEN("apply anyChar") {
-      THEN("results 'a'") { REQUIRE('a' == parse(anyChar, src)); }
+      THEN("results 'a'") {
+        REQUIRE('a' == parse(anyChar, src));
+      }
     }
     WHEN("apply anyChar") {
       AND_WHEN("apply anyChar") {
