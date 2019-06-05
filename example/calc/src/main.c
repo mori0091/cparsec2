@@ -14,6 +14,7 @@ PARSER(Char) plus_minus;  // plus_minus = "+" | "-"
 PARSER(Char) star_slash;  // star_slash = "*" | "/"
 PARSER(Char) open_paren;  // open_paren = "("
 PARSER(Char) close_paren; // close_paren = ")"
+PARSER(Char) eom;         // end of message
 
 static int addsub_fn(void* arg, Source src, Ctx* ex) {
   UNUSED(arg);
@@ -83,6 +84,15 @@ static int number_fn(void* arg, Source src, Ctx* ex) {
   return atoi(parse(digits, src, ex));
 }
 
+static char eom_fn(void* arg, Source src, Ctx* ex) {
+  UNUSED(arg);
+  Ctx ctx;
+  TRY(&ctx) {
+    cthrow(ex, mem_printf("expects <eom> but was '%c'", peek(src, &ctx)));
+  }
+  return 0;
+}
+
 void setup(void) {
   digits = many1(digit);
   number = token(PARSER_GEN(Int)(number_fn, NULL));
@@ -96,6 +106,8 @@ void setup(void) {
   star_slash = token(either((char)'*', (char)'/'));
   open_paren = token(char1('('));
   close_paren = token(char1(')'));
+
+  eom = token(PARSER_GEN(Char)(eom_fn, NULL));
 }
 
 int main(int argc, char** argv) {
@@ -107,7 +119,16 @@ int main(int argc, char** argv) {
   cparsec2_init();
 
   setup();
-  parseTest(expr, argv[1]);
-
-  return 0;
+  Source src = Source_new(argv[1]);
+  Ctx ctx;
+  TRY(&ctx) {
+    int x = parse(expr, src, &ctx);
+    parse(eom, src, &ctx);
+    printf("%d\n", x);
+    return 0;
+  }
+  else {
+    printf("error:%s\n", ctx.msg);
+    return 1;
+  }
 }
