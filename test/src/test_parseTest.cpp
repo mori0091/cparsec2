@@ -27,17 +27,6 @@ SCENARIO("parseTest(p, str)", "[cparsec2][core][parseTest]") {
       REQUIRE_FALSE(parseTest(many1(alpha), "123"));
     }
   }
-  // TokenParser
-  WHEN("parseTest(token(TK_NUMBER, many1(digit)), \"  123  \")") {
-    THEN("results true") {
-      REQUIRE(parseTest(token(TK_NUMBER, many1(digit)), "  123  "));
-    }
-  }
-  WHEN("parseTest(token(TK_NUMBER, many1(alpha)), \"  123  \")") {
-    THEN("results false") {
-      REQUIRE_FALSE(parseTest(token(TK_NUMBER, many1(alpha)), "  123  "));
-    }
-  }
   cparsec2_end();
 }
 
@@ -63,18 +52,6 @@ SCENARIO("PARSE_TEST(p, str)", "[cparsec2][core][PARSE_TEST]") {
   WHEN("PARSE_TEST(many1(alpha), \"123\")") {
     THEN("results false") {
       REQUIRE_FALSE(PARSE_TEST(many1(alpha), "123"));
-    }
-  }
-  // TokenParser
-  WHEN("PARSE_TEST(token(TK_NUMBER, many1(digit)), \"  123  \")") {
-    THEN("results true") {
-      REQUIRE(PARSE_TEST(token(TK_NUMBER, many1(digit)), "  123  "));
-    }
-  }
-  WHEN("PARSE_TEST(token(TK_NUMBER, many1(alpha)), \"  123  \")") {
-    THEN("results false") {
-      REQUIRE_FALSE(
-          PARSE_TEST(token(TK_NUMBER, many1(alpha)), "  123  "));
     }
   }
   cparsec2_end();

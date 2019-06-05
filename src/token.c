@@ -2,38 +2,17 @@
 
 #include "cparsec2.h"
 
-struct token_arg {
-  int type;
-  PARSER(String) parser;
-};
+#define TOKEN_FN(T) run_token##T
+#define DEFINE_TOKEN(T, R)                                               \
+  static R TOKEN_FN(T)(void* arg, Source src, Ctx* ex) {                 \
+    parse(spaces, src, ex);                                              \
+    return parse((PARSER(T))arg, src, ex);                               \
+  }                                                                      \
+  PARSER(T) TOKEN(T)(PARSER(T) p) {                                      \
+    return PARSER_GEN(T)(TOKEN_FN(T), p);                                \
+  }                                                                      \
+  _Static_assert(1, "")
 
-static Token Token_new(int type, const char* str) {
-  Token tok = mem_malloc(sizeof(struct stToken));
-  tok->type = type;
-  tok->str = str;
-  return tok;
-}
-
-static Token run_token(void* arg, Source src, Ctx* ex) {
-  struct token_arg* self = (struct token_arg*)arg;
-  Ctx ctx;
-  TRY(&ctx) {
-    parse(spaces, src, &ctx); /* skip whitespaces */
-    const char* str = parse(self->parser, src, &ctx);
-    return Token_new(self->type, str);
-  }
-  else {
-    cthrow(ex, ctx.msg);
-  }
-}
-
-PARSER(Token) TOKEN(Char)(int type, PARSER(Char) p) {
-  return token(type, seq(p));
-}
-
-PARSER(Token) TOKEN(String)(int type, PARSER(String) p) {
-  struct token_arg* arg = mem_malloc(sizeof(struct token_arg));
-  arg->type = type;
-  arg->parser = p;
-  return PARSER_GEN(Token)(run_token, arg);
-}
+DEFINE_TOKEN(Char, char);
+DEFINE_TOKEN(String, const char*);
+DEFINE_TOKEN(Int, int);

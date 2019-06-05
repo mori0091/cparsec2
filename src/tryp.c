@@ -24,4 +24,3 @@
 DEFINE_TRYP(Char, char);
 DEFINE_TRYP(String, const char*);
 DEFINE_TRYP(Int, int);
-DEFINE_TRYP(Token, Token);

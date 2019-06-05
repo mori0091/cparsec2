@@ -174,21 +174,6 @@ DECLARE_PARSER(Char, char);
 // ---- StringParser ----
 DECLARE_PARSER(String, const char*);
 
-// ---- Token ----
-typedef struct stToken* Token;
-
-enum TokenType {
-  TK_NUMBER,
-};
-
-struct stToken {
-  enum TokenType type; // kind of the token
-  const char* str;     // string recognized as the token
-};
-
-// ---- TokenParser ----
-DECLARE_PARSER(Token, Token);
-
 // ---- IntParser ----
 DECLARE_PARSER(Int, int);
 
@@ -246,7 +231,6 @@ PARSER(String) string1(const char* s);
            , PARSER(Char)   : PARSER_ID_FN(Char)    \
            , PARSER(String) : PARSER_ID_FN(String)  \
            , PARSER(Int)    : PARSER_ID_FN(Int)     \
-           , PARSER(Token)  : PARSER_ID_FN(Token)   \
            )(x)
 // clang-format on
 
@@ -258,14 +242,12 @@ PARSER(String) string1(const char* s);
            , PARSER(Char)   : EITHER(Char)          \
            , PARSER(String) : EITHER(String)        \
            , PARSER(Int)    : EITHER(Int)           \
-           , PARSER(Token)  : EITHER(Token)         \
            )((PARSER_CAST(p1)), (PARSER_CAST(p2)))
 // clang-format on
 
 PARSER(Char) EITHER(Char)(PARSER(Char) p1, PARSER(Char) p2);
 PARSER(String) EITHER(String)(PARSER(String) p1, PARSER(String) p2);
 PARSER(Int) EITHER(Int)(PARSER(Int) p1, PARSER(Int) p2);
-PARSER(Token) EITHER(Token)(PARSER(Token) p1, PARSER(Token) p2);
 
 // Parser<T> tryp(Parser<T> p);
 #define TRYP(T) tryp_##T
@@ -275,27 +257,27 @@ PARSER(Token) EITHER(Token)(PARSER(Token) p1, PARSER(Token) p2);
            , PARSER(Char)   : TRYP(Char)        \
            , PARSER(String) : TRYP(String)      \
            , PARSER(Int)    : TRYP(Int)         \
-           , PARSER(Token)  : TRYP(Token)       \
            )(PARSER_CAST(p))
 // clang-format on
 
 PARSER(Char) TRYP(Char)(PARSER(Char) p);
 PARSER(String) TRYP(String)(PARSER(String) p);
 PARSER(Int) TRYP(Int)(PARSER(Int) p);
-PARSER(Token) TRYP(Token)(PARSER(Token) p);
 
-// Parser<Token> token(enum TokenType type, T p);
+// Parser<T> token(Parser<T> p);
 #define TOKEN(T) token_##T
 // clang-format off
-#define token(type, p)                          \
+#define token(p)                                \
   _Generic((PARSER_CAST(p))                     \
            , PARSER(Char)   : TOKEN(Char)       \
            , PARSER(String) : TOKEN(String)     \
-           )(type, PARSER_CAST(p))
+           , PARSER(Int)    : TOKEN(Int)        \
+           )(PARSER_CAST(p))
 // clang-format on
 
-PARSER(Token) TOKEN(Char)(int type, PARSER(Char) p);
-PARSER(Token) TOKEN(String)(int type, PARSER(String) p);
+PARSER(Char) TOKEN(Char)(PARSER(Char) p);
+PARSER(String) TOKEN(String)(PARSER(String) p);
+PARSER(Int) TOKEN(Int)(PARSER(Int) p);
 
 #ifdef __cplusplus
 }

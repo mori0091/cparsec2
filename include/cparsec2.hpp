@@ -79,9 +79,6 @@ inline PARSER(String) either(PARSER(String) p1, PARSER(String) p2) {
 inline PARSER(Int) either(PARSER(Int) p1, PARSER(Int) p2) {
   return EITHER(Int)(p1, p2);
 }
-inline PARSER(Token) either(PARSER(Token) p1, PARSER(Token) p2) {
-  return EITHER(Token)(p1, p2);
-}
 #endif
 
 #ifdef tryp
@@ -101,23 +98,23 @@ inline PARSER(String) tryp(PARSER(String) p) {
 inline PARSER(Int) tryp(PARSER(Int) p) {
   return TRYP(Int)(p);
 }
-inline PARSER(Token) tryp(PARSER(Token) p) {
-  return TRYP(Token)(p);
-}
 #endif
 
 #ifdef token
 #undef token
-inline PARSER(Token) token(int type, char c) {
-  return TOKEN(Char)(type, char1(c));
+inline PARSER(Char) token(char c) {
+  return TOKEN(Char)(char1(c));
 }
-inline PARSER(Token) token(int type, PARSER(Char) p) {
-  return TOKEN(Char)(type, p);
+inline PARSER(Char) token(PARSER(Char) p) {
+  return TOKEN(Char)(p);
 }
-inline PARSER(Token) token(int type, const char* s) {
-  return TOKEN(String)(type, string1(s));
+inline PARSER(String) token(const char* s) {
+  return TOKEN(String)(string1(s));
 }
-inline PARSER(Token) token(int type, PARSER(String) p) {
-  return TOKEN(String)(type, p);
+inline PARSER(String) token(PARSER(String) p) {
+  return TOKEN(String)(p);
+}
+inline PARSER(Int) token(PARSER(Int) p) {
+  return TOKEN(Int)(p);
 }
 #endif

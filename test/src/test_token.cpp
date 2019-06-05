@@ -3,38 +3,30 @@
 #include <catch.hpp>
 #include <cparsec2.hpp>
 
-SCENARIO("token(TK_NUMBER, many1(digit))", "[cparsec2][parser][token]") {
+SCENARIO("token(many1(digit))", "[cparsec2][parser][token]") {
   cparsec2_init();
   GIVEN("an input: \"1234\"") {
     Source src = Source_new("1234");
-    TokenParser number = token(TK_NUMBER, many1(digit));
-    WHEN("apply number = token(TK_NUMBER, many1(digit))") {
-      Token tok = parse(number, src);
-      THEN("results a token whose type is TK_NUMBER") {
-        REQUIRE(TK_NUMBER == tok->type);
-        AND_THEN("value is \"1234\"") {
-          REQUIRE("1234" == std::string(tok->str));
-        }
+    WHEN("apply number = token(many1(digit))") {
+      StringParser number = token(many1(digit));
+      THEN("results \"1234\"") {
+        REQUIRE("1234" == parse(number, src));
       }
     }
   }
   GIVEN("an input: \"1\"") {
     Source src = Source_new("1");
-    TokenParser number = token(TK_NUMBER, many1(digit));
-    WHEN("apply number = token(TK_NUMBER, many1(digit))") {
-      Token tok = parse(number, src);
-      THEN("results a token whose type is TK_NUMBER") {
-        REQUIRE(TK_NUMBER == tok->type);
-        AND_THEN("value is \"1\"") {
-          REQUIRE("1" == std::string(tok->str));
-        }
+    WHEN("apply number = token(many1(digit))") {
+      StringParser number = token(many1(digit));
+      THEN("value is \"1\"") {
+        REQUIRE("1" == parse(number, src));
       }
     }
   }
   GIVEN("an input: \"\"") {
     Source src = Source_new("");
-    TokenParser number = token(TK_NUMBER, many1(digit));
-    WHEN("apply number = token(TK_NUMBER, many1(digit))") {
+    WHEN("apply number = token(many1(digit))") {
+      StringParser number = token(many1(digit));
       THEN("cause exception(\"too short\")") {
         REQUIRE_THROWS_WITH(parse(number, src), "too short");
       }
@@ -42,8 +34,8 @@ SCENARIO("token(TK_NUMBER, many1(digit))", "[cparsec2][parser][token]") {
   }
   GIVEN("an input: \"a123\"") {
     Source src = Source_new("a123");
-    TokenParser number = token(TK_NUMBER, many1(digit));
-    WHEN("apply number = token(TK_NUMBER, many1(digit))") {
+    WHEN("apply number = token(many1(digit))") {
+      StringParser number = token(many1(digit));
       THEN("cause exception(\"not satisfy\")") {
         REQUIRE_THROWS_WITH(parse(number, src), "not satisfy");
       }
@@ -52,12 +44,12 @@ SCENARIO("token(TK_NUMBER, many1(digit))", "[cparsec2][parser][token]") {
   cparsec2_end();
 }
 
-SCENARIO("token('+', (char)'+')", "[cparsec2][parser][token]") {
+SCENARIO("token((char)'+')", "[cparsec2][parser][token]") {
   cparsec2_init();
   GIVEN("an input: \"1 + 2\"") {
     Source src = Source_new("1 + 2");
-    TokenParser plus = token('+', (char)'+');
-    WHEN("apply plus = token('+', (char)'+')") {
+    WHEN("apply plus = token((char)'+')") {
+      CharParser plus = token((char)'+');
       THEN("cause exception(\"expects '+' but was '1'\")") {
         REQUIRE_THROWS_WITH(parse(plus, src), "expects '+' but was '1'");
       }
@@ -65,21 +57,17 @@ SCENARIO("token('+', (char)'+')", "[cparsec2][parser][token]") {
   }
   GIVEN("an input: \" + 2\"") {
     Source src = Source_new(" + 2");
-    TokenParser plus = token('+', (char)'+');
-    WHEN("apply plus = token('+', (char)'+')") {
-      Token tok = parse(plus, src);
-      THEN("results a token whose type is '+'") {
-        REQUIRE('+' == tok->type);
-        AND_THEN("value is \"+\"") {
-          REQUIRE("+" == std::string(tok->str));
-        }
+    WHEN("apply plus = token((char)'+')") {
+      CharParser plus = token((char)'+');
+      THEN("value is \"+\"") {
+        REQUIRE('+' == parse(plus, src));
       }
     }
   }
   GIVEN("an input: \" 2\"") {
     Source src = Source_new(" 2");
-    TokenParser plus = token('+', (char)'+');
-    WHEN("apply plus = token('+', (char)'+')") {
+    WHEN("apply plus = token((char)'+')") {
+      CharParser plus = token((char)'+');
       THEN("cause exception(\"expects '+' but was '2'\")") {
         REQUIRE_THROWS_WITH(parse(plus, src), "expects '+' but was '2'");
       }
@@ -88,26 +76,22 @@ SCENARIO("token('+', (char)'+')", "[cparsec2][parser][token]") {
   cparsec2_end();
 }
 
-SCENARIO("token(1, \"foo\")", "[cparsec2][parser][token]") {
+SCENARIO("token(\"foo\")", "[cparsec2][parser][token]") {
   cparsec2_init();
   GIVEN("an input: \"foo foofoo bar\"") {
     Source src = Source_new("foo foofoo bar");
-    TokenParser foo = token(1, "foo");
-    WHEN("apply foo = token(1, \"foo\")") {
-      AND_WHEN("apply foo") {
+    WHEN("apply foo = token(\"foo\")") {
+      StringParser foo = token("foo");
+      THEN("results \"foo\"") {
+        REQUIRE("foo" == parse(foo, src));
         AND_WHEN("apply foo") {
-          AND_WHEN("apply foo") {
-            THEN("results a token whose value is \"foo\"") {
-              Token tok = parse(foo, src);
-              REQUIRE(std::string("foo") == tok->str);
-              AND_THEN("results a token whose value is \"foo\"") {
-                Token tok = parse(foo, src);
-                REQUIRE(std::string("foo") == tok->str);
-                AND_THEN("results a token whose value is \"foo\"") {
-                  Token tok = parse(foo, src);
-                  REQUIRE(std::string("foo") == tok->str);
-                  AND_THEN(
-                      "cause exception(\"expects 'f' but was 'b'\")") {
+          THEN("results \"foo\"") {
+            REQUIRE("foo" == parse(foo, src));
+            AND_WHEN("apply foo") {
+              THEN("results \"foo\"") {
+                REQUIRE("foo" == parse(foo, src));
+                AND_WHEN("apply foo") {
+                  THEN("cause exception(\"expects 'f' but was 'b'\")") {
                     REQUIRE_THROWS_WITH(parse(foo, src),
                                         "expects 'f' but was 'b'");
                   }

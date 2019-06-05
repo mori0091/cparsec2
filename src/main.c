@@ -115,17 +115,17 @@ int main(int argc, char** argv) {
   PARSE_TEST(cons(upper, digit3), "A123"); /* "A123" */
   PARSE_TEST(cons(upper, digit3), "a123"); /* "error:not satisfy" */
 
-  PARSER(Token) number = token(TK_NUMBER, many1(digit));
-  PARSE_TEST(number, "1234"); /* "<Token:0,"1234">" */
-  PARSE_TEST(number, "123");  /* "<Token:0,"123">" */
-  PARSE_TEST(number, "12");   /* "<Token:0,"12">" */
-  PARSE_TEST(number, "1");    /* "<Token:0,"1">" */
+  PARSER(String) number = token(many1(digit));
+  PARSE_TEST(number, "1234"); /* "1234" */
+  PARSE_TEST(number, "123");  /* "123" */
+  PARSE_TEST(number, "12");   /* "12" */
+  PARSE_TEST(number, "1");    /* "1" */
   PARSE_TEST(number, "");     /* "error:too short" */
   PARSE_TEST(number, "a123"); /* "error:not satisfy" */
 
-  PARSER(Token) plus = token('+', (char)'+');
+  PARSER(Char) plus = token((char)'+');
   PARSE_TEST(plus, "1 + 2"); /* "error:expects '+' but was '1'" */
-  PARSE_TEST(plus, " + 2");  /* "<Token:?,"+"> */
+  PARSE_TEST(plus, " + 2");  /* '+' */
   PARSE_TEST(plus, " 2");    /* "error:expects '+' but was '2'" */
 
   PARSE_TEST(either("ab", "bc"), "ab"); /* "ab" */

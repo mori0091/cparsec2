@@ -162,12 +162,6 @@ DEFINE_PARSER(String, const char*) {
   printf("\"%s\"\n", x);
 }
 
-// ---- TokenParser ----
-
-DEFINE_PARSER(Token, Token) {
-  printf("<Token:%d,\"%s\">\n", x->type, x->str);
-}
-
 // ---- IntParser ----
 DEFINE_PARSER(Int, int) {
   printf("%d\n", x);

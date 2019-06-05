@@ -29,4 +29,3 @@
 DEFINE_EITHER(Char, char);
 DEFINE_EITHER(String, const char*);
 DEFINE_EITHER(Int, int);
-DEFINE_EITHER(Token, Token);
