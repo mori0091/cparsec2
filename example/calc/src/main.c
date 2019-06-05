@@ -9,9 +9,11 @@ PARSER(Int) unary;  // unary  = ["+" | "-"] term
 PARSER(Int) term;   // term   = number | "(" expr ")"
 PARSER(Int) number; // number = digits
 
-PARSER(String) digits;   // digits = digit { digit }
-PARSER(Char) plus_minus; // plus_minus = "+" | "-"
-PARSER(Char) star_slash; // star_slash = "*" | "/"
+PARSER(String) digits;    // digits = digit { digit }
+PARSER(Char) plus_minus;  // plus_minus = "+" | "-"
+PARSER(Char) star_slash;  // star_slash = "*" | "/"
+PARSER(Char) open_paren;  // open_paren = "("
+PARSER(Char) close_paren; // close_paren = ")"
 
 static int addsub_fn(void* arg, Source src, Ctx* ex) {
   UNUSED(arg);
@@ -19,7 +21,6 @@ static int addsub_fn(void* arg, Source src, Ctx* ex) {
   Ctx ctx;
   TRY(&ctx) {
     while (peek(src, &ctx)) {
-      parse(spaces, src, ex);
       char op = parse(plus_minus, src, &ctx);
       int y = parse(muldiv, src, ex);
       if (op == '+') {
@@ -38,7 +39,6 @@ static int muldiv_fn(void* arg, Source src, Ctx* ex) {
   Ctx ctx;
   TRY(&ctx) {
     while (peek(src, &ctx)) {
-      parse(spaces, src, ex);
       char op = parse(star_slash, src, &ctx);
       int y = parse(unary, src, ex);
       if (op == '*') {
@@ -53,7 +53,6 @@ static int muldiv_fn(void* arg, Source src, Ctx* ex) {
 
 static int unary_fn(void* arg, Source src, Ctx* ex) {
   UNUSED(arg);
-  parse(spaces, src, ex);
   if ('+' == peek(src, ex)) {
     consume(src);
     return parse(term, src, ex);
@@ -67,35 +66,36 @@ static int unary_fn(void* arg, Source src, Ctx* ex) {
 
 static int term_fn(void* arg, Source src, Ctx* ex) {
   UNUSED(arg);
-  parse(spaces, src, ex);
-  if ((char)'(' == peek(src, ex)) {
-    consume(src);
-    parse(spaces, src, ex);
+  Ctx ctx;
+  TRY(&ctx) {
+    parse(open_paren, src, &ctx);
     int x = parse(expr, src, ex);
-    parse(spaces, src, ex);
-    parse(char1(')'), src, ex);
+    parse(close_paren, src, ex);
     return x;
   }
-  return parse(number, src, ex);
+  else {
+    return parse(number, src, ex);
+  }
 }
 
 static int number_fn(void* arg, Source src, Ctx* ex) {
   UNUSED(arg);
-  parse(spaces, src, ex);
   return atoi(parse(digits, src, ex));
 }
 
 void setup(void) {
   digits = many1(digit);
-  number = PARSER_GEN(Int)(number_fn, NULL);
-  term = PARSER_GEN(Int)(term_fn, NULL);
-  unary = PARSER_GEN(Int)(unary_fn, NULL);
-  muldiv = PARSER_GEN(Int)(muldiv_fn, NULL);
-  addsub = PARSER_GEN(Int)(addsub_fn, NULL);
+  number = token(PARSER_GEN(Int)(number_fn, NULL));
+  term = token(PARSER_GEN(Int)(term_fn, NULL));
+  unary = token(PARSER_GEN(Int)(unary_fn, NULL));
+  muldiv = token(PARSER_GEN(Int)(muldiv_fn, NULL));
+  addsub = token(PARSER_GEN(Int)(addsub_fn, NULL));
   expr = addsub;
 
-  plus_minus = either((char)'+', (char)'-');
-  star_slash = either((char)'*', (char)'/');
+  plus_minus = token(either((char)'+', (char)'-'));
+  star_slash = token(either((char)'*', (char)'/'));
+  open_paren = token(char1('('));
+  close_paren = token(char1(')'));
 }
 
 int main(int argc, char** argv) {
