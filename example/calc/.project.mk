@@ -7,10 +7,7 @@ CXXFLAGS +=
 LDFLAGS  += -L ../../lib
 LDLIBS   += -lcparsec2
 
-TEST_COMMAND = \
-	./$(TARGET) && \
-	./$(TARGET) '3 * (1 + 2) -1' && \
-	./$(TARGET) '1 + 2  ;' || true
+TEST_COMMAND = ./tests.sh
 
 $(TARGET): ../../lib/libcparsec2.a
 
