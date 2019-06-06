@@ -55,16 +55,16 @@ $(LIBTARGET): $(LIBOBJS)
 obj/%.o: src/%.c
 	$(info [C]     Compile : $@ ($<))
 	@mkdir -p $(dir $@)
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@$(CC) $(CFLAGS) -c -o $@ $(realpath $<)
 
 obj/%.o: src/%.cpp
 	$(info [C++]   Compile : $@ ($<))
 	@mkdir -p $(dir $@)
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+	@$(CXX) $(CXXFLAGS) -c -o $@ $(realpath $<)
 
 obj/%.o: src/%.cxx
 	$(info [C++]   Compile : $@ ($<))
 	@mkdir -p $(dir $@)
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+	@$(CXX) $(CXXFLAGS) -c -o $@ $(realpath $<)
 
 -include $(DEPS)
