@@ -31,12 +31,15 @@ DEPS = $(patsubst %.o, %.d, $(OBJS))
 COVS = $(patsubst %.o, %.gcda, $(OBJS)) $(patsubst %.o, %.gcno, $(OBJS))
 LIBOBJS = $(filter-out %/main.o, $(OBJS))
 
+TEST_COMMAND ?= ./$(TARGET) $(TESTFLAGS)
+
 build: $(TARGET)
 
 lib: $(LIBTARGET)
 
 test: $(TARGET)
-	./$(TARGET) $(TESTFLAGS)
+	$(info [TEST] $(TEST_COMMAND))
+	@$(TEST_COMMAND)
 
 clean:
 	@rm -f $(TARGET) $(TARGET).exe $(LIBTARGET) $(OBJS) $(DEPS) $(COVS) *~
