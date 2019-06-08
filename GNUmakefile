@@ -1,12 +1,12 @@
 # -*- coding:utf-8-unix -*-
-.PHONY: all build clean lib test
+.PHONY: all build clean cov lib test
 
 all: build lib
 
 include .project.mk
 
 DEFAULT_CFLAGS ?=
-DEFAULT_CFLAGS += -MMD -MD
+DEFAULT_CFLAGS += -MMD
 DEFAULT_CFLAGS += -pedantic-errors -Wall -Wpedantic -Wextra
 DEFAULT_CFLAGS += -Winit-self -Wno-missing-field-initializers
 
@@ -43,7 +43,14 @@ test: $(TARGET)
 
 clean:
 	@rm -f $(TARGET) $(TARGET).exe $(LIBTARGET) $(OBJS) $(DEPS) $(COVS) *~
+	@rm -f *.gcov
 	@rm -df obj bin lib
+
+cov: CFLAGS   += -coverage
+cov: CXXFLAGS += -coverage
+cov: LDFLAGS  += -coverage
+cov: all test
+	@gcov -abcpru -o obj $(SRCS)
 
 $(TARGET): $(OBJS)
 	$(info [LD]    Build   : $@	[$(notdir $(CURDIR))])
@@ -58,16 +65,16 @@ $(LIBTARGET): $(LIBOBJS)
 obj/%.o: src/%.c
 	$(info [C]     Compile : $@ ($<))
 	@mkdir -p $(dir $@)
-	@$(CC) $(CFLAGS) -c -o $@ $(realpath $<)
+	@$(CC) $(CFLAGS) -c -o $@ $<
 
 obj/%.o: src/%.cpp
 	$(info [C++]   Compile : $@ ($<))
 	@mkdir -p $(dir $@)
-	@$(CXX) $(CXXFLAGS) -c -o $@ $(realpath $<)
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 obj/%.o: src/%.cxx
 	$(info [C++]   Compile : $@ ($<))
 	@mkdir -p $(dir $@)
-	@$(CXX) $(CXXFLAGS) -c -o $@ $(realpath $<)
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 -include $(DEPS)
