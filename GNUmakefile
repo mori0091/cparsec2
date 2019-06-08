@@ -1,5 +1,5 @@
 # -*- coding:utf-8-unix -*-
-.PHONY: all build clean lib test
+.PHONY: all build clean cov lib test
 
 all: build lib
 
