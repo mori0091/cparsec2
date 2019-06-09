@@ -8,7 +8,7 @@
 - [[#core-api][Core API]] :: 
   - CPARSEC2 core APIs
   - Exception handling API for C.
-- [[#built-in-parsers-parser-generators-parser-combinators][Built-in Parsers, Parser generators, and Parser combinators]] ::
+- [[#built-in-parsers-parser-generators-and-parser-combinators][Built-in Parsers, Parser generators, and Parser combinators]] ::
   - Parsers, generators, and combinators of type ~PARSER(Char)~
   - Parsers, generators, and combinators of type ~PARSER(String)~
   - Parser generators and combinators of /generic/ type ~PARSER(T)~
@@ -76,7 +76,7 @@ Example:
 
 * Built-in Parsers, Parser generators, and Parser combinators
 :PROPERTIES:
-:CUSTOM_ID: built-in-parsers-parser-generators-parser-combinators
+:CUSTOM_ID: built-in-parsers-parser-generators-and-parser-combinators
 :END:
 
 ** PARSER(Char)
