@@ -198,13 +198,14 @@ Parser generators and Parser combinators of generic type ~PARSER(T)~.
 ** Declare and Define PASER(T) class
 
 - DECLARE_PARSER(T, R)  :: 
-     Declare a parser class ~PARSER(T)~, whose instance return a value of type
-     ~R~ when the parser was applied to a text.
+     Declare a parser class ~PARSER(T)~, whose instance (i.e. parser of type
+     ~PARSER(T)~) return a value of type ~R~ when the parser was applied to a
+     text.
 - DEFINE_PARSER(T, R) { ~/* print x; */~ } :: 
      Define a parser class ~PARSER(T)~.\\
   - *NOTE* : The trailing block ~{...}~ is body of function ~void SHOW(T)(R x)~.
-  - *NOTE* : ~void SHOW(T)(R x)~ is called by ~PARSETEST(T)(msg, p, src)~ to print ~x~.
-  - *NOTE* : ~x~ is the result of ~PARSE(T)(p, src, ex)~.
+  - *NOTE* : ~void SHOW(T)(R x)~ is called by ~parseTest(p, text)~ to print ~x~.
+  - *NOTE* : ~x~ is the result of parser ~p~ applied to the ~text~.
 
 Example: 'IntParser.h'
 #+begin_src c
