@@ -22,10 +22,11 @@ Let's create a parser named ~digit3~, which parses three digits.
 
 ** Step 1. Define function body of your parser.
 
-In this example, [[#exception_handling][Exception Handling]] mechanism is used:
-- Define ~Ctx ctx~ object
-- Use ~TRY(&ctx) {...} else {...}~ (C++, Java like ~try {...} catch {...}~ clause)
-- Use ~parse(digit, src, &ctx)~
+In this example, [[file:docs/API.org#exception-handling][Exception handling]] mechanism is used:
+- Defines a variable ~ctx~ of type ~Ctx~.
+- Using ~TRY(&ctx) {...} else {...}~ (C++, Java like ~try {...} catch {...}~ clause)
+- Using ~parse(digit, src, &ctx)~ to parse a digit char.
+- Using ~cthrow(ex, ctx.msg)~ to re-throw an exception caused in TRY block.
 
 #+begin_src c
   #include "cparsec2.h"
