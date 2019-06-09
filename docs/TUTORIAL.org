@@ -3,11 +3,11 @@
 
 * Tutorial
 
-Contents:
+*Table of Contents*
+
 - [[#how-to-make-your-parser][How to make your parser]] ::
      Let's create your custom parser.\\
-     In this tutorial, we make a parser named ~digit3~\\
-     which parses three digits.
+     In this tutorial, we make a parser named ~digit3~ which parses three digits.
 - [[#you-can-use-parser-combinator-to-make-new-parser][You can use 'parser combinator' to make new parser]] ::
      In this tutorial, you can learn the basic of *parser combinator*.\\
      By using *built-in parsers* and *parser combinators*, you can create your
