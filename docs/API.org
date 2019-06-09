@@ -1,0 +1,300 @@
+# -*- coding: utf-8-unix -*-
+#+STARTUP: showall indent
+
+* API Reference
+
+*Table of Contents*
+
+- [[#core-api][Core API]] :: 
+  - CPARSEC2 core APIs
+  - Exception handling API for C.
+- [[#built-in-parsers-parser-generators-parser-combinators][Built-in Parsers, Parser generators, and Parser combinators]] ::
+  - Parsers, generators, and combinators of type ~PARSER(Char)~
+  - Parsers, generators, and combinators of type ~PARSER(String)~
+  - Parser generators and combinators of /generic/ type ~PARSER(T)~
+- [[#building-block-of-parser-class][Building block of Parser-class]] ::
+  - PARSER(T) class
+  - Declare and Define PARSER(T) class
+  - Construct an instance of PARSER(T)
+  - Apply an instance of PARSER(T) to a text
+
+* Core API
+:PROPERTIES:
+:CUSTOM_ID: core-api
+:END:
+
+** CPARSEC2 core APIs
+:PROPERTIES:
+:CUSTOM_ID: cparsec2-core-apis
+:END:
+
+- cparsec2_init()       :: 
+     Initialize cparsec2 library.\\
+     This must be called once at first.
+- cparsec2_end()        :: 
+     Clean up cparsec2 library. (deallocate all allocated memory)\\
+     During after calling this API and before calling ~cparsec2_init()~, calling
+     any other cparsec2 API and values returned from them are invalid (access to
+     them will be undefined behavior).
+- parse(p, src, ctx)    :: 
+     Apply parser ~p~ to text provided from ~src~, and return result (such as
+     ~char~, ~const char *~). If an error occurred, it is thrown as exception
+     through ~ctx~. (see also [[#exception-handling][Exception handling]])
+- parseTest(p, text)    :: 
+     Apply parser ~p~ to ~text~ and print result.\\
+     Return ~true~ if passed, ~false~ if failed.
+- PARSE_TEST(p, text) :: 
+     Same as ~parseTest~ and also print ~p text~. (for debug purpose)\\
+     Return ~true~ if passed, ~false~ if failed.
+
+** Exception handling
+:PROPERTIES:
+:CUSTOM_ID: exception-handling
+:END:
+
+- Ctx                   :: 
+     Type of context for exception handling.
+- TRY(ctx) {...} else {...} :: 
+     Exception handling macro. (C++ or Java like ~try {...} catch {...}~ clause)
+- cthrow(ctx, msg)      :: 
+     Throw a string ~msg~ as an exception.
+
+Example:
+#+begin_src c
+  Ctx ctx;
+  TRY(&ctx) {                        /* try */
+    // ...
+    cthrow(&ctx, "something wrong!"); /* throw "something wrong!" */
+    // ...
+  }
+  else {                             /* catch */
+    printf("error:%s\n", ctx.msg);   /* -> "error: something wrong!" */
+    mem_free(ctx.msg);
+  }
+#+end_src
+
+
+* Built-in Parsers, Parser generators, and Parser combinators
+:PROPERTIES:
+:CUSTOM_ID: built-in-parsers-parser-generators-parser-combinators
+:END:
+
+** PARSER(Char)
+Parsers, Parser generators, and Parser combinators of type ~CharParser~.
+- *NOTE* : Type ~PARSER(Char)~ is same as ~CharParser~.
+
+- anyChar               :: 
+     A CharParser which parse any one char
+- digit                 :: 
+     A CharParser which parse a digit (i.e. ~0~ .. ~9~)
+- lower                 :: 
+     A CharParser which parse a lower-case char (i.e. ~a~ .. ~z~)
+- upper                 :: 
+     A CharParser which parse a upper-case char (i.e. ~A~ .. ~Z~)
+- alpha                 :: 
+     A CharParser which parse an alphabet char (i.e. ~a~ .. ~z~, ~A~ .. ~Z~)
+- alnum                 :: 
+     A CharParser which parse a digit or an alphabet char (i.e. ~0~ .. ~9~, ~a~ .. ~z~, ~A~ .. ~Z~)
+- letter                :: 
+     A CharParser which parse underscore or an alphabet char (i.e. ~_~, ~a~ .. ~z~, ~A~ .. ~Z~)
+- char1(c)              :: 
+     Create a CharParser which parse the char ~c~
+- satisfy(pred)         :: 
+     Create a CharParser which parse a char ~c~ satisfying ~pred(c) == true~
+
+** PARSER(String)
+Parsers, Parser generators, and Parser combinators of type ~StringParser~.
+- *NOTE* : Type ~PARSER(String)~ is same as ~StringParser~.
+
+- spaces                :: 
+     A StringParser which parse zero or more whitespaces (i.e. space, TAB, LF, CR)
+- many(p)               :: 
+     Create a StringParser which parse zero or more chars.\\
+     A CharParser ~p~ is used to parse for each char.
+- many1(p)              :: 
+     Create a StringParser which parse one or more chars.\\
+     A CharParser ~p~ is used to parse for each char.
+- seq(p, ...)           :: 
+     Create a StringParser which parse a sequence of chars.\\
+     Each CharParser in the list of arguments ~p, ...~ is used to parse for each char.
+- cons(p, ps)           :: 
+     Create a StringParser which parse a sequence of chars.\\
+     A CharParser ~p~ is used to parse the 1st char, and a StringParser ~ps~ is
+     used to parse subsequent chars.
+- string1(s)            :: 
+     Create a StringParser which parse the given string.\\
+     The string ~s~ is used as expectation to parse a string.
+
+** PARSER(T)
+Parser generators and Parser combinators of generic type ~PARSER(T)~.
+
+*** token(p)
+- CharParser token(char c) ::
+     Create a CharParser. Same as ~token(char1(c))~.
+- StringParser token(const char* s) ::
+     Create a StringParser. Same as ~token(string1(c))~.
+
+- PARSER(T) token(PARSER(T) p) ::
+     Create a CharParser, which
+  - skip any leading white-spaces,
+  - apply ~p~ to the subsequent text, and
+  - return the result of ~p~.
+  - *NOTE* : ~T~ must be one of the following:
+    - ~Char~
+    - ~String~
+    - ~Int~
+
+*** either(p1, p2)
+- CharParser either(char c1, char c2) :: 
+     Create a CharParser. Same as ~either(char1(c1), char1(c2))~.
+- CharParser either(char c, CharParser p) :: 
+     Create a CharParser. Same as ~either(char1(c), p))~.
+- CharParser either(CharParser p, char c) :: 
+     Create a CharParser. Same as ~either(p, char1(c)))~.
+- StringParser either(const char* s1, const char* s2) :: 
+     Create a StringParser. Same as ~either(string1(s1), string1(s2))~.
+- StringParser either(const char* s, StringParser p) :: 
+     Create a StringParser. Same as ~either(string1(s), p)~.
+- StringParser either(StringParser p, const char* s) :: 
+     Create a StringParser. Same as ~either(p, string1(s))~.
+
+- PARSER(T) either(PARSER(T) p1, PARSER(T) p2) ::
+     Create a PARSER(T), which
+  - return result of ~p1~ if ~p1~ success,
+  - if ~p1~ consumed one or more chars and failed, throw error of ~p1~,
+  - if ~p1~ consumed no chars and failed, return result of ~p2~, or
+  - throw error of ~p2~
+  - *NOTE* : ~T~ must be one of the following:
+    - ~Char~
+    - ~String~
+    - ~Int~
+
+*** tryp(p)
+- CharParser tryp(char c) ::
+     Create a CharParser. Same as ~tryp(char1(c))~.
+- StringParser tryp(const char* s) ::
+     Create a StringParser. Same as ~tryp(string1(s))~.
+
+- PARSER(T) tryp(PARSER(T) p) ::
+     Create a PARSER(T), which
+  - return result of ~p~ if ~p~ success,
+  - otherwise rewind the input-state back then throw error of ~p~.
+  - *NOTE* : ~T~ must be one of the following:
+    - ~Char~
+    - ~String~
+    - ~Int~
+
+
+* Building block of Parser-class
+:PROPERTIES:
+:CUSTOM_ID: building-block-of-parser-class
+:END:
+
+** PARSER(T) class
+
+- PARSER(T)             :: 
+     Type of parser class. (ex. ~PARSER(Char)~ is ~CharParser~)
+
+** Declare and Define PASER(T) class
+
+- DECLARE_PARSER(T, R)  :: 
+     Declare a parser class ~PARSER(T)~, whose instance return a value of type
+     ~R~ when the parser was applied to a text.
+- DEFINE_PARSER(T, R) { ~/* print x; */~ } :: 
+     Define a parser class ~PARSER(T)~.\\
+  - *NOTE* : The trailing block ~{...}~ is body of function ~void SHOW(T)(R x)~.
+  - *NOTE* : ~void SHOW(T)(R x)~ is called by ~PARSETEST(T)(msg, p, src)~ to print ~x~.
+  - *NOTE* : ~x~ is the result of ~PARSE(T)(p, src, ex)~.
+
+Example: 'IntParser.h'
+#+begin_src c
+  #include <cparsec2.h>
+
+  /* declare class PARSER(Int), whose instance return int when applied */
+  DECLARE_PARSER(Int, int);
+#+end_src
+
+Example: 'IntParser.c'
+#+begin_src c
+  #include "IntParser.h"
+
+  /* define (implement) class PARSER(Int) */
+  DEFINE_PARSER(Int, int) {
+    /* implementation of void SHOW(Int)(int x) */
+    printf("%d\n", x);
+  }
+#+end_src
+
+** Construct an instance of PARSER(T) class
+
+- PARSER(T) PARSER_GEN(T)(PARSER_FN(T) f, void* arg) :: 
+     Create new instance of ~PARSER(T)~.\\
+     ~f~ is used as a function body of the parser instance, and ~arg~ is
+     argument to be passed to ~f~ when the parser instance was applied to a
+     text.
+- PARESR_FN(T)          :: 
+     Type of function pointer ~R (*)(void* arg, Source src, Ctx* ex)~.
+
+Example: 'mult.h'
+#+begin_src c
+  #include "IntParser.h"
+
+  /* a parser generator 'mult(a)' */
+  PARSER(Int) mult(int a);
+#+end_src
+
+Example: 'mult.c'
+#+begin_src c
+  #include <stdlib.h>
+  #include "IntParser.h"
+
+  /* function body of a parser to be generated by mult(a) */
+  static int mult_func(void* arg, Source src, Ctx* ex) {
+    int a = (int)(intptr_t)arg;
+    return a * atoi(parse(many1(digit), src, ex));
+  }
+
+  /* a parser generator 'mult(a)' */
+  PARSER(Int) mult(int a) {
+    /* construct an instance of PARSER(Int) */
+    return PARSER_GEN(Int)(mult_func, (void*)(intptr_t)a);
+  }
+#+end_src
+
+** Apply an instance of PARSER(T) to a text
+
+To apply a parser, use ~parse(p, src, ctx)~, ~parseTest(p, text)~ and
+~PARSE_TEST(p, text)~ macros. These macros are fully generic and easy to use.
+
+In the below example, using ~parse(p, src, ex)~.
+
+Example: 'main.c'
+#+begin_src c
+  #include <stdio.h>
+  #include "mult.h"
+
+  int main(int argc, char** argv) {
+    UNUSED(argc);
+    UNUSED(argv);
+
+    /* initialize CPARSEC2 library */
+    cparsec2_init();
+
+    Ctx ctx;
+    TRY(&ctx) {
+      /* input text is "100 200" */
+      Source src = Source_new("100 200");
+      /* parse the input text */
+      int x = parse(mult(1), src, &ctx); /* x = 1 * 100 */
+      parse(spaces, src, &ctx);          /* skip white-spaces */
+      int y = parse(mult(2), src, &ctx); /* y = 2 * 200 */
+      /* print x + y */
+      printf("%d\n", x + y);
+      return 0;
+    }
+    else {
+      printf("error:%s\n", ctx.msg);
+      return 1;
+    }
+  }
+#+end_src
