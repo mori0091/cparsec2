@@ -14,13 +14,13 @@ assert() {
         echo "[FAIL] $expect $op $@"
         echo "    expects \"$expect\""
         echo "    but was \"$actual\""
-        fail=$(($fail + 1))
+        fail=$((fail + 1))
         return 1
     }
     if [ "$verbose" ] ; then
         echo "[PASS] $expect $op $@"
     fi
-    pass=$(($pass + 1))
+    pass=$((pass + 1))
 }
 
 assert  0 = ${CMD} '0'
@@ -38,6 +38,6 @@ assert  9 = ${CMD} '(-1 + -2) * -3'
 assert "error:expects <eom> but was ';'" = ${CMD} '1+2;'
 
 echo
-echo "$(($pass + $fail)) tests, $pass passed, $fail failed"
+echo "$((pass + fail)) tests, $pass passed, $fail failed"
 
 test $fail -eq 0
