@@ -22,7 +22,7 @@ Let's create a parser named ~digit3~, which parses three digits.
 
 ** Step 1. Define function body of your parser.
 
-In this example, [[https://github.com/mori0091/cparsec2/docs/API.org#exception-handling][Exception handling]] mechanism is used:
+In this example, [[file:API.org#exception-handling][Exception handling]] mechanism is used:
 - Defines a variable ~ctx~ of type ~Ctx~.
 - Using ~TRY(&ctx) {...} else {...}~ (C++, Java like ~try {...} catch {...}~ clause)
 - Using ~parse(digit, src, &ctx)~ to parse a digit char.
@@ -65,7 +65,7 @@ In this example, [[https://github.com/mori0091/cparsec2/docs/API.org#exception-h
 
 ** Finally, you can get the 1st example as follows:
 
-See also [[https://github.com/mori0091/cparsec2/example/digit3][example/digit3]] folder
+See also [[file:~/sandbox/cparsec2/example/digit3][example/digit3]] folder
 #+begin_src c
   #include "cparsec2.h"
 
@@ -137,7 +137,7 @@ That's all !
 
 No need to define a custom function body in case of ~digit3~. Awesome!
 
-See also [[https://github.com/mori0091/cparsec2/example/digit3b][example/digit3b]] folder
+See also [[file:~/sandbox/cparsec2/example/digit3b][example/digit3b]] folder
 #+begin_src c
   #include "cparsec2.h"
 
