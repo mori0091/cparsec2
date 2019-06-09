@@ -65,7 +65,7 @@ In this example, [[file:docs/API.org#exception-handling][Exception handling]] me
 
 ** Finally, you can get the 1st example as follows:
 
-See also [[file:example/digit3/][example/digit3]] folder
+See also [[https://github.com/mori0091/cparsec2/example/digit3][example/digit3]] folder
 #+begin_src c
   #include "cparsec2.h"
 
@@ -137,7 +137,7 @@ That's all !
 
 No need to define a custom function body in case of ~digit3~. Awesome!
 
-See also [[file:example/digit3b/][example/digit3b]] folder
+See also [[https://github.com/mori0091/cparsec2/example/digit3b][example/digit3b]] folder
 #+begin_src c
   #include "cparsec2.h"
 
