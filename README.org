@@ -72,7 +72,17 @@ To build and test anything all in the project:
 :CUSTOM_ID: sample-applications
 :END:
 
-- [[file:example/calc][calc]] - A simple calculator
+- [[file:example/calc][calc]] :: 
+     A simple calculator
+- [[file:example/digit3][digit3]] :: 
+     example of user-defined *parser*
+     - See also [[file:docs/TUTORIAL.org#how-to-make-your-parser][Tutorial / How to make your parser]]
+- [[file:example/digit3b][digit3b]] ::
+     example of user-defined *parser*
+     - See also [[file:docs/TUTORIAL.org#you-can-use-parser-combinator-to-make-new-parser][Tutorial / You can use 'parser combinator' to make new parser]]
+- [[file:example/mult][mult]] ::
+     example of user-defined *parser-class*
+     - See also [[file:docs/API.org#building-block-of-parser-class][API / Building block of Parser-class]]
 
 * Tutorial
 :PROPERTIES:
