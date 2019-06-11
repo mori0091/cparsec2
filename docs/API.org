@@ -111,6 +111,8 @@ Parsers, Parser generators, and Parser combinators of type ~CharParser~.
      A CharParser which parse a LF or a CR-LF pair and returns LF.
 - tab                   ::
      A CharParser which parse a TAB character.
+- oneOf(cs)             :: 
+     Create a CharParser which parse a char ~c~ satisfying it is contained in the string ~cs~.
 - char1(c)              :: 
      Create a CharParser which parse the char ~c~
 - satisfy(pred)         :: 
