@@ -101,6 +101,10 @@ Parsers, Parser generators, and Parser combinators of type ~CharParser~.
      A CharParser which parse a digit or an alphabet char (i.e. ~0~ .. ~9~, ~a~ .. ~z~, ~A~ .. ~Z~)
 - letter                :: 
      A CharParser which parse underscore or an alphabet char (i.e. ~_~, ~a~ .. ~z~, ~A~ .. ~Z~)
+- space                 :: 
+     A CharParser which parse a white-space (i.e. space, TAB, LF, CR)
+- tab                   ::
+     A CharParser which parse a TAB character.
 - char1(c)              :: 
      Create a CharParser which parse the char ~c~
 - satisfy(pred)         :: 
@@ -111,7 +115,7 @@ Parsers, Parser generators, and Parser combinators of type ~StringParser~.
 - *NOTE* : Type ~PARSER(String)~ is same as ~StringParser~.
 
 - spaces                :: 
-     A StringParser which parse zero or more whitespaces (i.e. space, TAB, LF, CR)
+     A StringParser which parse zero or more white-spaces (i.e. space, TAB, LF, CR)
 - many(p)               :: 
      Create a StringParser which parse zero or more chars.\\
      A CharParser ~p~ is used to parse for each char.

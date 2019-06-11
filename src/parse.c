@@ -48,7 +48,9 @@ void cparsec2_init(void) {
   alpha = satisfy(is_alpha);
   alnum = satisfy(is_alnum);
   letter = satisfy(is_letter);
-  spaces = many(satisfy(is_space));
+  space = satisfy(is_space);
+  spaces = many(space);
+  tab = char1('\t');
 }
 
 void cparsec2_end(void) {
@@ -183,4 +185,6 @@ CharParser upper;
 CharParser alpha;
 CharParser alnum;
 CharParser letter;
+CharParser space;
 StringParser spaces;
+CharParser tab;
