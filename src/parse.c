@@ -41,6 +41,8 @@ void cparsec2_init(void) {
   }
   anyChar = satisfy(is_anyChar);
   digit = satisfy(is_digit);
+  hexDigit = satisfy(is_hexDigit);
+  octDigit = satisfy(is_octDigit);
   lower = satisfy(is_lower);
   upper = satisfy(is_upper);
   alpha = satisfy(is_alpha);
@@ -174,6 +176,8 @@ DEFINE_PARSER(Int, int) {
 
 CharParser anyChar;
 CharParser digit;
+CharParser hexDigit;
+CharParser octDigit;
 CharParser lower;
 CharParser upper;
 CharParser alpha;

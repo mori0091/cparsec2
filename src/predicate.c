@@ -9,6 +9,12 @@ bool is_anyChar(char c) {
 bool is_digit(char c) {
   return '0' <= c && c <= '9';
 }
+bool is_hexDigit(char c) {
+  return is_digit(c) || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F');
+}
+bool is_octDigit(char c) {
+  return '0' <= c && c <= '7';
+}
 bool is_lower(char c) {
   return 'a' <= c && c <= 'z';
 }

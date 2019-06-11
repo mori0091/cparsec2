@@ -87,6 +87,10 @@ Parsers, Parser generators, and Parser combinators of type ~CharParser~.
      A CharParser which parse any one char
 - digit                 :: 
      A CharParser which parse a digit (i.e. ~0~ .. ~9~)
+- hexDigit              ::
+     A CharParser which parse a hexadecimal digit (i.e. ~0~ .. ~9~, ~a~ .. ~f~, and ~A~ .. ~F~)
+- octDigit              ::
+     A CharParser which parse a octal digit (i.e. ~0~ .. ~7~)
 - lower                 :: 
      A CharParser which parse a lower-case char (i.e. ~a~ .. ~z~)
 - upper                 :: 

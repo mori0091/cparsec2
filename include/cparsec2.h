@@ -182,6 +182,8 @@ DECLARE_PARSER(Int, int);
 typedef bool (*Predicate)(char c);
 bool is_anyChar(char c);
 bool is_digit(char c);
+bool is_hexDigit(char c);
+bool is_octDigit(char c);
 bool is_lower(char c);
 bool is_upper(char c);
 bool is_alpha(char c);
@@ -189,10 +191,12 @@ bool is_alnum(char c);
 bool is_letter(char c);
 bool is_space(char c);
 
-// ---- built-in parsers ----
+// ---- built-in parsers, parser generators ----
 
 extern PARSER(Char) anyChar;
 extern PARSER(Char) digit;
+extern PARSER(Char) hexDigit;
+extern PARSER(Char) octDigit;
 extern PARSER(Char) lower;
 extern PARSER(Char) upper;
 extern PARSER(Char) alpha;
@@ -200,10 +204,10 @@ extern PARSER(Char) alnum;
 extern PARSER(Char) letter;
 extern PARSER(String) spaces;
 
-// ---- parser generators, and parser combinators ----
-
 PARSER(Char) char1(char c);
 PARSER(Char) satisfy(Predicate pred);
+
+// ---- parser combinators ----
 
 PARSER(String) many(PARSER(Char) p);
 PARSER(String) many1(PARSER(Char) p);
