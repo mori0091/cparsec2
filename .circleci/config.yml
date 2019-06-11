@@ -18,6 +18,7 @@ jobs:
     steps:
       - checkout
       - run: sh ./build.sh -s cov
+      - run: sh ./build.sh -s gcov
       - run: bash <(curl -s https://codecov.io/bash) -X gcov || echo "Codecov did not collect coverage reports"
 workflows:
   version: 2

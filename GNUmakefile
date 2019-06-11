@@ -1,5 +1,5 @@
 # -*- coding:utf-8-unix -*-
-.PHONY: all build clean cov lib test
+.PHONY: all build clean cov gcov lib test
 
 all: build lib
 
@@ -17,13 +17,16 @@ CXXFLAGS += $(DEFAULT_CFLAGS)
 
 TESTFLAGS ?=
 
-SRCS_C = $(wildcard src/*.c)
-OBJS_C = $(patsubst src/%.c, obj/%.o, $(SRCS_C))
+SRCDIR ?= src
+OBJDIR ?= obj
 
-SRCS_CPP = $(wildcard src/*.cpp)
-SRCS_CXX = $(wildcard src/*.cxx)
-OBJS_CPP = $(patsubst src/%.cpp, obj/%.o, $(SRCS_CPP))
-OBJS_CXX = $(patsubst src/%.cxx, obj/%.o, $(SRCS_CXX))
+SRCS_C = $(wildcard $(SRCDIR)/*.c)
+OBJS_C = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCS_C))
+
+SRCS_CPP = $(wildcard $(SRCDIR)/*.cpp)
+SRCS_CXX = $(wildcard $(SRCDIR)/*.cxx)
+OBJS_CPP = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRCS_CPP))
+OBJS_CXX = $(patsubst $(SRCDIR)/%.cxx, $(OBJDIR)/%.o, $(SRCS_CXX))
 
 SRCS = $(SRCS_C) $(SRCS_CPP) $(SRCS_CXX)
 OBJS = $(OBJS_C) $(OBJS_CPP) $(OBJS_CXX)
@@ -43,14 +46,22 @@ test: $(TARGET)
 
 clean:
 	@rm -f $(TARGET) $(TARGET).exe $(LIBTARGET) $(OBJS) $(DEPS) $(COVS) *~
-	@rm -f *.gcov
+	@rm -f *.gcov $(OBJDIR)/*.gcov
 	@rm -df obj bin lib
 
+# `make cov`: build and test for coverage test
+# To make coverage report:
+# 1. do `make cov` for ALL (sub)project, then
+# 2. do `gcov [options] -o obj src/*` for each (sub)project,
+#    or do `bash <(curl -s https://codecov.io/bash)`
 cov: CFLAGS   += -coverage
 cov: CXXFLAGS += -coverage
 cov: LDFLAGS  += -coverage
 cov: all test
-	@gcov -abcpru -o obj $(SRCS)
+
+# 'make gcov': generates coverage report
+gcov:
+	@gcov -abcpu -o $(OBJDIR) $(SRCS)
 
 $(TARGET): $(OBJS)
 	$(info [LD]    Build   : $@	[$(notdir $(CURDIR))])
@@ -62,17 +73,17 @@ $(LIBTARGET): $(LIBOBJS)
 	@mkdir -p $(dir $@)
 	@$(AR) cr $@ $^
 
-obj/%.o: src/%.c
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(info [C]     Compile : $@ ($<))
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
-obj/%.o: src/%.cpp
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	$(info [C++]   Compile : $@ ($<))
 	@mkdir -p $(dir $@)
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-obj/%.o: src/%.cxx
+$(OBJDIR)/%.o: $(SRCDIR)/%.cxx
 	$(info [C++]   Compile : $@ ($<))
 	@mkdir -p $(dir $@)
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
