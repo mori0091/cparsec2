@@ -210,6 +210,7 @@ extern PARSER(Char) endOfLine;
 extern PARSER(Char) tab;
 
 PARSER(Char) oneOf(const char* cs);
+PARSER(Char) noneOf(const char* cs);
 PARSER(Char) char1(char c);
 PARSER(Char) satisfy(Predicate pred);
 
