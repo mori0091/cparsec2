@@ -1,5 +1,5 @@
 # -*- coding:utf-8-unix -*-
-.PHONY: all build clean cov lib test
+.PHONY: all build clean cov gcov lib test
 
 all: build lib
 
@@ -58,6 +58,10 @@ cov: CFLAGS   += -coverage
 cov: CXXFLAGS += -coverage
 cov: LDFLAGS  += -coverage
 cov: all test
+
+# 'make gcov': generates coverage report
+gcov:
+	@gcov -abcpu -o $(OBJDIR) $(SRCS)
 
 $(TARGET): $(OBJS)
 	$(info [LD]    Build   : $@	[$(notdir $(CURDIR))])
