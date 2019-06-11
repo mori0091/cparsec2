@@ -204,12 +204,18 @@ extern PARSER(Char) alnum;
 extern PARSER(Char) letter;
 extern PARSER(Char) space;
 extern PARSER(String) spaces;
+extern PARSER(Char) newline;
+extern PARSER(Char) crlf;
+extern PARSER(Char) endOfLine;
 extern PARSER(Char) tab;
 
 PARSER(Char) char1(char c);
 PARSER(Char) satisfy(Predicate pred);
 
 // ---- parser combinators ----
+
+PARSER(Char) expects(const char* desc, PARSER(Char) p); // TODO test
+PARSER(Char) skip1st(PARSER(Char) p1, PARSER(Char) p2); // TODO test
 
 PARSER(String) many(PARSER(Char) p);
 PARSER(String) many1(PARSER(Char) p);

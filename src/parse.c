@@ -50,6 +50,9 @@ void cparsec2_init(void) {
   letter = satisfy(is_letter);
   space = satisfy(is_space);
   spaces = many(space);
+  newline = char1('\n');
+  crlf = skip1st(char1('\r'), newline);
+  endOfLine = expects("<endOfLine>", either(newline, crlf));
   tab = char1('\t');
 }
 
@@ -187,4 +190,7 @@ CharParser alnum;
 CharParser letter;
 CharParser space;
 StringParser spaces;
+CharParser newline;
+CharParser crlf;
+CharParser endOfLine;
 CharParser tab;

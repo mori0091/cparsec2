@@ -103,6 +103,12 @@ Parsers, Parser generators, and Parser combinators of type ~CharParser~.
      A CharParser which parse underscore or an alphabet char (i.e. ~_~, ~a~ .. ~z~, ~A~ .. ~Z~)
 - space                 :: 
      A CharParser which parse a white-space (i.e. space, TAB, LF, CR)
+- newline               ::
+     A CharParser which parse a newline character (i.e. LF)
+- crlf                  ::
+     A CharParser which parse a pair of CR and LF, and returns LF (i.e. CR LF \rightarrow LF)
+- endOfLine             ::
+     A CharParser which parse a LF or a CR-LF pair and returns LF.
 - tab                   ::
      A CharParser which parse a TAB character.
 - char1(c)              :: 
