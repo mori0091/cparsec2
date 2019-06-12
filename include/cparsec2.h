@@ -232,7 +232,36 @@ PARSER(String) string1(const char* s);
 // ---- parser combinators ----
 
 PARSER(Char) expects(const char* desc, PARSER(Char) p); // TODO test
-PARSER(Char) skip1st(PARSER(Char) p1, PARSER(Char) p2); // TODO test
+
+// Parser<Int> skip(Parser<T> p);
+#define SKIP(T) skip_##T
+// clang-format off
+#define skip(p)                                 \
+  _Generic((PARSER_CAST(p))                     \
+           , PARSER(Char)   : SKIP(Char)        \
+           , PARSER(String) : SKIP(String)      \
+           , PARSER(Int)    : SKIP(Int)         \
+           )(PARSER_CAST(p))
+// clang-format on
+
+PARSER(Int) SKIP(Char)(PARSER(Char) p);
+PARSER(Int) SKIP(String)(PARSER(String) p);
+PARSER(Int) SKIP(Int)(PARSER(Int) p);
+
+// Parser<T2> skip1st(Parser<T1> p1, Parser<T2> p2); // TODO test
+#define SKIP1ST(T) skip1st_##T
+// clang-format off
+#define skip1st(p1, p2)                         \
+  _Generic((PARSER_CAST(p2))                    \
+           , PARSER(Char)   : SKIP1ST(Char)     \
+           , PARSER(String) : SKIP1ST(String)   \
+           , PARSER(Int)    : SKIP1ST(Int)      \
+           )(skip(p1), (PARSER_CAST(p2)))
+// clang-format on
+
+PARSER(Char) SKIP1ST(Char)(PARSER(Int) p1, PARSER(Char) p2);
+PARSER(String) SKIP1ST(String)(PARSER(Int) p1, PARSER(String) p2);
+PARSER(Int) SKIP1ST(Int)(PARSER(Int) p1, PARSER(Int) p2);
 
 PARSER(String) many(PARSER(Char) p);
 PARSER(String) many1(PARSER(Char) p);
