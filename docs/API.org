@@ -146,6 +146,26 @@ Parsers, Parser generators, and Parser combinators of type ~StringParser~.
 ** PARSER(T)
 Parser generators and Parser combinators of generic type ~PARSER(T)~.
 
+*** skip1st(p1, p2)
+- PARSER(T2) skip1st(PARSER(T1) p1, PARSER(T2) p2) ::
+     Create a parser of PARSER(T2) type, which
+  - apply ~p1~ at first, and then apply ~p2~ to the subsequent text.
+  - return the result of ~p2~ if both ~p1~ and ~p2~ success.
+  - if ~p1~ failed, ~p2~ is not applied and throws error of ~p1~.
+  - if ~p1~ success and then ~p2~ failed, throws error of ~p2~.
+  - *NOTE* : ~T1~ and ~T2~ must be one of the following:
+    - ~Char~
+    - ~String~
+    - ~Int~
+  - *NOTE* : ~T1~ and ~T2~ may or may not be same.\\
+    (i.e. ~p1~ and ~p2~ may be a parser of same type or different type)
+
+For example:
+#+begin_src c
+parseTest(skip1st(char1('a'), string1("bc")), "abc"); // -> "bc"
+parseTest(skip1st(string1("ab"), char1('c')), "abc"); // -> 'c'
+#+end_src
+
 *** token(p)
 - CharParser token(char c) ::
      Create a CharParser. Same as ~token(char1(c))~.
