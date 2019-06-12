@@ -5,7 +5,7 @@
 
 SCENARIO("noneOf", "[cparsec2][parser][noneOf]") {
   cparsec2_init();
-  GIVEN("an input: \"a\" (i.e. SPC)") {
+  GIVEN("an input: \"a\"") {
     Source src = Source_new("a");
     WHEN("apply noneOf(\"abc\")") {
       THEN("cause exception(\"expects not one of \"abc\" but was 'a'\")") {
@@ -14,7 +14,7 @@ SCENARIO("noneOf", "[cparsec2][parser][noneOf]") {
       }
     }
   }
-  GIVEN("an input: \"b\" (i.e. SPC)") {
+  GIVEN("an input: \"b\"") {
     Source src = Source_new("b");
     WHEN("apply noneOf(\"abc\")") {
       THEN("cause exception(\"expects not one of \"abc\" but was 'b'\")") {
@@ -23,7 +23,7 @@ SCENARIO("noneOf", "[cparsec2][parser][noneOf]") {
       }
     }
   }
-  GIVEN("an input: \"c\" (i.e. SPC)") {
+  GIVEN("an input: \"c\"") {
     Source src = Source_new("c");
     WHEN("apply noneOf(\"abc\")") {
       THEN("cause exception(\"expects not one of \"abc\" but was 'c'\")") {
@@ -32,7 +32,7 @@ SCENARIO("noneOf", "[cparsec2][parser][noneOf]") {
       }
     }
   }
-  GIVEN("an input: \"d\" (i.e. SPC)") {
+  GIVEN("an input: \"d\"") {
     Source src = Source_new("d");
     WHEN("apply noneOf(\"abc\")") {
       THEN("results 'd'") {

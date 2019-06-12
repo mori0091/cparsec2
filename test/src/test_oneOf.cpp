@@ -5,7 +5,7 @@
 
 SCENARIO("oneOf", "[cparsec2][parser][oneOf]") {
   cparsec2_init();
-  GIVEN("an input: \"a\" (i.e. SPC)") {
+  GIVEN("an input: \"a\"") {
     Source src = Source_new("a");
     WHEN("apply oneOf(\"abc\")") {
       THEN("results 'a'") {
@@ -13,7 +13,7 @@ SCENARIO("oneOf", "[cparsec2][parser][oneOf]") {
       }
     }
   }
-  GIVEN("an input: \"b\" (i.e. SPC)") {
+  GIVEN("an input: \"b\"") {
     Source src = Source_new("b");
     WHEN("apply oneOf(\"abc\")") {
       THEN("results 'b'") {
@@ -21,7 +21,7 @@ SCENARIO("oneOf", "[cparsec2][parser][oneOf]") {
       }
     }
   }
-  GIVEN("an input: \"c\" (i.e. SPC)") {
+  GIVEN("an input: \"c\"") {
     Source src = Source_new("c");
     WHEN("apply oneOf(\"abc\")") {
       THEN("results 'c'") {
@@ -29,7 +29,7 @@ SCENARIO("oneOf", "[cparsec2][parser][oneOf]") {
       }
     }
   }
-  GIVEN("an input: \"d\" (i.e. SPC)") {
+  GIVEN("an input: \"d\"") {
     Source src = Source_new("d");
     WHEN("apply oneOf(\"abc\")") {
       THEN("cause exception(\"expects one of \"abc\" but was 'd'\")") {
