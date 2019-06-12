@@ -173,7 +173,7 @@ parseTest(skip1st(string1("ab"), char1('c')), "abc"); // -> 'c'
      Create a StringParser. Same as ~token(string1(c))~.
 
 - PARSER(T) token(PARSER(T) p) ::
-     Create a CharParser, which
+     Create a parser of PARSER(T) type, which
   - skip any leading white-spaces,
   - apply ~p~ to the subsequent text, and
   - return the result of ~p~.
@@ -197,7 +197,7 @@ parseTest(skip1st(string1("ab"), char1('c')), "abc"); // -> 'c'
      Create a StringParser. Same as ~either(p, string1(s))~.
 
 - PARSER(T) either(PARSER(T) p1, PARSER(T) p2) ::
-     Create a PARSER(T), which
+     Create a parser of PARSER(T) type, which
   - return result of ~p1~ if ~p1~ success,
   - if ~p1~ consumed one or more chars and failed, throw error of ~p1~,
   - if ~p1~ consumed no chars and failed, return result of ~p2~, or
@@ -214,7 +214,7 @@ parseTest(skip1st(string1("ab"), char1('c')), "abc"); // -> 'c'
      Create a StringParser. Same as ~tryp(string1(s))~.
 
 - PARSER(T) tryp(PARSER(T) p) ::
-     Create a PARSER(T), which
+     Create a parser of PARSER(T) type, which
   - return result of ~p~ if ~p~ success,
   - otherwise rewind the input-state back then throw error of ~p~.
   - *NOTE* : ~T~ must be one of the following:
