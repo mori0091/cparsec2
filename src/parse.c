@@ -30,7 +30,12 @@ static void* cparsec2_push(void* p) {
   return p;
 }
 
-void cparsec2_init(void) {
+static int number_fn(void* arg, Source src, Ctx* ex) {
+  PARSER(String) p = (PARSER(String))arg;
+  return atoi(parse(p, src, ex));
+}
+
+static void cparsec2_init__stage0(void) {
   PtrBuffer* b = &cparsec2_objects;
   b->data = malloc(sizeof(void*) * 8);
   b->capacity = 8;
@@ -39,6 +44,9 @@ void cparsec2_init(void) {
     fprintf(stderr, "fatal:malloc:%s\n", strerror(errno));
     exit(1);
   }
+}
+
+static void cparsec2_init__stage1(void) {
   anyChar = satisfy(is_anyChar);
   digit = satisfy(is_digit);
   hexDigit = satisfy(is_hexDigit);
@@ -49,11 +57,21 @@ void cparsec2_init(void) {
   alnum = satisfy(is_alnum);
   letter = satisfy(is_letter);
   space = satisfy(is_space);
+}
+
+static void cparsec2_init__stage2(void) {
   spaces = many(space);
   newline = char1('\n');
   crlf = skip1st(char1('\r'), newline);
   endOfLine = expects("<endOfLine>", either(newline, crlf));
   tab = char1('\t');
+  number = PARSER_GEN(Int)(number_fn, token(many1(digit)));
+}
+
+void cparsec2_init(void) {
+  cparsec2_init__stage0();
+  cparsec2_init__stage1();
+  cparsec2_init__stage2();
 }
 
 void cparsec2_end(void) {
@@ -194,3 +212,4 @@ CharParser newline;
 CharParser crlf;
 CharParser endOfLine;
 CharParser tab;
+IntParser number;
