@@ -168,6 +168,18 @@ void consume(Source src);
   }                                                                      \
   void SHOW(T)(R x)
 
+// clang-format off
+#define PARSER_CAST(x)                                \
+    _Generic((x)                                      \
+             , char           : char1                 \
+             , char*          : string1               \
+             , const char*    : string1               \
+             , PARSER(Char)   : PARSER_ID_FN(Char)    \
+             , PARSER(String) : PARSER_ID_FN(String)  \
+             , PARSER(Int)    : PARSER_ID_FN(Int)     \
+             )(x)
+// clang-format on
+
 // ---- CharParser ----
 DECLARE_PARSER(Char, char);
 
@@ -214,6 +226,9 @@ PARSER(Char) noneOf(const char* cs);
 PARSER(Char) char1(char c);
 PARSER(Char) satisfy(Predicate pred);
 
+// Parser<String> string1(const char* s);
+PARSER(String) string1(const char* s);
+
 // ---- parser combinators ----
 
 PARSER(Char) expects(const char* desc, PARSER(Char) p); // TODO test
@@ -232,21 +247,6 @@ PARSER(String) seq_char(PARSER(Char) ps[]);
 // Parser<T[]> cons(Parser<T> p, Parser<T[]> ps);
 #define cons(p, ps) _Generic((p), PARSER(Char) : cons_char)(p, ps)
 PARSER(String) cons_char(PARSER(Char) p, PARSER(String) ps);
-
-// Parser<String> string1(const char* s);
-PARSER(String) string1(const char* s);
-
-// clang-format off
-#define PARSER_CAST(x)                              \
-  _Generic((x)                                      \
-           , char           : char1                 \
-           , char*          : string1               \
-           , const char*    : string1               \
-           , PARSER(Char)   : PARSER_ID_FN(Char)    \
-           , PARSER(String) : PARSER_ID_FN(String)  \
-           , PARSER(Int)    : PARSER_ID_FN(Int)     \
-           )(x)
-// clang-format on
 
 // Parser<T> either(Parser<T> p1, Parser<T> p2);
 #define EITHER(T) either_##T
