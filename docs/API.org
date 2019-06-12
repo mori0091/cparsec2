@@ -127,6 +127,9 @@ Example:
      A CharParser which parse a white-space (i.e. space, TAB, LF, CR)
 - spaces                :: 
      A StringParser which parse zero or more white-spaces (i.e. space, TAB, LF, CR)
+- number                :: 
+     A IntParser which skips leading white-spaces and parse one or more
+     subsequent digits then returns it as an ~int~ value when applied to a text.
 - char1(c)              :: 
      Create a CharParser which parse the char ~c~
 - string1(s)            :: 
