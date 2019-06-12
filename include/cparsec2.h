@@ -248,7 +248,7 @@ PARSER(Int) SKIP(Char)(PARSER(Char) p);
 PARSER(Int) SKIP(String)(PARSER(String) p);
 PARSER(Int) SKIP(Int)(PARSER(Int) p);
 
-// Parser<T2> skip1st(Parser<T1> p1, Parser<T2> p2); // TODO test
+// Parser<T2> skip1st(Parser<T1> p1, Parser<T2> p2);
 #define SKIP1ST(T) skip1st_##T
 // clang-format off
 #define skip1st(p1, p2)                         \

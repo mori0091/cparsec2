@@ -44,6 +44,22 @@ inline PARSER(Int) skip(PARSER(Int) p) {
 }
 #endif
 
+#ifdef skip1st
+#undef skip1st
+template <typename P>
+inline PARSER(Char) skip1st(P p1, PARSER(Char) p2) {
+  return SKIP1ST(Char)(skip(p1), p2);
+}
+template <typename P>
+inline PARSER(String) skip1st(P p1, PARSER(String) p2) {
+  return SKIP1ST(String)(skip(p1), p2);
+}
+template <typename P>
+inline PARSER(Int) skip1st(P p1, PARSER(Int) p2) {
+  return SKIP1ST(Int)(skip(p1), p2);
+}
+#endif
+
 #ifdef seq
 #undef seq
 template <typename... Parser>
