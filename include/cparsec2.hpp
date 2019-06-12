@@ -31,6 +31,19 @@ inline std::string parse(PARSER(String) p, Source src) {
   }
 }
 
+#ifdef skip
+#undef skip
+inline PARSER(Int) skip(PARSER(Char) p) {
+  return SKIP(Char)(p);
+}
+inline PARSER(Int) skip(PARSER(String) p) {
+  return SKIP(String)(p);
+}
+inline PARSER(Int) skip(PARSER(Int) p) {
+  return SKIP(Int)(p);
+}
+#endif
+
 #ifdef seq
 #undef seq
 template <typename... Parser>
