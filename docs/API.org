@@ -9,9 +9,9 @@
   - CPARSEC2 core APIs
   - Exception handling API for C.
 - [[#built-in-parsers-parser-generators-and-parser-combinators][Built-in Parsers, Parser generators, and Parser combinators]] ::
-  - Parsers, generators, and combinators of type ~PARSER(Char)~
-  - Parsers, generators, and combinators of type ~PARSER(String)~
-  - Parser generators and combinators of /generic/ type ~PARSER(T)~
+  - Built-in Parsers and Parser-generators
+  - Built-in Parser-combinators
+  - Built-in *GENERIC* Parser-combinators
 - [[#building-block-of-parser-class][Building block of Parser-class]] ::
   - PARSER(T) class
   - Declare and Define PARSER(T) class
@@ -79,9 +79,23 @@ Example:
 :CUSTOM_ID: built-in-parsers-parser-generators-and-parser-combinators
 :END:
 
-** PARSER(Char)
-Parsers, Parser generators, and Parser combinators of type ~CharParser~.
+- *NOTE* : Type ~PARSER(T)~ is a generic type of parser.\\
+  ~T~ must be one of a following:
+  - ~Char~
+  - ~String~
+  - ~Int~
 - *NOTE* : Type ~PARSER(Char)~ is same as ~CharParser~.
+  - An instance of ~CharParser~ type is a parser, \\
+    which returns a ~char~ value when it is applied to a text.
+- *NOTE* : Type ~PARSER(String)~ is same as ~StringParser~.
+  - An instance of ~StringParser~ type is a parser, \\
+    which returns a ~const char*~ value (i.e. char sequence terminated with null-character)
+    when it is applied to a text.
+- *NOTE* : Type ~PARSER(Int)~ is same as ~IntParser~.
+  - An instance of ~IntParser~ type is a parser, \\
+    which returns a ~int~ value when it is applied to a text.
+
+** Built-in Parsers and Parser-generators
 
 - anyChar               :: 
      A CharParser which parse any one char
@@ -101,8 +115,6 @@ Parsers, Parser generators, and Parser combinators of type ~CharParser~.
      A CharParser which parse a digit or an alphabet char (i.e. ~0~ .. ~9~, ~a~ .. ~z~, ~A~ .. ~Z~)
 - letter                :: 
      A CharParser which parse underscore or an alphabet char (i.e. ~_~, ~a~ .. ~z~, ~A~ .. ~Z~)
-- space                 :: 
-     A CharParser which parse a white-space (i.e. space, TAB, LF, CR)
 - newline               ::
      A CharParser which parse a newline character (i.e. LF)
 - crlf                  ::
@@ -111,21 +123,25 @@ Parsers, Parser generators, and Parser combinators of type ~CharParser~.
      A CharParser which parse a LF or a CR-LF pair and returns LF.
 - tab                   ::
      A CharParser which parse a TAB character.
+- space                 :: 
+     A CharParser which parse a white-space (i.e. space, TAB, LF, CR)
+- spaces                :: 
+     A StringParser which parse zero or more white-spaces (i.e. space, TAB, LF, CR)
+- number                :: 
+     A IntParser which skips leading white-spaces and parse one or more
+     subsequent digits then returns it as an ~int~ value when applied to a text.
+- char1(c)              :: 
+     Create a CharParser which parse the char ~c~
+- string1(s)            :: 
+     Create a StringParser which parse the string ~s~.
 - oneOf(cs)             :: 
      Create a CharParser which parse a char ~c~ satisfying it is contained in the string ~cs~.
 - noneOf(cs)            :: 
      Create a CharParser which parse a char ~c~ satisfying it is *not* contained in the string ~cs~.
-- char1(c)              :: 
-     Create a CharParser which parse the char ~c~
 - satisfy(pred)         :: 
      Create a CharParser which parse a char ~c~ satisfying ~pred(c) == true~
 
-** PARSER(String)
-Parsers, Parser generators, and Parser combinators of type ~StringParser~.
-- *NOTE* : Type ~PARSER(String)~ is same as ~StringParser~.
-
-- spaces                :: 
-     A StringParser which parse zero or more white-spaces (i.e. space, TAB, LF, CR)
+** Built-in Parser-combinators
 - many(p)               :: 
      Create a StringParser which parse zero or more chars.\\
      A CharParser ~p~ is used to parse for each char.
@@ -139,13 +155,8 @@ Parsers, Parser generators, and Parser combinators of type ~StringParser~.
      Create a StringParser which parse a sequence of chars.\\
      A CharParser ~p~ is used to parse the 1st char, and a StringParser ~ps~ is
      used to parse subsequent chars.
-- string1(s)            :: 
-     Create a StringParser which parse the given string.\\
-     The string ~s~ is used as expectation to parse a string.
 
-** PARSER(T)
-Parser generators and Parser combinators of generic type ~PARSER(T)~.
-
+** Built-in GENERIC Parser-combinators
 *** skip1st(p1, p2)
 - PARSER(T2) skip1st(PARSER(T1) p1, PARSER(T2) p2) ::
      Create a parser of PARSER(T2) type, which
