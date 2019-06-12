@@ -168,6 +168,18 @@ void consume(Source src);
   }                                                                      \
   void SHOW(T)(R x)
 
+// clang-format off
+#define PARSER_CAST(x)                                \
+    _Generic((x)                                      \
+             , char           : char1                 \
+             , char*          : string1               \
+             , const char*    : string1               \
+             , PARSER(Char)   : PARSER_ID_FN(Char)    \
+             , PARSER(String) : PARSER_ID_FN(String)  \
+             , PARSER(Int)    : PARSER_ID_FN(Int)     \
+             )(x)
+// clang-format on
+
 // ---- CharParser ----
 DECLARE_PARSER(Char, char);
 
@@ -214,10 +226,42 @@ PARSER(Char) noneOf(const char* cs);
 PARSER(Char) char1(char c);
 PARSER(Char) satisfy(Predicate pred);
 
+// Parser<String> string1(const char* s);
+PARSER(String) string1(const char* s);
+
 // ---- parser combinators ----
 
 PARSER(Char) expects(const char* desc, PARSER(Char) p); // TODO test
-PARSER(Char) skip1st(PARSER(Char) p1, PARSER(Char) p2); // TODO test
+
+// Parser<Int> skip(Parser<T> p);
+#define SKIP(T) skip_##T
+// clang-format off
+#define skip(p)                                 \
+  _Generic((PARSER_CAST(p))                     \
+           , PARSER(Char)   : SKIP(Char)        \
+           , PARSER(String) : SKIP(String)      \
+           , PARSER(Int)    : SKIP(Int)         \
+           )(PARSER_CAST(p))
+// clang-format on
+
+PARSER(Int) SKIP(Char)(PARSER(Char) p);
+PARSER(Int) SKIP(String)(PARSER(String) p);
+PARSER(Int) SKIP(Int)(PARSER(Int) p);
+
+// Parser<T2> skip1st(Parser<T1> p1, Parser<T2> p2);
+#define SKIP1ST(T) skip1st_##T
+// clang-format off
+#define skip1st(p1, p2)                         \
+  _Generic((PARSER_CAST(p2))                    \
+           , PARSER(Char)   : SKIP1ST(Char)     \
+           , PARSER(String) : SKIP1ST(String)   \
+           , PARSER(Int)    : SKIP1ST(Int)      \
+           )(skip(p1), (PARSER_CAST(p2)))
+// clang-format on
+
+PARSER(Char) SKIP1ST(Char)(PARSER(Int) p1, PARSER(Char) p2);
+PARSER(String) SKIP1ST(String)(PARSER(Int) p1, PARSER(String) p2);
+PARSER(Int) SKIP1ST(Int)(PARSER(Int) p1, PARSER(Int) p2);
 
 PARSER(String) many(PARSER(Char) p);
 PARSER(String) many1(PARSER(Char) p);
@@ -232,21 +276,6 @@ PARSER(String) seq_char(PARSER(Char) ps[]);
 // Parser<T[]> cons(Parser<T> p, Parser<T[]> ps);
 #define cons(p, ps) _Generic((p), PARSER(Char) : cons_char)(p, ps)
 PARSER(String) cons_char(PARSER(Char) p, PARSER(String) ps);
-
-// Parser<String> string1(const char* s);
-PARSER(String) string1(const char* s);
-
-// clang-format off
-#define PARSER_CAST(x)                              \
-  _Generic((x)                                      \
-           , char           : char1                 \
-           , char*          : string1               \
-           , const char*    : string1               \
-           , PARSER(Char)   : PARSER_ID_FN(Char)    \
-           , PARSER(String) : PARSER_ID_FN(String)  \
-           , PARSER(Int)    : PARSER_ID_FN(Int)     \
-           )(x)
-// clang-format on
 
 // Parser<T> either(Parser<T> p1, Parser<T> p2);
 #define EITHER(T) either_##T
