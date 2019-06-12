@@ -220,6 +220,7 @@ extern PARSER(Char) newline;
 extern PARSER(Char) crlf;
 extern PARSER(Char) endOfLine;
 extern PARSER(Char) tab;
+extern PARSER(Int) number;
 
 PARSER(Char) oneOf(const char* cs);
 PARSER(Char) noneOf(const char* cs);
