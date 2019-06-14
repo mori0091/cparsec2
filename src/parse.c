@@ -5,10 +5,10 @@
 // ---- resource management ----
 
 /* list of live objects */
-static PtrBuffer cparsec2_objects = {0};
+static Buff(Ptr) cparsec2_objects = {0};
 
 static void cparsec2_ensure(void) {
-  PtrBuffer* b = &cparsec2_objects;
+  Buff(Ptr)* b = &cparsec2_objects;
   if (b->len == b->capacity) {
     int capa = b->capacity * 2;
     void* data = realloc(b->data, sizeof(void*) * capa);
@@ -24,7 +24,7 @@ static void cparsec2_ensure(void) {
 static void* cparsec2_push(void* p) {
   cparsec2_ensure();
   if (p) {
-    PtrBuffer* b = &cparsec2_objects;
+    Buff(Ptr)* b = &cparsec2_objects;
     b->data[b->len++] = p;
   }
   return p;
@@ -36,7 +36,7 @@ static int number_fn(void* arg, Source src, Ctx* ex) {
 }
 
 static void cparsec2_init__stage0(void) {
-  PtrBuffer* b = &cparsec2_objects;
+  Buff(Ptr)* b = &cparsec2_objects;
   b->data = malloc(sizeof(void*) * 8);
   b->capacity = 8;
   b->len = 0;
@@ -75,12 +75,12 @@ void cparsec2_init(void) {
 }
 
 void cparsec2_end(void) {
-  PtrBuffer* b = &cparsec2_objects;
+  Buff(Ptr)* b = &cparsec2_objects;
   for (int i = 0; i < b->len; ++i) {
     free(b->data[i]);
   }
   free(b->data);
-  cparsec2_objects = (PtrBuffer){0};
+  cparsec2_objects = (Buff(Ptr)){0};
 }
 
 void* mem_malloc(size_t s) {
@@ -98,7 +98,7 @@ void* mem_realloc(void* p, size_t s) {
   }
   void* q = realloc(p, s);
   if (q) {
-    PtrBuffer* b = &cparsec2_objects;
+    Buff(Ptr)* b = &cparsec2_objects;
     for (int i = 0; i < b->len; ++i) {
       if (b->data[i] == p) {
         b->data[i] = q;
@@ -111,7 +111,7 @@ void* mem_realloc(void* p, size_t s) {
 }
 
 void mem_free(void* p) {
-  PtrBuffer* b = &cparsec2_objects;
+  Buff(Ptr)* b = &cparsec2_objects;
   for (int i = 0; i < b->len; ++i) {
     if (b->data[i] == p) {
       b->data[i] = NULL;

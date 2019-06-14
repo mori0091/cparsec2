@@ -84,11 +84,12 @@ Example:
 To construct a ~List(T)~ object, use list-builder ~Buff(T)~.
 
 *NOTE* : ~List(T)~ must be one of a following:
-  - ~List(Char)~ (whose element type ~E~ is ~char~)
+  - ~List(Char)~ (whose element type ~E~ is ~const char~)
   - ~List(String)~ (whose element type ~E~ is ~const char*~)
   - ~List(Int)~ (whose element type ~E~ is ~int~)
+  - ~List(Ptr)~ (whose element type ~E~ is ~void*~)
 
-*NOTE* : ~List(Char)~ is same as ~char*~ (i.e. string in C)
+*NOTE* : ~List(Char)~ is same as ~const char*~ (i.e. string in C)
 
 To iterate elements contained in a ~List(T)~ object, use the following APIs.\\
 *NOTE* : ~E~ is the type of element of ~List(T)~ object.
@@ -108,8 +109,8 @@ For example:
   /* a null-terminated char sequence is also a List(Char) */
   List(Char) xs = "abcdefg";
 
-  char* itr = list_begin(xs);
-  char* end = list_end(xs);
+  const char* itr = list_begin(xs);
+  const char* end = list_end(xs);
   while (itr != end) {
     printf("%c\n", *itr);
     itr++;
@@ -124,6 +125,7 @@ It is a variadic length buffer to build a ~List(T)~ object.
   - ~Buff(Char)~ (whose element type ~E~ is ~char~)
   - ~Buff(String)~ (whose element type ~E~ is ~const char*~)
   - ~Buff(Int)~ (whose element type ~E~ is ~int~)
+  - ~Buff(Ptr)~ (whose element type ~E~ is ~void*~)
 
 To build a ~List(T)~ object, use the following APIs:\\
 *NOTE* : ~E~ is the type of element of ~Buff(T)~ object and resulting ~List(T)~ object.
