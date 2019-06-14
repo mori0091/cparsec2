@@ -7,13 +7,13 @@ const char* run_digit3(void* arg, Source src, Ctx* ex) {
   /* omit 'arg' since 'digit3' use no arguments */
   UNUSED(arg);
 
-  Buffer str = buf_new();
+  Buff(Char) str = {0};
   Ctx ctx;
   TRY(&ctx) { /* try */
     for (int i = 0; i < 3; ++i) {
-      buf_push(&str, parse(digit, src, &ctx));
+      buff_push(&str, parse(digit, src, &ctx));
     }
-    return buf_finish(&str);
+    return buff_finish(&str);
   }
   else { /* catch */
     mem_free(str.data);

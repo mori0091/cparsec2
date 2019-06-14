@@ -5,11 +5,11 @@
 static const char* run_many1(void* arg, Source src, Ctx* ex) {
   PARSER(Char) parser = (PARSER(Char))arg;
   Ctx ctx;
-  Buffer str = buf_new();
+  Buff(Char) str = {0};
   TRY(&ctx) {
-    buf_push(&str, parse(parser, src, &ctx));
-    buf_append(&str, parse(many(parser), src, &ctx));
-    return buf_finish(&str);
+    buff_push(&str, parse(parser, src, &ctx));
+    buff_append(&str, parse(many(parser), src, &ctx));
+    return buff_finish(&str);
   }
   else {
     mem_free((void*)str.data);

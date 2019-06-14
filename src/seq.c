@@ -4,14 +4,14 @@
 
 static const char* run_seq_char(void* arg, Source src, Ctx* ex) {
   PARSER(Char)* p = (PARSER(Char)*)arg;
-  Buffer str = buf_new();
+  Buff(Char) str = {0};
   Ctx ctx;
   TRY(&ctx) {
     while (*p) {
-      buf_push(&str, parse(*p, src, &ctx));
+      buff_push(&str, parse(*p, src, &ctx));
       p++;
     }
-    return buf_finish(&str);
+    return buff_finish(&str);
   }
   else {
     mem_free((void*)str.data);
@@ -21,9 +21,11 @@ static const char* run_seq_char(void* arg, Source src, Ctx* ex) {
 }
 
 PARSER(String) seq_char(PARSER(Char) ps[]) {
-  PtrBuffer buf = ptrbuf_new();
+  Buff(Ptr) buf = {0};
   while (*ps) {
-    ptrbuf_push(&buf, *ps++);
+    buff_push(&buf, *ps++);
   }
-  return PARSER_GEN(String)(run_seq_char, ptrbuf_finish(&buf));
+  buff_push(&buf, NULL);
+  void* arg = list_begin(buff_finish(&buf));
+  return PARSER_GEN(String)(run_seq_char, arg);
 }

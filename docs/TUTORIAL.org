@@ -35,13 +35,13 @@ In this example, [[file:API.org#exception-handling][Exception handling]] mechani
     /* omit 'arg' since 'digit3' use no arguments */
     UNUSED(arg);
 
-    Buffer str = buf_new();
+    Buff(Char) str = {0};
     Ctx ctx;
     TRY(&ctx) {                   /* try */
       for (int i = 0; i < 3; ++i) {
-        buf_push(&str, parse(digit, src, &ctx));
+        buff_push(&str, parse(digit, src, &ctx));
       }
-      return buf_finish(&str);
+      return buff_finish(&str);
     }
     else {                        /* catch */
       mem_free(str.data);
@@ -73,13 +73,13 @@ See also [[file:../example/digit3][example/digit3]] folder
     /* omit 'arg' since 'digit3' use no arguments */
     UNUSED(arg);
 
-    Buffer str = buf_new();
+    Buff(Char) str = {0};
     Ctx ctx;
     TRY(&ctx) {                   /* try */
       for (int i = 0; i < 3; ++i) {
-        buf_push(&str, parse(digit, src, &ctx));
+        buff_push(&str, parse(digit, src, &ctx));
       }
-      return buf_finish(&str);
+      return buff_finish(&str);
     }
     else {                        /* catch */
       mem_free(str.data);

@@ -9,12 +9,12 @@ struct cons_arg {
 
 static const char* run_cons_char(void* arg, Source src, Ctx* ex) {
   struct cons_arg* self = (struct cons_arg*)arg;
-  Buffer str = buf_new();
+  Buff(Char) str = {0};
   Ctx ctx;
   TRY(&ctx) {
-    buf_push(&str, parse(self->head, src, &ctx));
-    buf_append(&str, parse(self->tail, src, &ctx));
-    return buf_finish(&str);
+    buff_push(&str, parse(self->head, src, &ctx));
+    buff_append(&str, parse(self->tail, src, &ctx));
+    return buff_finish(&str);
   }
   else {
     mem_free(str.data);
