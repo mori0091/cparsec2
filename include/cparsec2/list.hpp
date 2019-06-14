@@ -14,6 +14,9 @@ inline auto list_begin(List(String) xs) {
 inline auto list_begin(List(Int) xs) {
   return LIST_BEGIN(Int)(xs);
 }
+inline auto list_begin(List(Ptr) xs) {
+  return LIST_BEGIN(Ptr)(xs);
+}
 #endif
 
 #ifdef list_end
@@ -26,6 +29,9 @@ inline auto list_end(List(String) xs) {
 }
 inline auto list_end(List(Int) xs) {
   return LIST_END(Int)(xs);
+}
+inline auto list_end(List(Ptr) xs) {
+  return LIST_END(Ptr)(xs);
 }
 #endif
 
@@ -40,6 +46,9 @@ inline auto list_length(List(String) xs) {
 inline auto list_length(List(Int) xs) {
   return LIST_LENGTH(Int)(xs);
 }
+inline auto list_length(List(Ptr) xs) {
+  return LIST_LENGTH(Ptr)(xs);
+}
 #endif
 
 #ifdef buff_ensure
@@ -52,6 +61,9 @@ inline void buff_ensure(Buff(String)* b) {
 }
 inline void buff_ensure(Buff(Int)* b) {
   BUFF_ENSURE(Int)(b);
+}
+inline void buff_ensure(Buff(Ptr)* b) {
+  BUFF_ENSURE(Ptr)(b);
 }
 #endif
 
@@ -66,6 +78,9 @@ inline void buff_push(Buff(String)* b, const char* x) {
 inline void buff_push(Buff(Int)* b, int x) {
   BUFF_PUSH(Int)(b, x);
 }
+inline void buff_push(Buff(Ptr)* b, void* x) {
+  BUFF_PUSH(Ptr)(b, x);
+}
 #endif
 
 #ifdef buff_append
@@ -79,6 +94,9 @@ inline void buff_append(Buff(String)* b, List(String) xs) {
 inline void buff_append(Buff(Int)* b, List(Int) xs) {
   BUFF_APPEND(Int)(b, xs);
 }
+inline void buff_append(Buff(Ptr)* b, List(Ptr) xs) {
+  BUFF_APPEND(Ptr)(b, xs);
+}
 #endif
 
 #ifdef buff_finish
@@ -91,5 +109,8 @@ inline auto buff_finish(Buff(String)* b) {
 }
 inline auto buff_finish(Buff(Int)* b) {
   return BUFF_FINISH(Int)(b);
+}
+inline auto buff_finish(Buff(Ptr)* b) {
+  return BUFF_FINISH(Ptr)(b);
 }
 #endif

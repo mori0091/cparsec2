@@ -23,6 +23,9 @@ DEFINE_LIST(String, const char*);
 // List(Int)
 DEFINE_LIST(Int, int);
 
+// List(Ptr)
+DEFINE_LIST(Ptr, void*);
+
 // List(Char) ; a special case of List(T)
 const char* LIST_BEGIN(Char)(List(Char) xs) {
   assert(xs);
@@ -83,6 +86,9 @@ DEFINE_BUFF(String, const char*);
 
 // Buff(Int)
 DEFINE_BUFF(Int, int);
+
+// Buff(Ptr)
+DEFINE_BUFF(Ptr, void*);
 
 // Buff(Char) ; a special case of Buff(T)
 DEFINE_BUFF_COMMON(Char, char);

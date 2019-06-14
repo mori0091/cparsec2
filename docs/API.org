@@ -87,6 +87,7 @@ To construct a ~List(T)~ object, use list-builder ~Buff(T)~.
   - ~List(Char)~ (whose element type ~E~ is ~const char~)
   - ~List(String)~ (whose element type ~E~ is ~const char*~)
   - ~List(Int)~ (whose element type ~E~ is ~int~)
+  - ~List(Ptr)~ (whose element type ~E~ is ~void*~)
 
 *NOTE* : ~List(Char)~ is same as ~const char*~ (i.e. string in C)
 
@@ -124,6 +125,7 @@ It is a variadic length buffer to build a ~List(T)~ object.
   - ~Buff(Char)~ (whose element type ~E~ is ~char~)
   - ~Buff(String)~ (whose element type ~E~ is ~const char*~)
   - ~Buff(Int)~ (whose element type ~E~ is ~int~)
+  - ~Buff(Ptr)~ (whose element type ~E~ is ~void*~)
 
 To build a ~List(T)~ object, use the following APIs:\\
 *NOTE* : ~E~ is the type of element of ~Buff(T)~ object and resulting ~List(T)~ object.
