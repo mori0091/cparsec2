@@ -24,11 +24,11 @@ DEFINE_LIST(String, const char*);
 DEFINE_LIST(Int, int);
 
 // List(Char) ; a special case of List(T)
-char* LIST_BEGIN(Char)(List(Char) xs) {
+const char* LIST_BEGIN(Char)(List(Char) xs) {
   assert(xs);
   return xs;
 }
-char* LIST_END(Char)(List(Char) xs) {
+const char* LIST_END(Char)(List(Char) xs) {
   assert(xs);
   return xs + LIST_LENGTH(Char)(xs);
 }
@@ -62,8 +62,8 @@ int LIST_LENGTH(Char)(List(Char) xs) {
     b->data[b->len++] = x;                                               \
   }                                                                      \
   void BUFF_APPEND(T)(Buff(T) * b, List(T) xs) {                         \
-    E* itr = LIST_BEGIN(T)(xs);                                          \
-    E* end = LIST_END(T)(xs);                                            \
+    E* itr = (E*)LIST_BEGIN(T)(xs);                                       \
+    E* end = (E*)LIST_END(T)(xs);                                         \
     for (; itr != end; itr++) {                                          \
       BUFF_PUSH(T)(b, *itr);                                             \
     }                                                                    \

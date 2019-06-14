@@ -24,8 +24,8 @@ extern "C" {
 
 // List(Char)
 #define CharList String
-typedef char* List(Char);
-DECLARE_LIST(Char, char);
+typedef const char* List(Char);
+DECLARE_LIST(Char, const char);
 
 // List(String)
 TYPEDEF_LIST(String, const char*);
