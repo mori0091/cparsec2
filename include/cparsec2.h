@@ -40,32 +40,6 @@ void mem_free(void* p);
 /** Construct a formated string */
 const char* mem_printf(const char* fmt, ...);
 
-// ---- variadic buffer ----
-
-typedef struct {
-  char* data;
-  int capacity;
-  int len;
-} Buffer;
-
-Buffer buf_new(void);
-void buf_ensure(Buffer* b);
-void buf_push(Buffer* b, char v);
-void buf_append(Buffer* b, const char* s);
-char* buf_finish(Buffer* b);
-
-typedef struct {
-  void** data;
-  int capacity;
-  int len;
-} PtrBuffer;
-
-PtrBuffer ptrbuf_new(void);
-void ptrbuf_ensure(PtrBuffer* b);
-void ptrbuf_push(PtrBuffer* b, void* v);
-void ptrbuf_append(PtrBuffer* b, void** s);
-void** ptrbuf_finish(PtrBuffer* b);
-
 // ---- error and exception handling ----
 
 // context object for exception handling
