@@ -30,11 +30,13 @@ char* LIST_BEGIN(Char)(List(Char) xs) {
 }
 char* LIST_END(Char)(List(Char) xs) {
   assert(xs);
-  return xs + strlen(xs);
+  return xs + LIST_LENGTH(Char)(xs);
 }
 int LIST_LENGTH(Char)(List(Char) xs) {
   assert(xs);
-  return strlen(xs);
+  size_t n = strnlen(xs, SIZE_MAX);
+  assert(n < SIZE_MAX);
+  return n;
 }
 
 // ---- Buffer (List builder) ----
