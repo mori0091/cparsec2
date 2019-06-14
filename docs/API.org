@@ -8,6 +8,7 @@
 - [[#core-api][Core API]] :: 
   - CPARSEC2 core APIs
   - Exception handling API for C.
+  - Containers
 - [[#built-in-parsers-parser-generators-and-parser-combinators][Built-in Parsers, Parser generators, and Parser combinators]] ::
   - Built-in Parsers and Parser-generators
   - Built-in Parser-combinators
@@ -71,6 +72,85 @@ Example:
     printf("error:%s\n", ctx.msg);   /* -> "error: something wrong!" */
     mem_free(ctx.msg);
   }
+#+end_src
+
+** Containers
+:PROPERTIES:
+:CUSTOM_ID: containers
+:END:
+
+*** List(T) - a list container
+~List(T)~ is a Generic type of list container.\\
+To construct a ~List(T)~ object, use list-builder ~Buff(T)~.
+
+*NOTE* : ~List(T)~ must be one of a following:
+  - ~List(Char)~ (whose element type ~E~ is ~char~)
+  - ~List(String)~ (whose element type ~E~ is ~const char*~)
+  - ~List(Int)~ (whose element type ~E~ is ~int~)
+
+*NOTE* : ~List(Char)~ is same as ~char*~ (i.e. string in C)
+
+To iterate elements contained in a ~List(T)~ object, use the following APIs.\\
+*NOTE* : ~E~ is the type of element of ~List(T)~ object.
+
+- E* list_begin(List(T) xs) ::
+   Retunrs an iterator, which points to the 1st element of the list. (inclusive)
+
+- E* list_end(List(T) xs)   ::
+   Returns an iterator, which points to the next of the last element. (out of range)
+
+- int list_length(List(T) xs) ::
+   Returns the number of elements.\\
+   *NOTE* : list_begin(xs) + list_length(xs) == list_end(xs)
+
+For example:
+#+begin_src c
+  /* a null-terminated char sequence is also a List(Char) */
+  List(Char) xs = "abcdefg";
+
+  char* itr = list_begin(xs);
+  char* end = list_end(xs);
+  while (itr != end) {
+    printf("%c\n", *itr);
+    itr++;
+  }
+#+end_src
+
+*** Buff(T) - a list builder
+~Buff(T)~ is a generic type of list builder.\\
+It is a variadic length buffer to build a ~List(T)~ object.
+
+*NOTE* : ~Buff(T)~ must be one of a following:
+  - ~Buff(Char)~ (whose element type ~E~ is ~char~)
+  - ~Buff(String)~ (whose element type ~E~ is ~const char*~)
+  - ~Buff(Int)~ (whose element type ~E~ is ~int~)
+
+To build a ~List(T)~ object, use the following APIs:\\
+*NOTE* : ~E~ is the type of element of ~Buff(T)~ object and resulting ~List(T)~ object.
+
+- void buff_push(Buff(T)* buf, E x) ::
+     Adds an element ~x~ to the last of ~buf~.
+- void buff_append(Buff(T)* buf, List(T) xs) ::
+     Adds elements in the ~xs~ to the last of ~buf~.
+- List(T) buff_finish(Buff(T)* buf) ::
+     Creates a ~List(T)~ object and clear contents of ~buf~.
+
+For example:
+#+begin_src c
+  /* A Buff(T) object must be initialized with {0} at first. */
+  Buff(Int) buf = {0};
+
+  for (int i = 0; i < 10; ++i) {
+    buff_push(&buf, i);
+  }
+  List(Int) xs = buf_finish(&buf);
+
+  int* itr = list_begin(xs);
+  int* end = list_end(xs);
+  while (itr != end) {
+    printf("%d", *itr++);         /* -> "0123456789" */
+  }
+  printf("\n");
 #+end_src
 
 
