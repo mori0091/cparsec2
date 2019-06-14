@@ -17,11 +17,16 @@ SCENARIO("Buff(T) and List(T)", "[cparsec2][parser][Buff][List]") {
       }
       AND_WHEN("List(Char) xs = buff_finish(&buf)") {
         List(Char) xs = buff_finish(&buf);
-        THEN("list_length(xs) == 10") {
-          REQUIRE(list_length(xs) == 10);
-          REQUIRE(list_begin(xs) + list_length(xs) == list_end(xs));
-          AND_THEN("xs == \"abcdefghij\"") {
-            REQUIRE(xs == std::string("abcdefghij"));
+        THEN("buf is cleared") {
+          REQUIRE(0 == buf.len);
+          REQUIRE(0 == buf.capacity);
+          REQUIRE(NULL == buf.data);
+          AND_THEN("list_length(xs) == 10") {
+            REQUIRE(list_length(xs) == 10);
+            REQUIRE(list_begin(xs) + list_length(xs) == list_end(xs));
+            AND_THEN("xs == \"abcdefghij\"") {
+              REQUIRE(xs == std::string("abcdefghij"));
+            }
           }
         }
       }
@@ -39,17 +44,22 @@ SCENARIO("Buff(T) and List(T)", "[cparsec2][parser][Buff][List]") {
       }
       AND_WHEN("List(Int) xs = buff_finish(&buf)") {
         List(Int) xs = buff_finish(&buf);
-        THEN("list_length(xs) == 10") {
-          REQUIRE(list_length(xs) == 10);
-          REQUIRE(list_begin(xs) + list_length(xs) == list_end(xs));
-          AND_THEN("sum of all x in xs == 55") {
-            int* itr = list_begin(xs);
-            int* end = list_end(xs);
-            int sum = 0;
-            while (itr != end) {
-              sum += *itr++;
+        THEN("buf is cleared") {
+          REQUIRE(0 == buf.len);
+          REQUIRE(0 == buf.capacity);
+          REQUIRE(NULL == buf.data);
+          AND_THEN("list_length(xs) == 10") {
+            REQUIRE(list_length(xs) == 10);
+            REQUIRE(list_begin(xs) + list_length(xs) == list_end(xs));
+            AND_THEN("sum of all x in xs == 55") {
+              int* itr = list_begin(xs);
+              int* end = list_end(xs);
+              int sum = 0;
+              while (itr != end) {
+                sum += *itr++;
+              }
+              REQUIRE(sum == 55);
             }
-            REQUIRE(sum == 55);
           }
         }
       }
@@ -67,22 +77,27 @@ SCENARIO("Buff(T) and List(T)", "[cparsec2][parser][Buff][List]") {
       }
       AND_WHEN("List(String) xs = buff_finish(&buf)") {
         List(String) xs = buff_finish(&buf);
-        THEN("list_length(xs) == 10") {
-          REQUIRE(list_length(xs) == 10);
-          REQUIRE(list_begin(xs) + list_length(xs) == list_end(xs));
-          AND_WHEN("const char** itr = list_begin(xs)") {
-            THEN("itr[] == {\"x0\", ..., \"x9\"}") {
-              const char** itr = list_begin(xs);
-              REQUIRE(itr[0] == std::string("x0"));
-              REQUIRE(itr[1] == std::string("x1"));
-              REQUIRE(itr[2] == std::string("x2"));
-              REQUIRE(itr[3] == std::string("x3"));
-              REQUIRE(itr[4] == std::string("x4"));
-              REQUIRE(itr[5] == std::string("x5"));
-              REQUIRE(itr[6] == std::string("x6"));
-              REQUIRE(itr[7] == std::string("x7"));
-              REQUIRE(itr[8] == std::string("x8"));
-              REQUIRE(itr[9] == std::string("x9"));
+        THEN("buf is cleared") {
+          REQUIRE(0 == buf.len);
+          REQUIRE(0 == buf.capacity);
+          REQUIRE(NULL == buf.data);
+          AND_THEN("list_length(xs) == 10") {
+            REQUIRE(list_length(xs) == 10);
+            REQUIRE(list_begin(xs) + list_length(xs) == list_end(xs));
+            AND_WHEN("const char** itr = list_begin(xs)") {
+              THEN("itr[] == {\"x0\", ..., \"x9\"}") {
+                const char** itr = list_begin(xs);
+                REQUIRE(itr[0] == std::string("x0"));
+                REQUIRE(itr[1] == std::string("x1"));
+                REQUIRE(itr[2] == std::string("x2"));
+                REQUIRE(itr[3] == std::string("x3"));
+                REQUIRE(itr[4] == std::string("x4"));
+                REQUIRE(itr[5] == std::string("x5"));
+                REQUIRE(itr[6] == std::string("x6"));
+                REQUIRE(itr[7] == std::string("x7"));
+                REQUIRE(itr[8] == std::string("x8"));
+                REQUIRE(itr[9] == std::string("x9"));
+              }
             }
           }
         }

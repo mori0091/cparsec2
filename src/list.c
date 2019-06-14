@@ -70,7 +70,9 @@ int LIST_LENGTH(Char)(List(Char) xs) {
 
 #define DEFINE_BUFF_FINISH(T)                                            \
   List(T) BUFF_FINISH(T)(Buff(T) * b) {                                  \
-    return (List(T)){.data = b->data, .len = b->len};                    \
+    List(T) xs = (List(T)){.data = b->data, .len = b->len};              \
+    *b = (Buff(T)){0};                                                   \
+    return xs;                                                           \
   }                                                                      \
   _Static_assert(1, "")
 
@@ -84,5 +86,7 @@ DEFINE_BUFF(Int, int);
 DEFINE_BUFF_COMMON(Char, char);
 List(Char) BUFF_FINISH(Char)(Buff(Char) * b) {
   BUFF_PUSH(Char)(b, '\0');
-  return (List(Char))b->data;
+  List(Char) xs = b->data;
+  *b = (Buff(Char)){0};
+  return xs;
 }
