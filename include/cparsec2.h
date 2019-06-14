@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <cparsec2/list.h>
+
 #ifdef __cplusplus
 #define NORETURN [[noreturn]]
 #else
