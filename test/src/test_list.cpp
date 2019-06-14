@@ -104,5 +104,44 @@ SCENARIO("Buff(T) and List(T)", "[cparsec2][parser][Buff][List]") {
       }
     }
   }
+  GIVEN("a Buff(Ptr) buf") {
+    Buff(Ptr) buf = {0};
+    WHEN("buff_push(&buf, x) for each x in 1..10") {
+      for (intptr_t x = 1; x <= 10; ++x) {
+        buff_push(&buf, (void*)x);
+      }
+      THEN("10 == buf.len <= buf.capacity") {
+        REQUIRE(10 == buf.len);
+        REQUIRE(buf.len <= buf.capacity);
+      }
+      AND_WHEN("List(Ptr) xs = buff_finish(&buf)") {
+        List(Ptr) xs = buff_finish(&buf);
+        THEN("buf is cleared") {
+          REQUIRE(0 == buf.len);
+          REQUIRE(0 == buf.capacity);
+          REQUIRE(NULL == buf.data);
+          AND_THEN("list_length(xs) == 10") {
+            REQUIRE(list_length(xs) == 10);
+            REQUIRE(list_begin(xs) + list_length(xs) == list_end(xs));
+            AND_WHEN("void** itr = list_begin(xs)") {
+              THEN("itr[] == {(void*)1, ..., (void*)10}") {
+                void** itr = list_begin(xs);
+                REQUIRE(itr[0] == (void*)1);
+                REQUIRE(itr[1] == (void*)2);
+                REQUIRE(itr[2] == (void*)3);
+                REQUIRE(itr[3] == (void*)4);
+                REQUIRE(itr[4] == (void*)5);
+                REQUIRE(itr[5] == (void*)6);
+                REQUIRE(itr[6] == (void*)7);
+                REQUIRE(itr[7] == (void*)8);
+                REQUIRE(itr[8] == (void*)9);
+                REQUIRE(itr[9] == (void*)10);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   cparsec2_end();
 }
