@@ -74,6 +74,19 @@ inline PARSER(List(Int)) many(PARSER(Int) p) {
 }
 #endif
 
+#ifdef many1
+#undef many1
+inline PARSER(List(Char)) many1(PARSER(Char) p) {
+  return MANY1(Char)(p);
+}
+inline PARSER(List(String)) many1(PARSER(String) p) {
+  return MANY1(String)(p);
+}
+inline PARSER(List(Int)) many1(PARSER(Int) p) {
+  return MANY1(Int)(p);
+}
+#endif
+
 #ifdef seq
 #undef seq
 template <typename... Parser>

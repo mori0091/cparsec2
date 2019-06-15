@@ -261,7 +261,19 @@ PARSER(List(Char)) MANY(Char)(PARSER(Char) p);
 PARSER(List(String)) MANY(String)(PARSER(String) p);
 PARSER(List(Int)) MANY(Int)(PARSER(Int) p);
 
-PARSER(String) many1(PARSER(Char) p);
+#define MANY1(T) CAT(many1_, T)
+// clang-format off
+#define many1(p)                                \
+  _Generic((PARSER_CAST(p))                     \
+           , PARSER(Char)   : MANY1(Char)       \
+           , PARSER(String) : MANY1(String)     \
+           , PARSER(Int)    : MANY1(Int)        \
+           )(PARSER_CAST(p))
+// clang-format on
+
+PARSER(List(Char)) MANY1(Char)(PARSER(Char) p);
+PARSER(List(String)) MANY1(String)(PARSER(String) p);
+PARSER(List(Int)) MANY1(Int)(PARSER(Int) p);
 
 // Parser<T[]> seq(Parser<T> p, ...);
 #define seq(...) SEQ_I(__VA_ARGS__, NULL)
