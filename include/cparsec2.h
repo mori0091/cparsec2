@@ -166,6 +166,12 @@ DECLARE_PARSER(String, const char*);
 // ---- IntParser ----
 DECLARE_PARSER(Int, int);
 
+// ---- StringListParser ----
+DECLARE_PARSER(List(String), List(String));
+
+// ---- IntListParser ----
+DECLARE_PARSER(List(Int), List(Int));
+
 // ---- predicates ----
 
 typedef bool (*Predicate)(char c);

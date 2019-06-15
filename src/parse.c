@@ -192,6 +192,38 @@ DEFINE_PARSER(Int, int) {
   printf("%d\n", x);
 }
 
+// ---- StringListParser ----
+DEFINE_PARSER(List(String), List(String)) {
+  const char** itr = list_begin(x);
+  const char** end = list_end(x);
+  if (itr == end) {
+    printf("[]\n");
+  }
+  else {
+    printf("[\"%s\"", *itr++);
+    while (itr != end) {
+      printf(", \"%s\"", *itr++);
+    }
+    printf("]\n");
+  }
+}
+
+// ---- IntListParser ----
+DEFINE_PARSER(List(Int), List(Int)) {
+  int* itr = list_begin(x);
+  int* end = list_end(x);
+  if (itr == end) {
+    printf("[]\n");
+  }
+  else {
+    printf("[%d", *itr++);
+    while (itr != end) {
+      printf(", %d", *itr++);
+    }
+    printf("]\n");
+  }
+}
+
 // ---- predicates ----
 // -- (see 'predicate.c')
 
