@@ -92,12 +92,12 @@ void consume(Source src);
 // ---- building-block for making parser ----
 
 #define PARSER(T) CAT(T, Parser)
-#define PARSER_FN(T) CAT(PARSER(T),Fn)
+#define PARSER_FN(T) CAT(PARSER(T), Fn)
 #define PARSER_ST(T) CAT(st, PARSER(T))
 #define PARSER_GEN(T) CAT(gen, PARSER(T))
 #define PARSE(T) CAT(parse_, T)
 #define PARSETEST(T) CAT(parseTest_, T)
-#define PARSER_ID_FN(T) CAT(PARSER(T),IdentityFn)
+#define PARSER_ID_FN(T) CAT(PARSER(T), IdentityFn)
 #define SHOW(T) CAT(show_, T)
 
 #define DECLARE_PARSER(T, R)                                             \
