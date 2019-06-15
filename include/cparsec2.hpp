@@ -108,8 +108,15 @@ inline PARSER(List(Int)) seq(PARSER(Int) p, Parser... args) {
 
 #ifdef cons
 #undef cons
-inline PARSER(String) cons(PARSER(Char) p, PARSER(String) ps) {
-  return cons_char(p, ps);
+inline PARSER(List(Char)) cons(PARSER(Char) p, PARSER(List(Char)) ps) {
+  return CONS(Char)(p, ps);
+}
+inline PARSER(List(String))
+    cons(PARSER(String) p, PARSER(List(String)) ps) {
+  return CONS(String)(p, ps);
+}
+inline PARSER(List(Int)) cons(PARSER(Int) p, PARSER(List(Int)) ps) {
+  return CONS(Int)(p, ps);
 }
 #endif
 
