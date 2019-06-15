@@ -4,9 +4,11 @@
 
 #include <cparsec2.h>
 
-// PARSER(Int) is already declared/defined in CPARSEC2 library.
-// So define 'Int' macro to avoid multiple definition.
-#define Int Integer
+_Static_assert(1, "PARSER(Int) is already defined.");
+
+#if 0
 
 /* declare class PARSER(Int), whose instance return int when applied */
 DECLARE_PARSER(Int, int);
+
+#endif
