@@ -276,11 +276,21 @@ PARSER(List(String)) MANY1(String)(PARSER(String) p);
 PARSER(List(Int)) MANY1(Int)(PARSER(Int) p);
 
 // Parser<T[]> seq(Parser<T> p, ...);
-#define seq(...) SEQ_I(__VA_ARGS__, NULL)
-#define SEQ_I(p, ...)                                                    \
-  _Generic((p), PARSER(Char) : seq_char)((PARSER(Char)[]){p, __VA_ARGS__})
+#define SEQ(T) CAT(seq_, T)
 
-PARSER(String) seq_char(PARSER(Char) ps[]);
+#define seq(...) SEQ_0(__VA_ARGS__, NULL)
+// clang-format off
+#define SEQ_0(p, ...)                               \
+  _Generic((p)                                      \
+           , PARSER(Char)   : SEQ(Char)             \
+           , PARSER(String) : SEQ(String)           \
+           , PARSER(Int)    : SEQ(Int)              \
+           )((void*[]){p, __VA_ARGS__})
+// clang-format on
+
+PARSER(List(Char)) SEQ(Char)(void* ps[]);
+PARSER(List(String)) SEQ(String)(void* ps[]);
+PARSER(List(Int)) SEQ(Int)(void* ps[]);
 
 // Parser<T[]> cons(Parser<T> p, Parser<T[]> ps);
 #define cons(p, ps) _Generic((p), PARSER(Char) : cons_char)(p, ps)

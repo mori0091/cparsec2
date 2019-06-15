@@ -2,30 +2,36 @@
 
 #include "cparsec2.h"
 
-static const char* run_seq_char(void* arg, Source src, Ctx* ex) {
-  PARSER(Char)* p = (PARSER(Char)*)arg;
-  Buff(Char) str = {0};
-  Ctx ctx;
-  TRY(&ctx) {
-    while (*p) {
-      buff_push(&str, parse(*p, src, &ctx));
-      p++;
-    }
-    return buff_finish(&str);
-  }
-  else {
-    mem_free((void*)str.data);
-    /* catch and re-throw exception */
-    cthrow(ex, ctx.msg);
-  }
-}
+#define SEQ_FN(T) CAT(run_seq, T)
+#define DEFINE_SEQ(T)                                                    \
+  static List(T) SEQ_FN(T)(void* arg, Source src, Ctx* ex) {             \
+    PARSER(T)* p = (PARSER(T)*)arg;                                      \
+    Buff(T) str = {0};                                                   \
+    Ctx ctx;                                                             \
+    TRY(&ctx) {                                                          \
+      while (*p) {                                                       \
+        buff_push(&str, parse(*p, src, &ctx));                           \
+        p++;                                                             \
+      }                                                                  \
+      return buff_finish(&str);                                          \
+    }                                                                    \
+    else {                                                               \
+      mem_free((void*)str.data);                                         \
+      /* catch and re-throw exception */                                 \
+      cthrow(ex, ctx.msg);                                               \
+    }                                                                    \
+  }                                                                      \
+  PARSER(List(T)) SEQ(T)(void* ps[]) {                               \
+    Buff(Ptr) buf = {0};                                                 \
+    while (*ps) {                                                        \
+      buff_push(&buf, *ps++);                                            \
+    }                                                                    \
+    buff_push(&buf, NULL);                                               \
+    void* arg = list_begin(buff_finish(&buf));                           \
+    return PARSER_GEN(List(T))(SEQ_FN(T), arg);                          \
+  }                                                                      \
+  _Static_assert(1, "")
 
-PARSER(String) seq_char(PARSER(Char) ps[]) {
-  Buff(Ptr) buf = {0};
-  while (*ps) {
-    buff_push(&buf, *ps++);
-  }
-  buff_push(&buf, NULL);
-  void* arg = list_begin(buff_finish(&buf));
-  return PARSER_GEN(String)(run_seq_char, arg);
-}
+DEFINE_SEQ(Char);
+DEFINE_SEQ(String);
+DEFINE_SEQ(Int);

@@ -90,13 +90,20 @@ inline PARSER(List(Int)) many1(PARSER(Int) p) {
 #ifdef seq
 #undef seq
 template <typename... Parser>
-inline PARSER(String) seq(PARSER(Char) p, Parser... args) {
+inline PARSER(List(Char)) seq(PARSER(Char) p, Parser... args) {
   PARSER(Char) ps[] = {p, args..., NULL};
-  return seq_char(ps);
+  return SEQ(Char)((void**)ps);
 }
-#endif
-#ifdef SEQ_I
-#undef SEQ_I
+template <typename... Parser>
+inline PARSER(List(String)) seq(PARSER(String) p, Parser... args) {
+  PARSER(String) ps[] = {p, args..., NULL};
+  return SEQ(String)((void**)ps);
+}
+template <typename... Parser>
+inline PARSER(List(Int)) seq(PARSER(Int) p, Parser... args) {
+  PARSER(Int) ps[] = {p, args..., NULL};
+  return SEQ(Int)((void**)ps);
+}
 #endif
 
 #ifdef cons
