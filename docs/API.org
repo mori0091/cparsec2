@@ -9,9 +9,19 @@
   - CPARSEC2 core APIs
   - Exception handling API for C.
   - Containers
+    - ~List(T)~ - a list container
+    - Iteration API for ~List(T)~
+    - ~Buff(T)~ - a list builer
+    - List builder API for ~Buff(T)~
+- [[#type-of-parsers][Type of Parsers]] ::
+  - PARSER(Char)
+  - PARSER(String)
+  - PARSER(Int)
+  - PARSER(List(Char))
+  - PARSER(List(String))
+  - PARSER(List(Int))
 - [[#built-in-parsers-parser-generators-and-parser-combinators][Built-in Parsers, Parser generators, and Parser combinators]] ::
   - Built-in Parsers and Parser-generators
-  - Built-in Parser-combinators
   - Built-in *GENERIC* Parser-combinators
 - [[#building-block-of-parser-class][Building block of Parser-class]] ::
   - PARSER(T) class
@@ -83,16 +93,20 @@ Example:
 ~List(T)~ is a Generic type of list container.\\
 To construct a ~List(T)~ object, use list-builder ~Buff(T)~.
 
-*NOTE* : ~List(T)~ must be one of a following:
-  - ~List(Char)~ (whose element type ~E~ is ~const char~)
-  - ~List(String)~ (whose element type ~E~ is ~const char*~)
-  - ~List(Int)~ (whose element type ~E~ is ~int~)
-  - ~List(Ptr)~ (whose element type ~E~ is ~void*~)
+- List(Char)          ::
+     A type of a list container whose element type is ~const char~.
+- List(String)        ::
+     A type of a list container whose element type is ~const char*~.
+- List(Int)           ::
+     A type of a list container whose element type is ~int~.
+- List(Ptr)           ::
+     A type of a list container whose element type is ~void*~.
 
 *NOTE* : ~List(Char)~ is same as ~const char*~ (i.e. string in C)
 
+*** Iteration API for List(T)
 To iterate elements contained in a ~List(T)~ object, use the following APIs.\\
-*NOTE* : ~E~ is the type of element of ~List(T)~ object.
+*NOTE* : ~E~ is the element type of ~List(T)~ object.
 
 - E* list_begin(List(T) xs) ::
    Retunrs an iterator, which points to the 1st element of the list. (inclusive)
@@ -102,7 +116,8 @@ To iterate elements contained in a ~List(T)~ object, use the following APIs.\\
 
 - int list_length(List(T) xs) ::
    Returns the number of elements.\\
-   *NOTE* : list_begin(xs) + list_length(xs) == list_end(xs)
+
+*NOTE* : list_begin(xs) + list_length(xs) == list_end(xs)
 
 For example:
 #+begin_src c
@@ -121,14 +136,18 @@ For example:
 ~Buff(T)~ is a generic type of list builder.\\
 It is a variadic length buffer to build a ~List(T)~ object.
 
-*NOTE* : ~Buff(T)~ must be one of a following:
-  - ~Buff(Char)~ (whose element type ~E~ is ~char~)
-  - ~Buff(String)~ (whose element type ~E~ is ~const char*~)
-  - ~Buff(Int)~ (whose element type ~E~ is ~int~)
-  - ~Buff(Ptr)~ (whose element type ~E~ is ~void*~)
+- Buff(Char)         ::
+     A type of a list-builder whose element type is ~char~.
+- Buff(String)       ::
+     A type of a list-builder whose element type is ~const char*~.
+- Buff(Int)          ::
+     A type of a list-builder whose element type is ~int~.
+- Buff(Ptr)          ::
+     A type of a list-builder whose element type is ~void*~.
 
+*** List builder API for Buff(T)
 To build a ~List(T)~ object, use the following APIs:\\
-*NOTE* : ~E~ is the type of element of ~Buff(T)~ object and resulting ~List(T)~ object.
+*NOTE* : ~E~ is the element type of ~Buff(T)~ object and resulting ~List(T)~ object.
 
 - void buff_push(Buff(T)* buf, E x) ::
      Adds an element ~x~ to the last of ~buf~.
@@ -156,101 +175,181 @@ For example:
 #+end_src
 
 
+* Type of Parsers
+:PROPERTIES:
+:CUSTOM_ID: type-of-parsers
+:END:
+
+- PARSER(Char)            ::
+  A parser of ~PARSER(Char)~ type reads one char, and \\
+  returns a ~char~ value, when it is applied to a text.
+- PARSER(String)          ::
+  A parser of ~PARSER(String)~ type reads chars, and \\
+  returns a ~const char*~ value, when it is applied to a text.
+- PARSER(Int)             ::
+  A parser of ~PARSER(Int)~ type reads chars, and \\
+  returns a ~int~ value, when it is applied to a text.
+- PARSER(List(Char))      ::
+  A parser of ~PARSER(List(Char))~ type reads chars, and \\
+  returns a ~List(Char)~ value, when it is applied to a text.
+  - *NOTE* :
+    - ~PARSER(List(Char))~ is same as ~PARSER(String)~, and
+    - ~List(Char)~ is same as ~const char*~.
+- PARSER(List(String))    ::
+  A parser of ~PARSER(List(String))~ type reads chars, and \\
+  returns a ~List(String)~ value, when it is applied to a text.
+- PARSER(List(Int))       ::
+  A parser of ~PARSER(List(Int))~ type reads chars, and \\
+  returns a ~List(int)~ value, when it is applied to a text.
+
 * Built-in Parsers, Parser generators, and Parser combinators
 :PROPERTIES:
 :CUSTOM_ID: built-in-parsers-parser-generators-and-parser-combinators
 :END:
 
-- *NOTE* : Type ~PARSER(T)~ is a generic type of parser.\\
-  ~T~ must be one of a following:
-  - ~Char~
-  - ~String~
-  - ~Int~
-- *NOTE* : Type ~PARSER(Char)~ is same as ~CharParser~.
-  - An instance of ~CharParser~ type is a parser, \\
-    which returns a ~char~ value when it is applied to a text.
-- *NOTE* : Type ~PARSER(String)~ is same as ~StringParser~.
-  - An instance of ~StringParser~ type is a parser, \\
-    which returns a ~const char*~ value (i.e. char sequence terminated with null-character)
-    when it is applied to a text.
-- *NOTE* : Type ~PARSER(Int)~ is same as ~IntParser~.
-  - An instance of ~IntParser~ type is a parser, \\
-    which returns a ~int~ value when it is applied to a text.
-
 ** Built-in Parsers and Parser-generators
 
 - anyChar               :: 
-     A CharParser which parse any one char
+     A PARSER(Char) which parse any one char
 - digit                 :: 
-     A CharParser which parse a digit (i.e. ~0~ .. ~9~)
+     A PARSER(Char) which parse a digit (i.e. ~0~ .. ~9~)
 - hexDigit              ::
-     A CharParser which parse a hexadecimal digit (i.e. ~0~ .. ~9~, ~a~ .. ~f~, and ~A~ .. ~F~)
+     A PARSER(Char) which parse a hexadecimal digit (i.e. ~0~ .. ~9~, ~a~ .. ~f~, and ~A~ .. ~F~)
 - octDigit              ::
-     A CharParser which parse a octal digit (i.e. ~0~ .. ~7~)
+     A PARSER(Char) which parse a octal digit (i.e. ~0~ .. ~7~)
 - lower                 :: 
-     A CharParser which parse a lower-case char (i.e. ~a~ .. ~z~)
+     A PARSER(Char) which parse a lower-case char (i.e. ~a~ .. ~z~)
 - upper                 :: 
-     A CharParser which parse a upper-case char (i.e. ~A~ .. ~Z~)
+     A PARSER(Char) which parse a upper-case char (i.e. ~A~ .. ~Z~)
 - alpha                 :: 
-     A CharParser which parse an alphabet char (i.e. ~a~ .. ~z~, ~A~ .. ~Z~)
+     A PARSER(Char) which parse an alphabet char (i.e. ~a~ .. ~z~, ~A~ .. ~Z~)
 - alnum                 :: 
-     A CharParser which parse a digit or an alphabet char (i.e. ~0~ .. ~9~, ~a~ .. ~z~, ~A~ .. ~Z~)
+     A PARSER(Char) which parse a digit or an alphabet char (i.e. ~0~ .. ~9~, ~a~ .. ~z~, ~A~ .. ~Z~)
 - letter                :: 
-     A CharParser which parse underscore or an alphabet char (i.e. ~_~, ~a~ .. ~z~, ~A~ .. ~Z~)
+     A PARSER(Char) which parse underscore or an alphabet char (i.e. ~_~, ~a~ .. ~z~, ~A~ .. ~Z~)
 - newline               ::
-     A CharParser which parse a newline character (i.e. LF)
+     A PARSER(Char) which parse a newline character (i.e. LF)
 - crlf                  ::
-     A CharParser which parse a pair of CR and LF, and returns LF (i.e. CR LF \rightarrow LF)
+     A PARSER(Char) which parse a pair of CR and LF, and returns LF (i.e. CR LF \rightarrow LF)
 - endOfLine             ::
-     A CharParser which parse a LF or a CR-LF pair and returns LF.
+     A PARSER(Char) which parse a LF or a CR-LF pair and returns LF.
 - tab                   ::
-     A CharParser which parse a TAB character.
+     A PARSER(Char) which parse a TAB character.
 - space                 :: 
-     A CharParser which parse a white-space (i.e. space, TAB, LF, CR)
+     A PARSER(Char) which parse a white-space (i.e. space, TAB, LF, CR)
 - spaces                :: 
-     A StringParser which parse zero or more white-spaces (i.e. space, TAB, LF, CR)
+     A PARSER(String) which parse zero or more white-spaces (i.e. space, TAB, LF, CR)
 - number                :: 
-     A IntParser which skips leading white-spaces and parse one or more
+     A PARSER(Int) which skips leading white-spaces and parse one or more
      subsequent digits then returns it as an ~int~ value when applied to a text.
 - char1(c)              :: 
-     Create a CharParser which parse the char ~c~
+     Create a PARSER(Char) which parse the char ~c~
 - string1(s)            :: 
-     Create a StringParser which parse the string ~s~.
+     Create a PARSER(String) which parse the string ~s~.
 - oneOf(cs)             :: 
-     Create a CharParser which parse a char ~c~ satisfying it is contained in the string ~cs~.
+     Create a PARSER(Char) which parse a char ~c~ satisfying it is contained in the string ~cs~.
 - noneOf(cs)            :: 
-     Create a CharParser which parse a char ~c~ satisfying it is *not* contained in the string ~cs~.
+     Create a PARSER(Char) which parse a char ~c~ satisfying it is *not* contained in the string ~cs~.
 - satisfy(pred)         :: 
-     Create a CharParser which parse a char ~c~ satisfying ~pred(c) == true~
-
-** Built-in Parser-combinators
-- many(p)               :: 
-     Create a StringParser which parse zero or more chars.\\
-     A CharParser ~p~ is used to parse for each char.
-- many1(p)              :: 
-     Create a StringParser which parse one or more chars.\\
-     A CharParser ~p~ is used to parse for each char.
-- seq(p, ...)           :: 
-     Create a StringParser which parse a sequence of chars.\\
-     Each CharParser in the list of arguments ~p, ...~ is used to parse for each char.
-- cons(p, ps)           :: 
-     Create a StringParser which parse a sequence of chars.\\
-     A CharParser ~p~ is used to parse the 1st char, and a StringParser ~ps~ is
-     used to parse subsequent chars.
+     Create a PARSER(Char) which parse a char ~c~ satisfying ~pred(c) == true~
 
 ** Built-in GENERIC Parser-combinators
+*** many(p)
+- PARSER(List(Char)) many(char c) ::
+     Same as ~many(char1(c))~.
+- PARSER(List(String)) many(const char* s) ::
+     Same as ~many(string1(s))~.
+
+- PARSER(List(T)) many(PARSER(T) p) ::
+     Create a parser of PARSER(List(T)) type, which
+  - apply ~p~ zeroth or more to a text.
+  - return a list consists of the each result of ~p~.
+  - if the text was not started with a char sequence expected by ~p~, returns a
+    empty list of ~List(T)~ type.
+  - *NOTE* : ~T~ must be one of the following:
+    - ~Char~
+    - ~String~ aka ~List(Char)~
+    - ~Int~
+
+*** many1(p)
+*NOTE* : ~many1(p)~ is same as ~cons(p, many(p))~.
+
+- PARSER(List(Char)) many1(char c) ::
+     Same as ~many1(char1(c))~.
+- PARSER(List(String)) many1(const char* s) ::
+     Same as ~many1(string1(s))~.
+
+- PARSER(List(T)) many1(PARSER(T) p) ::
+     Create a parser of PARSER(List(T)) type, which
+  - apply ~p~ once or more to a text.
+  - return a list consists of the each result of ~p~.
+  - if the text was not started with a char sequence expected by ~p~, throws an
+    error of ~p~.
+  - *NOTE* : ~T~ must be one of the following:
+    - ~Char~
+    - ~String~ aka ~List(Char)~
+    - ~Int~
+
+*** seq(p, ...)
+- PARSER(List(T)) seq(PARSER(T) p, ...) ::
+     Create a parser of PARSER(List(T)) type, which
+  - apply for all parsers ~p, ...~ to a text.
+  - return a list consists of the each retults of ~p, ...~.
+  - if a parser in the ~p, ...~ failed, throws an error of it.
+  - *NOTE* : For all parser in the ~p, ...~, whose type must be same, otherwise
+    the behavior is undefined.
+  - *NOTE* : ~T~ must be one of the following:
+    - ~Char~
+    - ~String~ aka ~List(Char)~
+    - ~Int~
+
+*** cons(p, ps)
+- PARSER(List(Char)) cons(char c, const char* cs) ::
+     Same as ~cons(char1(c), string1(cs))~.
+- PARSER(List(Char)) cons(char c, PARSER(List(Char)) ps) ::
+     Same as ~cons(char1(c), ps)~.
+- PARSER(List(String)) cons(const char* s, PARSER(List(String)) ps) ::
+     Same as ~cons(string1(s), ps)~.
+
+- PARSER(List(T)) cons(PARSER(T) p, PARSER(List(T)) ps) ::
+     Create a parser of PARSER(List(T)) type, which
+  - apply ~p~ and parsers in the list ~ps~ to a text.
+  - return a list consists of the result of ~p~ and results of each parsers in ~ps~.
+  - if any parser failed, throws an error of it.
+  - *NOTE* : ~T~ must be one of the following:
+    - ~Char~
+    - ~String~ aka ~List(Char)~
+    - ~Int~
+
 *** skip1st(p1, p2)
-- PARSER(T2) skip1st(PARSER(T1) p1, PARSER(T2) p2) ::
-     Create a parser of PARSER(T2) type, which
+- PARSER(Char) skip1st(char c1, char c2) ::
+     Same as ~skip1st(char1(c1), char1(c2))~.
+- PARSER(Char) skip1st(const char* s, char c) ::
+     Same as ~skip1st(string1(s), char1(c))~.
+- PARSER(Char) skip1st(PARSER(S) p, char c) ::
+     Same as ~skip1st(p, char1(c))~.
+- PARSER(String) skip1st(char c, const char* s) ::
+     Same as ~skip1st(char1(c), string1(s))~.
+- PARSER(String) skip1st(const char* s1, const char* s2) ::
+     Same as ~skip1st(string1(s1), string1(s2))~.
+- PARSER(String) skip1st(PARSER(S) p, const char* s) ::
+     Same as ~skip1st(p, string1(s))~.
+- PARSER(T) skip1st(char c, PARSER(T) p) ::
+     Same as ~skip1st(char1(c), p)~.
+- PARSER(T) skip1st(const char* s, PARSER(T) p) ::
+     Same as ~skip1st(string1(s), p)~.
+
+- PARSER(T) skip1st(PARSER(S) p1, PARSER(T) p2) ::
+     Create a parser of PARSER(T) type, which
   - apply ~p1~ at first, and then apply ~p2~ to the subsequent text.
   - return the result of ~p2~ if both ~p1~ and ~p2~ success.
   - if ~p1~ failed, ~p2~ is not applied and throws error of ~p1~.
   - if ~p1~ success and then ~p2~ failed, throws error of ~p2~.
-  - *NOTE* : ~T1~ and ~T2~ must be one of the following:
+  - *NOTE* : ~S~ and ~T~ must be one of the following:
     - ~Char~
     - ~String~
     - ~Int~
-  - *NOTE* : ~T1~ and ~T2~ may or may not be same.\\
+  - *NOTE* : ~S~ and ~T~ may or may not be same.\\
     (i.e. ~p1~ and ~p2~ may be a parser of same type or different type)
 
 For example:
@@ -260,10 +359,12 @@ parseTest(skip1st(string1("ab"), char1('c')), "abc"); // -> 'c'
 #+end_src
 
 *** token(p)
-- CharParser token(char c) ::
-     Create a CharParser. Same as ~token(char1(c))~.
-- StringParser token(const char* s) ::
-     Create a StringParser. Same as ~token(string1(c))~.
+*NOTE* : ~token(p)~ is same as ~skip1st(spaces, p)~.
+
+- PARSER(Char) token(char c) ::
+     Same as ~token(char1(c))~.
+- PARSER(String) token(const char* s) ::
+     Same as ~token(string1(c))~.
 
 - PARSER(T) token(PARSER(T) p) ::
      Create a parser of PARSER(T) type, which
@@ -276,18 +377,18 @@ parseTest(skip1st(string1("ab"), char1('c')), "abc"); // -> 'c'
     - ~Int~
 
 *** either(p1, p2)
-- CharParser either(char c1, char c2) :: 
-     Create a CharParser. Same as ~either(char1(c1), char1(c2))~.
-- CharParser either(char c, CharParser p) :: 
-     Create a CharParser. Same as ~either(char1(c), p))~.
-- CharParser either(CharParser p, char c) :: 
-     Create a CharParser. Same as ~either(p, char1(c)))~.
-- StringParser either(const char* s1, const char* s2) :: 
-     Create a StringParser. Same as ~either(string1(s1), string1(s2))~.
-- StringParser either(const char* s, StringParser p) :: 
-     Create a StringParser. Same as ~either(string1(s), p)~.
-- StringParser either(StringParser p, const char* s) :: 
-     Create a StringParser. Same as ~either(p, string1(s))~.
+- PARSER(Char) either(char c1, char c2) :: 
+     Same as ~either(char1(c1), char1(c2))~.
+- PARSER(Char) either(char c, PARSER(Char) p) :: 
+     Same as ~either(char1(c), p))~.
+- PARSER(Char) either(PARSER(Char) p, char c) :: 
+     Same as ~either(p, char1(c)))~.
+- PARSER(String) either(const char* s1, const char* s2) :: 
+     Same as ~either(string1(s1), string1(s2))~.
+- PARSER(String) either(const char* s, PARSER(String) p) :: 
+     Same as ~either(string1(s), p)~.
+- PARSER(String) either(PARSER(String) p, const char* s) :: 
+     Same as ~either(p, string1(s))~.
 
 - PARSER(T) either(PARSER(T) p1, PARSER(T) p2) ::
      Create a parser of PARSER(T) type, which
@@ -301,10 +402,10 @@ parseTest(skip1st(string1("ab"), char1('c')), "abc"); // -> 'c'
     - ~Int~
 
 *** tryp(p)
-- CharParser tryp(char c) ::
-     Create a CharParser. Same as ~tryp(char1(c))~.
-- StringParser tryp(const char* s) ::
-     Create a StringParser. Same as ~tryp(string1(s))~.
+- PARSER(Char) tryp(char c) ::
+     Same as ~tryp(char1(c))~.
+- PARSER(String) tryp(const char* s) ::
+     Same as ~tryp(string1(s))~.
 
 - PARSER(T) tryp(PARSER(T) p) ::
      Create a parser of PARSER(T) type, which
