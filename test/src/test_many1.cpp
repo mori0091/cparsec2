@@ -47,5 +47,41 @@ SCENARIO("many1(p)", "[cparsec2][parser][many1]") {
       }
     }
   }
+  GIVEN("an input \"abc\"") {
+    Source src = Source_new("abc");
+    WHEN("apply many1(number)") {
+      THEN("cause exception(\"not satisfy\")") {
+        REQUIRE_THROWS_WITH(parse(many1(number), src), "not satisfy");
+      }
+    }
+    WHEN("apply many1(token(many1(digit)))") {
+      THEN("cause exception(\"not satisfy\")") {
+        REQUIRE_THROWS_WITH(parse(many1(token(many1(digit))), src),
+                            "not satisfy");
+      }
+    }
+  }
+  GIVEN("an input \",123,456,789\"") {
+    Source src = Source_new(",123,456,789");
+    WHEN("apply many1(skip1st(char1(','), number))") {
+      List(Int) xs = parse(many1(skip1st(char1(','), number)), src);
+      THEN("results [123, 456, 789]") {
+        int* itr = list_begin(xs);
+        REQUIRE(123 == itr[0]);
+        REQUIRE(456 == itr[1]);
+        REQUIRE(789 == itr[2]);
+      }
+    }
+    WHEN("apply many1(skip1st(char1(','), many1(digit)))") {
+      List(String) xs =
+          parse(many1(skip1st(char1(','), many1(digit))), src);
+      THEN("results [\"123\", \"456\", \"789\"]") {
+        const char** itr = list_begin(xs);
+        REQUIRE("123" == std::string(itr[0]));
+        REQUIRE("456" == std::string(itr[1]));
+        REQUIRE("789" == std::string(itr[2]));
+      }
+    }
+  }
   cparsec2_end();
 }

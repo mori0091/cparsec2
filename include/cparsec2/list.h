@@ -1,15 +1,17 @@
 /* -*- coding:utf-8-unix -*- */
 #pragma once
 
+#include "macros.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 // ---- List ----
-#define List(T) T##List
-#define LIST_BEGIN(T) list_begin_##T
-#define LIST_END(T) list_end_##T
-#define LIST_LENGTH(T) list_length_##T
+#define List(T) CAT(T, List)
+#define LIST_BEGIN(T) CAT(list_begin_, T)
+#define LIST_END(T) CAT(list_end_, T)
+#define LIST_LENGTH(T) CAT(list_length_, T)
 
 #define TYPEDEF_LIST(T, E)                                               \
   typedef struct {                                                       \
@@ -64,11 +66,11 @@ DECLARE_LIST(Ptr, void*);
 // clang-format on
 
 // ---- Buffer (List builder) ----
-#define Buff(T) T##Buff
-#define BUFF_ENSURE(T) buff_ensure_##T
-#define BUFF_PUSH(T) buff_push_##T
-#define BUFF_APPEND(T) buff_append_##T
-#define BUFF_FINISH(T) buff_finish_##T
+#define Buff(T) CAT(T, Buff)
+#define BUFF_ENSURE(T) CAT(buff_ensure_, T)
+#define BUFF_PUSH(T) CAT(buff_push_, T)
+#define BUFF_APPEND(T) CAT(buff_append_, T)
+#define BUFF_FINISH(T) CAT(buff_finish_, T)
 
 #define DECLARE_BUFF(T, E)                                               \
   typedef struct {                                                       \

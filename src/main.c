@@ -129,16 +129,36 @@ int main(int argc, char** argv) {
 
   PARSE_TEST(either("ab", "bc"), "ab"); /* "ab" */
   PARSE_TEST(either("ab", "bc"), "bc"); /* "bc" */
-  PARSE_TEST(either("ab", "bc"),
-             "ac"); /* "error:expects 'b' but was 'c'" */
-  PARSE_TEST(either("ab", "ac"),
-             "ac"); /* "error:expects 'b' but was 'c'" */
+  PARSE_TEST(either("ab", "bc"), "ac");
+  /* -> "error:expects 'b' but was 'c'" */
+
+  PARSE_TEST(either("ab", "ac"), "ac");
+  /* -> "error:expects 'b' but was 'c'" */
 
   PARSE_TEST(either(tryp("ab"), "bc"), "ab"); /* "ab" */
   PARSE_TEST(either(tryp("ab"), "bc"), "bc"); /* "bc" */
-  PARSE_TEST(either(tryp("ab"), "bc"),
-             "ac"); /* "error:expects 'b' but was 'a'" */
+  PARSE_TEST(either(tryp("ab"), "bc"), "ac");
+  /* -> "error:expects 'b' but was 'a'" */
+
   PARSE_TEST(either(tryp("ab"), "ac"), "ac"); /* "ac" */
+
+  PARSE_TEST(many(number), "123 456 789");
+  /* -> [123, 456, 789] */
+
+  PARSE_TEST(many(number), "");
+  /* -> [] */
+
+  PARSE_TEST(many(token(many1(digit))), "123 456 789");
+  /* -> ["123", "456", "789"] */
+
+  PARSE_TEST(many(token(many1(digit))), "");
+  /* -> [] */
+
+  PARSE_TEST(many(skip1st(char1(','), number)), ",123,456,789");
+  /* -> [123, 456, 789] */
+
+  PARSE_TEST(many(skip1st(char1(','), many1(digit))), ",123,456,789");
+  /* -> ["123", "456", "789"] */
 
   cparsec2_end();
 

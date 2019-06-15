@@ -12,7 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <cparsec2/list.h>
+#include "cparsec2/list.h"
+#include "cparsec2/macros.h"
 
 #ifdef __cplusplus
 #define NORETURN [[noreturn]]
@@ -90,14 +91,14 @@ void consume(Source src);
 
 // ---- building-block for making parser ----
 
-#define PARSER(T) T##Parser
-#define PARSER_FN(T) T##ParserFn
-#define PARSER_ST(T) st##T##Parser
-#define PARSER_GEN(T) gen##T##Parser
-#define PARSE(T) parse_##T
-#define PARSETEST(T) parseTest_##T
-#define PARSER_ID_FN(T) T##ParserIdentityFn
-#define SHOW(T) show_##T
+#define PARSER(T) CAT(T, Parser)
+#define PARSER_FN(T) CAT(PARSER(T), Fn)
+#define PARSER_ST(T) CAT(st, PARSER(T))
+#define PARSER_GEN(T) CAT(gen, PARSER(T))
+#define PARSE(T) CAT(parse_, T)
+#define PARSETEST(T) CAT(parseTest_, T)
+#define PARSER_ID_FN(T) CAT(PARSER(T), IdentityFn)
+#define SHOW(T) CAT(show_, T)
 
 #define DECLARE_PARSER(T, R)                                             \
   typedef R (*PARSER_FN(T))(void* arg, Source src, Ctx* ex);             \
@@ -165,6 +166,12 @@ DECLARE_PARSER(String, const char*);
 // ---- IntParser ----
 DECLARE_PARSER(Int, int);
 
+// ---- StringListParser ----
+DECLARE_PARSER(List(String), List(String));
+
+// ---- IntListParser ----
+DECLARE_PARSER(List(Int), List(Int));
+
 // ---- predicates ----
 
 typedef bool (*Predicate)(char c);
@@ -211,7 +218,7 @@ PARSER(String) string1(const char* s);
 PARSER(Char) expects(const char* desc, PARSER(Char) p); // TODO test
 
 // Parser<Int> skip(Parser<T> p);
-#define SKIP(T) skip_##T
+#define SKIP(T) CAT(skip_, T)
 // clang-format off
 #define skip(p)                                 \
   _Generic((PARSER_CAST(p))                     \
@@ -226,7 +233,7 @@ PARSER(Int) SKIP(String)(PARSER(String) p);
 PARSER(Int) SKIP(Int)(PARSER(Int) p);
 
 // Parser<T2> skip1st(Parser<T1> p1, Parser<T2> p2);
-#define SKIP1ST(T) skip1st_##T
+#define SKIP1ST(T) CAT(skip1st_, T)
 // clang-format off
 #define skip1st(p1, p2)                         \
   _Generic((PARSER_CAST(p2))                    \
@@ -240,8 +247,33 @@ PARSER(Char) SKIP1ST(Char)(PARSER(Int) p1, PARSER(Char) p2);
 PARSER(String) SKIP1ST(String)(PARSER(Int) p1, PARSER(String) p2);
 PARSER(Int) SKIP1ST(Int)(PARSER(Int) p1, PARSER(Int) p2);
 
-PARSER(String) many(PARSER(Char) p);
-PARSER(String) many1(PARSER(Char) p);
+#define MANY(T) CAT(many_, T)
+// clang-format off
+#define many(p)                                 \
+  _Generic((PARSER_CAST(p))                     \
+           , PARSER(Char)   : MANY(Char)        \
+           , PARSER(String) : MANY(String)      \
+           , PARSER(Int)    : MANY(Int)         \
+           )(PARSER_CAST(p))
+// clang-format on
+
+PARSER(List(Char)) MANY(Char)(PARSER(Char) p);
+PARSER(List(String)) MANY(String)(PARSER(String) p);
+PARSER(List(Int)) MANY(Int)(PARSER(Int) p);
+
+#define MANY1(T) CAT(many1_, T)
+// clang-format off
+#define many1(p)                                \
+  _Generic((PARSER_CAST(p))                     \
+           , PARSER(Char)   : MANY1(Char)       \
+           , PARSER(String) : MANY1(String)     \
+           , PARSER(Int)    : MANY1(Int)        \
+           )(PARSER_CAST(p))
+// clang-format on
+
+PARSER(List(Char)) MANY1(Char)(PARSER(Char) p);
+PARSER(List(String)) MANY1(String)(PARSER(String) p);
+PARSER(List(Int)) MANY1(Int)(PARSER(Int) p);
 
 // Parser<T[]> seq(Parser<T> p, ...);
 #define seq(...) SEQ_I(__VA_ARGS__, NULL)
@@ -255,7 +287,7 @@ PARSER(String) seq_char(PARSER(Char) ps[]);
 PARSER(String) cons_char(PARSER(Char) p, PARSER(String) ps);
 
 // Parser<T> either(Parser<T> p1, Parser<T> p2);
-#define EITHER(T) either_##T
+#define EITHER(T) CAT(either_, T)
 // clang-format off
 #define either(p1, p2)                              \
   _Generic((PARSER_CAST(p1))                        \
@@ -270,7 +302,7 @@ PARSER(String) EITHER(String)(PARSER(String) p1, PARSER(String) p2);
 PARSER(Int) EITHER(Int)(PARSER(Int) p1, PARSER(Int) p2);
 
 // Parser<T> tryp(Parser<T> p);
-#define TRYP(T) tryp_##T
+#define TRYP(T) CAT(tryp_, T)
 // clang-format off
 #define tryp(p)                                 \
   _Generic((PARSER_CAST(p))                     \
@@ -285,7 +317,7 @@ PARSER(String) TRYP(String)(PARSER(String) p);
 PARSER(Int) TRYP(Int)(PARSER(Int) p);
 
 // Parser<T> token(Parser<T> p);
-#define TOKEN(T) token_##T
+#define TOKEN(T) CAT(token_, T)
 // clang-format off
 #define token(p)                                \
   _Generic((PARSER_CAST(p))                     \
