@@ -277,7 +277,6 @@ PARSER(List(Int)) MANY1(Int)(PARSER(Int) p);
 
 // Parser<T[]> seq(Parser<T> p, ...);
 #define SEQ(T) CAT(seq_, T)
-
 #define seq(...) SEQ_0(__VA_ARGS__, NULL)
 // clang-format off
 #define SEQ_0(p, ...)                               \
@@ -293,8 +292,20 @@ PARSER(List(String)) SEQ(String)(void* ps[]);
 PARSER(List(Int)) SEQ(Int)(void* ps[]);
 
 // Parser<T[]> cons(Parser<T> p, Parser<T[]> ps);
-#define cons(p, ps) _Generic((p), PARSER(Char) : cons_char)(p, ps)
-PARSER(String) cons_char(PARSER(Char) p, PARSER(String) ps);
+#define CONS(T) CAT(cons_, T)
+// clang-format off
+#define cons(p, ps)                             \
+  _Generic((PARSER_CAST(p))                     \
+           , PARSER(Char)   : CONS(Char)        \
+           , PARSER(String) : CONS(String)      \
+           , PARSER(Int)    : CONS(Int)         \
+           )((PARSER_CAST(p)), (PARSER_CAST(ps)))
+// clang-format on
+
+PARSER(List(Char)) CONS(Char)(PARSER(Char) p, PARSER(List(Char)) ps);
+PARSER(List(String))
+CONS(String)(PARSER(String) p, PARSER(List(String)) ps);
+PARSER(List(Int)) CONS(Int)(PARSER(Int) p, PARSER(List(Int)) ps);
 
 // Parser<T> either(Parser<T> p1, Parser<T> p2);
 #define EITHER(T) CAT(either_, T)

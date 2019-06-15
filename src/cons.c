@@ -2,29 +2,31 @@
 
 #include "cparsec2.h"
 
-struct cons_arg {
-  PARSER(Char) head;
-  PARSER(String) tail;
-};
+#define CONS_FN(T) CAT(run_cons_, T)
+#define DEFINE_CONS(T)                                                   \
+  static List(T) CONS_FN(T)(void* arg, Source src, Ctx* ex) {            \
+    PARSER(T) head = ((void**)arg)[0];                                   \
+    PARSER(List(T)) tail = ((void**)arg)[1];                             \
+    Buff(T) str = {0};                                                   \
+    Ctx ctx;                                                             \
+    TRY(&ctx) {                                                          \
+      buff_push(&str, parse(head, src, &ctx));                           \
+      buff_append(&str, parse(tail, src, &ctx));                         \
+      return buff_finish(&str);                                          \
+    }                                                                    \
+    else {                                                               \
+      mem_free(str.data);                                                \
+      cthrow(ex, ctx.msg);                                               \
+    }                                                                    \
+  }                                                                      \
+  PARSER(List(T)) CONS(T)(PARSER(T) p, PARSER(List(T)) ps) {             \
+    void** arg = mem_malloc(sizeof(void*) * 2);                          \
+    arg[0] = p;                                                          \
+    arg[1] = ps;                                                         \
+    return PARSER_GEN(List(T))(CONS_FN(T), (void*)arg);                  \
+  }                                                                      \
+  _Static_assert(1, "")
 
-static const char* run_cons_char(void* arg, Source src, Ctx* ex) {
-  struct cons_arg* self = (struct cons_arg*)arg;
-  Buff(Char) str = {0};
-  Ctx ctx;
-  TRY(&ctx) {
-    buff_push(&str, parse(self->head, src, &ctx));
-    buff_append(&str, parse(self->tail, src, &ctx));
-    return buff_finish(&str);
-  }
-  else {
-    mem_free(str.data);
-    cthrow(ex, ctx.msg);
-  }
-}
-
-PARSER(String) cons_char(PARSER(Char) p, PARSER(String) ps) {
-  struct cons_arg* arg = mem_malloc(sizeof(struct cons_arg));
-  arg->head = p;
-  arg->tail = ps;
-  return PARSER_GEN(String)(run_cons_char, arg);
-}
+DEFINE_CONS(Char);
+DEFINE_CONS(String);
+DEFINE_CONS(Int);
