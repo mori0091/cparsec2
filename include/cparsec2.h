@@ -247,7 +247,20 @@ PARSER(Char) SKIP1ST(Char)(PARSER(Int) p1, PARSER(Char) p2);
 PARSER(String) SKIP1ST(String)(PARSER(Int) p1, PARSER(String) p2);
 PARSER(Int) SKIP1ST(Int)(PARSER(Int) p1, PARSER(Int) p2);
 
-PARSER(String) many(PARSER(Char) p);
+#define MANY(T) CAT(many_, T)
+// clang-format off
+#define many(p)                                 \
+  _Generic((PARSER_CAST(p))                     \
+           , PARSER(Char)   : MANY(Char)        \
+           , PARSER(String) : MANY(String)      \
+           , PARSER(Int)    : MANY(Int)         \
+           )(PARSER_CAST(p))
+// clang-format on
+
+PARSER(List(Char)) MANY(Char)(PARSER(Char) p);
+PARSER(List(String)) MANY(String)(PARSER(String) p);
+PARSER(List(Int)) MANY(Int)(PARSER(Int) p);
+
 PARSER(String) many1(PARSER(Char) p);
 
 // Parser<T[]> seq(Parser<T> p, ...);

@@ -61,6 +61,19 @@ inline PARSER(Int) skip1st(P p1, PARSER(Int) p2) {
 }
 #endif
 
+#ifdef many
+#undef many
+inline PARSER(List(Char)) many(PARSER(Char) p) {
+  return MANY(Char)(p);
+}
+inline PARSER(List(String)) many(PARSER(String) p) {
+  return MANY(String)(p);
+}
+inline PARSER(List(Int)) many(PARSER(Int) p) {
+  return MANY(Int)(p);
+}
+#endif
+
 #ifdef seq
 #undef seq
 template <typename... Parser>
