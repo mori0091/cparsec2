@@ -347,8 +347,10 @@ For example:
   - if ~p1~ success and then ~p2~ failed, throws error of ~p2~.
   - *NOTE* : ~S~ and ~T~ must be one of the following:
     - ~Char~
-    - ~String~
+    - ~String~ aka ~List(Char)~
     - ~Int~
+    - ~List(String)~
+    - ~List(Int)~
   - *NOTE* : ~S~ and ~T~ may or may not be same.\\
     (i.e. ~p1~ and ~p2~ may be a parser of same type or different type)
 
@@ -373,8 +375,10 @@ parseTest(skip1st(string1("ab"), char1('c')), "abc"); // -> 'c'
   - return the result of ~p~.
   - *NOTE* : ~T~ must be one of the following:
     - ~Char~
-    - ~String~
+    - ~String~ aka ~List(Char)~
     - ~Int~
+    - ~List(String)~
+    - ~List(Int)~
 
 *** either(p1, p2)
 - PARSER(Char) either(char c1, char c2) :: 
@@ -398,8 +402,10 @@ parseTest(skip1st(string1("ab"), char1('c')), "abc"); // -> 'c'
   - throw error of ~p2~
   - *NOTE* : ~T~ must be one of the following:
     - ~Char~
-    - ~String~
+    - ~String~ aka ~List(Char)~
     - ~Int~
+    - ~List(String)~
+    - ~List(Int)~
 
 *** tryp(p)
 - PARSER(Char) tryp(char c) ::
@@ -413,8 +419,10 @@ parseTest(skip1st(string1("ab"), char1('c')), "abc"); // -> 'c'
   - otherwise rewind the input-state back then throw error of ~p~.
   - *NOTE* : ~T~ must be one of the following:
     - ~Char~
-    - ~String~
+    - ~String~ aka ~List(Char)~
     - ~Int~
+    - ~List(String)~
+    - ~List(Int)~
 
 
 * Building block of Parser-class
