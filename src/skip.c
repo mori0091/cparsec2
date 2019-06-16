@@ -17,3 +17,5 @@
 DEFINE_SKIP(Char);
 DEFINE_SKIP(String);
 DEFINE_SKIP(Int);
+DEFINE_SKIP(List(String));
+DEFINE_SKIP(List(Int));

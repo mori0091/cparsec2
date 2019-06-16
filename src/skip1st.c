@@ -20,3 +20,5 @@
 DEFINE_SKIP1ST(Char, char);
 DEFINE_SKIP1ST(String, const char*);
 DEFINE_SKIP1ST(Int, int);
+DEFINE_SKIP1ST(List(String), List(String));
+DEFINE_SKIP1ST(List(Int), List(Int));
