@@ -102,5 +102,87 @@ SCENARIO("either(p1, p2)", "[cparsec2][parser][either]") {
     }
   }
 
+  GIVEN("PARSER(Int) p = either(number, skip1st(\"++\", number))") {
+    PARSER(Int) p = either(number, skip1st("++", number));
+    WHEN("applied to an input: \"123\"") {
+      Source src = Source_new("123");
+      THEN("results 123") {
+        REQUIRE(123 == parse(p, src));
+      }
+    }
+    WHEN("applied to an input: \"++123\"") {
+      Source src = Source_new("++123");
+      THEN("results 123") {
+        REQUIRE(123 == parse(p, src));
+      }
+    }
+    WHEN("applied to an input: \"+123\"") {
+      Source src = Source_new("+123");
+      THEN("causes exception(\"expects '+' but was '1'\")") {
+        REQUIRE_THROWS_WITH(parse(p, src), "expects '+' but was '1'");
+      }
+    }
+  }
+
+  GIVEN("PARSER(List(Int)) p = either(many1(number), many1(skip1st(\"++\", number)))") {
+    PARSER(List(Int)) p = either(many1(number), many1(skip1st("++", number)));
+    WHEN("applied to an input: \"123++456++789\"") {
+      Source src = Source_new("123++456++789");
+      List(Int) xs = parse(p, src);
+      THEN("results [123]") {
+        int* itr = list_begin(xs);
+        REQUIRE(123 == itr[0]);
+        REQUIRE(list_end(xs) == itr + 1);
+      }
+    }
+    WHEN("applied to an input: \"++123++456++789\"") {
+      Source src = Source_new("++123++456++789");
+      List(Int) xs = parse(p, src);
+      THEN("results [123, 456, 789]") {
+        int* itr = list_begin(xs);
+        REQUIRE(123 == itr[0]);
+        REQUIRE(456 == itr[1]);
+        REQUIRE(789 == itr[2]);
+        REQUIRE(list_end(xs) == itr + 3);
+      }
+    }
+    WHEN("applied to an input: \"+123++456++789\"") {
+      Source src = Source_new("+123++456++789");
+      THEN("causes exception(\"expects '+' but was '1'\")") {
+        REQUIRE_THROWS_WITH(parse(p, src), "expects '+' but was '1'");
+      }
+    }
+  }
+
+  GIVEN("PARSER(List(String)) p = either(many1(many1(digit)), many1(skip1st(\"++\", many1(digit))))") {
+    PARSER(List(String)) p = either(many1(many1(digit)), many1(skip1st("++", many1(digit))));
+    WHEN("applied to an input: \"123++456++789\"") {
+      Source src = Source_new("123++456++789");
+      List(String) xs = parse(p, src);
+      THEN("results [\"123\"]") {
+        const char** itr = list_begin(xs);
+        REQUIRE("123" == std::string(itr[0]));
+        REQUIRE(list_end(xs) == itr + 1);
+      }
+    }
+    WHEN("applied to an input: \"++123++456++789\"") {
+      Source src = Source_new("++123++456++789");
+      List(String) xs = parse(p, src);
+      THEN("results [\"123\", \"456\", \"789\"]") {
+        const char** itr = list_begin(xs);
+        REQUIRE("123" == std::string(itr[0]));
+        REQUIRE("456" == std::string(itr[1]));
+        REQUIRE("789" == std::string(itr[2]));
+        REQUIRE(list_end(xs) == itr + 3);
+      }
+    }
+    WHEN("applied to an input: \"+123++456++789\"") {
+      Source src = Source_new("+123++456++789");
+      THEN("causes exception(\"expects '+' but was '1'\")") {
+        REQUIRE_THROWS_WITH(parse(p, src), "expects '+' but was '1'");
+      }
+    }
+  }
+
   cparsec2_end();
 }

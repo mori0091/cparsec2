@@ -105,3 +105,32 @@ SCENARIO("token(\"foo\")", "[cparsec2][parser][token]") {
   }
   cparsec2_end();
 }
+
+SCENARIO("token(PARSER(List(T)))", "[cparsec2][parser][token]") {
+  cparsec2_init();
+  GIVEN("an input: \"  , 123,456,  789\"") {
+    Source src = Source_new("  , 123,456,  789");
+    WHEN("apply token(p) where p = many(skip1st(',', number))") {
+      PARSER(List(Int)) p = many(skip1st(',', number));
+      List(Int) xs = parse(token(p), src);
+      THEN("results [123, 456, 789]") {
+        int* itr = list_begin(xs);
+        REQUIRE(123 == itr[0]);
+        REQUIRE(456 == itr[1]);
+        REQUIRE(789 == itr[2]);
+      }
+    }
+    WHEN("apply token(p) where "
+         "p = many(skip1st(',', token(many1(digit))))") {
+      PARSER(List(String)) p = many(skip1st(',', token(many1(digit))));
+      List(String) xs = parse(token(p), src);
+      THEN("results [\"123\", \"456\", \"789\"]") {
+        const char** itr = list_begin(xs);
+        REQUIRE("123" == std::string(itr[0]));
+        REQUIRE("456" == std::string(itr[1]));
+        REQUIRE("789" == std::string(itr[2]));
+      }
+    }
+  }
+  cparsec2_end();
+}

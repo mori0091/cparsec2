@@ -83,5 +83,62 @@ SCENARIO("many1(p)", "[cparsec2][parser][many1]") {
       }
     }
   }
+  GIVEN("an input \",123,abc\"") {
+    Source src = Source_new(",123,abc");
+    WHEN("apply many1(skip1st(char1(','), number))") {
+      List(Int) xs = parse(many1(skip1st(char1(','), number)), src);
+      THEN("results [123]") {
+        int* itr = list_begin(xs);
+        REQUIRE(123 == itr[0]);
+        AND_WHEN("apply string1(\",abc\")") {
+          THEN("results \",abc\"") {
+            REQUIRE(",abc" == std::string(parse(string1(",abc"), src)));
+          }
+        }
+      }
+    }
+    WHEN("apply many1(skip1st(char1(','), many1(digit)))") {
+      List(String) xs =
+          parse(many1(skip1st(char1(','), many1(digit))), src);
+      THEN("results [\"123\"]") {
+        const char** itr = list_begin(xs);
+        REQUIRE("123" == std::string(itr[0]));
+        AND_WHEN("apply string1(\",abc\")") {
+          THEN("results \",abc\"") {
+            REQUIRE(",abc" == std::string(parse(string1(",abc"), src)));
+          }
+        }
+      }
+    }
+  }
+  GIVEN("an input \",abc\"") {
+    Source src = Source_new(",abc");
+    WHEN("apply many1(skip1st(char1(','), number))") {
+      THEN("cause exception(\"not satisfy\")") {
+        REQUIRE_THROWS_WITH(
+            parse(many1(skip1st(char1(','), number)), src),
+            "not satisfy");
+        AND_WHEN("apply string1(\",abc\")") {
+          THEN("cause exception(\"expects ',' but was 'a'\")") {
+            REQUIRE_THROWS_WITH(parse(string1(",abc"), src),
+                                "expects ',' but was 'a'");
+          }
+        }
+      }
+    }
+    WHEN("apply many1(skip1st(char1(','), many1(digit)))") {
+      THEN("cause exception(\"not satisfy\")") {
+        REQUIRE_THROWS_WITH(
+            parse(many1(skip1st(char1(','), many1(digit))), src),
+            "not satisfy");
+        AND_WHEN("apply string1(\",abc\")") {
+          THEN("cause exception(\"expects ',' but was 'a'\")") {
+            REQUIRE_THROWS_WITH(parse(string1(",abc"), src),
+                                "expects ',' but was 'a'");
+          }
+        }
+      }
+    }
+  }
   cparsec2_end();
 }

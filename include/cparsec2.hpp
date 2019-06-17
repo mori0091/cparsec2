@@ -34,6 +34,12 @@ inline std::string parse(PARSER(String) p, Source src) {
 
 #ifdef skip
 #undef skip
+inline PARSER(Int) skip(char c) {
+  return SKIP(Char)(char1(c));
+}
+inline PARSER(Int) skip(const char* s) {
+  return SKIP(String)(string1(s));
+}
 inline PARSER(Int) skip(PARSER(Char) p) {
   return SKIP(Char)(p);
 }
@@ -43,10 +49,24 @@ inline PARSER(Int) skip(PARSER(String) p) {
 inline PARSER(Int) skip(PARSER(Int) p) {
   return SKIP(Int)(p);
 }
+inline PARSER(Int) skip(PARSER(List(String)) p) {
+  return SKIP(List(String))(p);
+}
+inline PARSER(Int) skip(PARSER(List(Int)) p) {
+  return SKIP(List(Int))(p);
+}
 #endif
 
 #ifdef skip1st
 #undef skip1st
+template <typename P>
+inline PARSER(Char) skip1st(P p1, char c) {
+  return SKIP1ST(Char)(p1, char1(c));
+}
+template <typename P>
+inline PARSER(String) skip1st(P p1, const char* s) {
+  return SKIP1ST(String)(p1, string1(s));
+}
 template <typename P>
 inline PARSER(Char) skip1st(P p1, PARSER(Char) p2) {
   return SKIP1ST(Char)(skip(p1), p2);
@@ -59,10 +79,24 @@ template <typename P>
 inline PARSER(Int) skip1st(P p1, PARSER(Int) p2) {
   return SKIP1ST(Int)(skip(p1), p2);
 }
+template <typename P>
+inline PARSER(List(String)) skip1st(P p1, PARSER(List(String)) p2) {
+  return SKIP1ST(List(String))(skip(p1), p2);
+}
+template <typename P>
+inline PARSER(List(Int)) skip1st(P p1, PARSER(List(Int)) p2) {
+  return SKIP1ST(List(Int))(skip(p1), p2);
+}
 #endif
 
 #ifdef many
 #undef many
+inline PARSER(List(Char)) many(char c) {
+  return MANY(Char)(char1(c));
+}
+inline PARSER(List(String)) many(const char* s) {
+  return MANY(String)(string1(s));
+}
 inline PARSER(List(Char)) many(PARSER(Char) p) {
   return MANY(Char)(p);
 }
@@ -76,6 +110,12 @@ inline PARSER(List(Int)) many(PARSER(Int) p) {
 
 #ifdef many1
 #undef many1
+inline PARSER(List(Char)) many1(char c) {
+  return MANY1(Char)(char1(c));
+}
+inline PARSER(List(String)) many1(const char* s) {
+  return MANY1(String)(string1(s));
+}
 inline PARSER(List(Char)) many1(PARSER(Char) p) {
   return MANY1(Char)(p);
 }
@@ -108,6 +148,18 @@ inline PARSER(List(Int)) seq(PARSER(Int) p, Parser... args) {
 
 #ifdef cons
 #undef cons
+inline PARSER(List(Char)) cons(char c, const char* s) {
+  return CONS(Char)(char1(c), string1(s));
+}
+inline PARSER(List(Char)) cons(char c, PARSER(List(Char)) ps) {
+  return CONS(Char)(char1(c), ps);
+}
+inline PARSER(List(Char)) cons(PARSER(Char) p, const char* s) {
+  return CONS(Char)(p, string1(s));
+}
+inline PARSER(List(String)) cons(const char* s, PARSER(List(String)) ps) {
+  return CONS(String)(string1(s), ps);
+}
 inline PARSER(List(Char)) cons(PARSER(Char) p, PARSER(List(Char)) ps) {
   return CONS(Char)(p, ps);
 }
@@ -149,6 +201,14 @@ inline PARSER(String) either(PARSER(String) p1, PARSER(String) p2) {
 inline PARSER(Int) either(PARSER(Int) p1, PARSER(Int) p2) {
   return EITHER(Int)(p1, p2);
 }
+inline PARSER(List(String))
+    either(PARSER(List(String)) p1, PARSER(List(String)) p2) {
+  return EITHER(List(String))(p1, p2);
+}
+inline PARSER(List(Int))
+    either(PARSER(List(Int)) p1, PARSER(List(Int)) p2) {
+  return EITHER(List(Int))(p1, p2);
+}
 #endif
 
 #ifdef tryp
@@ -156,17 +216,23 @@ inline PARSER(Int) either(PARSER(Int) p1, PARSER(Int) p2) {
 inline PARSER(Char) tryp(char p) {
   return TRYP(Char)(char1(p));
 }
-inline PARSER(Char) tryp(PARSER(Char) p) {
-  return TRYP(Char)(p);
-}
 inline PARSER(String) tryp(const char* s) {
   return TRYP(String)(string1(s));
+}
+inline PARSER(Char) tryp(PARSER(Char) p) {
+  return TRYP(Char)(p);
 }
 inline PARSER(String) tryp(PARSER(String) p) {
   return TRYP(String)(p);
 }
 inline PARSER(Int) tryp(PARSER(Int) p) {
   return TRYP(Int)(p);
+}
+inline PARSER(List(String)) tryp(PARSER(List(String)) p) {
+  return TRYP(List(String))(p);
+}
+inline PARSER(List(Int)) tryp(PARSER(List(Int)) p) {
+  return TRYP(List(Int))(p);
 }
 #endif
 
@@ -175,16 +241,22 @@ inline PARSER(Int) tryp(PARSER(Int) p) {
 inline PARSER(Char) token(char c) {
   return TOKEN(Char)(char1(c));
 }
-inline PARSER(Char) token(PARSER(Char) p) {
-  return TOKEN(Char)(p);
-}
 inline PARSER(String) token(const char* s) {
   return TOKEN(String)(string1(s));
+}
+inline PARSER(Char) token(PARSER(Char) p) {
+  return TOKEN(Char)(p);
 }
 inline PARSER(String) token(PARSER(String) p) {
   return TOKEN(String)(p);
 }
 inline PARSER(Int) token(PARSER(Int) p) {
   return TOKEN(Int)(p);
+}
+inline PARSER(List(String)) token(PARSER(List(String)) p) {
+  return TOKEN(List(String))(p);
+}
+inline PARSER(List(Int)) token(PARSER(List(Int)) p) {
+  return TOKEN(List(Int))(p);
 }
 #endif
