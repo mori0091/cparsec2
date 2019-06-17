@@ -5,11 +5,11 @@
 
 // ---- List ----
 
-#define DEFINE_LIST(T, E)                                                \
-  E* LIST_BEGIN(T)(List(T) xs) {                                         \
+#define DEFINE_LIST(T)                                                   \
+  ELEMENT_TYPE(List(T)) * LIST_BEGIN(T)(List(T) xs) {                    \
     return xs.data;                                                      \
   }                                                                      \
-  E* LIST_END(T)(List(T) xs) {                                           \
+  ELEMENT_TYPE(List(T)) * LIST_END(T)(List(T) xs) {                      \
     return xs.data + xs.len;                                             \
   }                                                                      \
   int LIST_LENGTH(T)(List(T) xs) {                                       \
@@ -18,20 +18,20 @@
   _Static_assert(1, "")
 
 // List(String)
-DEFINE_LIST(String, const char*);
+DEFINE_LIST(String);
 
 // List(Int)
-DEFINE_LIST(Int, int);
+DEFINE_LIST(Int);
 
 // List(Ptr)
-DEFINE_LIST(Ptr, void*);
+DEFINE_LIST(Ptr);
 
 // List(Char) ; a special case of List(T)
-const char* LIST_BEGIN(Char)(List(Char) xs) {
+ELEMENT_TYPE(List(Char)) * LIST_BEGIN(Char)(List(Char) xs) {
   assert(xs);
   return xs;
 }
-const char* LIST_END(Char)(List(Char) xs) {
+ELEMENT_TYPE(List(Char)) * LIST_END(Char)(List(Char) xs) {
   assert(xs);
   return xs + LIST_LENGTH(Char)(xs);
 }
@@ -44,29 +44,30 @@ int LIST_LENGTH(Char)(List(Char) xs) {
 
 // ---- Buffer (List builder) ----
 
-#define DEFINE_BUFF(T, E)                                                \
-  DEFINE_BUFF_COMMON(T, E);                                              \
+#define DEFINE_BUFF(T)                                                   \
+  DEFINE_BUFF_COMMON(T);                                                 \
   DEFINE_BUFF_FINISH(T)
 
-#define DEFINE_BUFF_COMMON(T, E)                                         \
+#define DEFINE_BUFF_COMMON(T)                                            \
   void BUFF_ENSURE(T)(Buff(T) * b) {                                     \
     if (!b->data) {                                                      \
-      b->data = mem_malloc(sizeof(E) * 8);                               \
+      b->data = mem_malloc(sizeof(ELEMENT_TYPE(Buff(T))) * 8);           \
       b->capacity = 8;                                                   \
       b->len = 0;                                                        \
     }                                                                    \
     if (b->capacity == b->len) {                                         \
       b->capacity *= 2;                                                  \
-      b->data = mem_realloc(b->data, sizeof(E) * b->capacity);           \
+      b->data = mem_realloc(b->data, sizeof(ELEMENT_TYPE(Buff(T))) *     \
+                                         b->capacity);                   \
     }                                                                    \
   }                                                                      \
-  void BUFF_PUSH(T)(Buff(T) * b, E x) {                                  \
+  void BUFF_PUSH(T)(Buff(T) * b, ELEMENT_TYPE(Buff(T)) x) {              \
     BUFF_ENSURE(T)(b);                                                   \
     b->data[b->len++] = x;                                               \
   }                                                                      \
   void BUFF_APPEND(T)(Buff(T) * b, List(T) xs) {                         \
-    E* itr = (E*)LIST_BEGIN(T)(xs);                                       \
-    E* end = (E*)LIST_END(T)(xs);                                         \
+    ELEMENT_TYPE(List(T))* itr = LIST_BEGIN(T)(xs);                      \
+    ELEMENT_TYPE(List(T))* end = LIST_END(T)(xs);                        \
     for (; itr != end; itr++) {                                          \
       BUFF_PUSH(T)(b, *itr);                                             \
     }                                                                    \
@@ -82,16 +83,16 @@ int LIST_LENGTH(Char)(List(Char) xs) {
   _Static_assert(1, "")
 
 // Buff(String)
-DEFINE_BUFF(String, const char*);
+DEFINE_BUFF(String);
 
 // Buff(Int)
-DEFINE_BUFF(Int, int);
+DEFINE_BUFF(Int);
 
 // Buff(Ptr)
-DEFINE_BUFF(Ptr, void*);
+DEFINE_BUFF(Ptr);
 
 // Buff(Char) ; a special case of Buff(T)
-DEFINE_BUFF_COMMON(Char, char);
+DEFINE_BUFF_COMMON(Char);
 List(Char) BUFF_FINISH(Char)(Buff(Char) * b) {
   BUFF_PUSH(Char)(b, '\0');
   List(Char) xs = b->data;
