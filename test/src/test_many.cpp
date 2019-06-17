@@ -83,5 +83,58 @@ SCENARIO("many(p)", "[cparsec2][parser][many]") {
       }
     }
   }
+  GIVEN("an input \",123,abc\"") {
+    Source src = Source_new(",123,abc");
+    WHEN("apply many(skip1st(char1(','), number))") {
+      List(Int) xs = parse(many(skip1st(char1(','), number)), src);
+      THEN("results [123]") {
+        int* itr = list_begin(xs);
+        REQUIRE(123 == itr[0]);
+        AND_WHEN("apply string1(\",abc\")") {
+          THEN("results \",abc\"") {
+            REQUIRE(",abc" == std::string(parse(string1(",abc"), src)));
+          }
+        }
+      }
+    }
+    WHEN("apply many(skip1st(char1(','), many1(digit)))") {
+      List(String) xs =
+        parse(many(skip1st(char1(','), many1(digit))), src);
+      THEN("results [\"123\"]") {
+        const char** itr = list_begin(xs);
+        REQUIRE("123" == std::string(itr[0]));
+        AND_WHEN("apply string1(\",abc\")") {
+          THEN("results \",abc\"") {
+            REQUIRE(",abc" == std::string(parse(string1(",abc"), src)));
+          }
+        }
+      }
+    }
+  }
+  GIVEN("an input \",abc\"") {
+    Source src = Source_new(",abc");
+    WHEN("apply many(skip1st(char1(','), number))") {
+      List(Int) xs = parse(many(skip1st(char1(','), number)), src);
+      THEN("results []") {
+        REQUIRE(list_begin(xs) == list_end(xs));
+        AND_WHEN("apply string1(\",abc\")") {
+          THEN("results \",abc\"") {
+            REQUIRE(",abc" == std::string(parse(string1(",abc"), src)));
+          }
+        }
+      }
+    }
+    WHEN("apply many(skip1st(char1(','), many1(digit)))") {
+      List(String) xs = parse(many(skip1st(char1(','), many1(digit))), src);
+      THEN("results []") {
+        REQUIRE(list_begin(xs) == list_end(xs));
+        AND_WHEN("apply string1(\",abc\")") {
+          THEN("results \",abc\"") {
+            REQUIRE(",abc" == std::string(parse(string1(",abc"), src)));
+          }
+        }
+      }
+    }
+  }
   cparsec2_end();
 }

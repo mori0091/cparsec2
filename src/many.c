@@ -21,7 +21,7 @@
     return buff_finish(&str);                                            \
   }                                                                      \
   PARSER(List(T)) MANY(T)(PARSER(T) p) {                                 \
-    return PARSER_GEN(List(T))(MANY_FN(T), p);                           \
+    return PARSER_GEN(List(T))(MANY_FN(T), tryp(p));                     \
   }                                                                      \
   _Static_assert(1, "")
 
