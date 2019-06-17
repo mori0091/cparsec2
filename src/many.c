@@ -25,6 +25,4 @@
   }                                                                      \
   _Static_assert(1, "")
 
-DEFINE_MANY(Char);
-DEFINE_MANY(String);
-DEFINE_MANY(Int);
+DEFINE_P0(MANY);

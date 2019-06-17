@@ -177,23 +177,23 @@ void consume(Source src) {
 
 // ---- CharParser ----
 
-DEFINE_PARSER(Char, char) {
+DEFINE_PARSER(Char, x) {
   printf("'%c'\n", x);
 }
 
 // ---- StringParser ----
 
-DEFINE_PARSER(String, const char*) {
+DEFINE_PARSER(String, x) {
   printf("\"%s\"\n", x);
 }
 
 // ---- IntParser ----
-DEFINE_PARSER(Int, int) {
+DEFINE_PARSER(Int, x) {
   printf("%d\n", x);
 }
 
 // ---- StringListParser ----
-DEFINE_PARSER(List(String), List(String)) {
+DEFINE_PARSER(List(String), x) {
   const char** itr = list_begin(x);
   const char** end = list_end(x);
   if (itr == end) {
@@ -209,7 +209,7 @@ DEFINE_PARSER(List(String), List(String)) {
 }
 
 // ---- IntListParser ----
-DEFINE_PARSER(List(Int), List(Int)) {
+DEFINE_PARSER(List(Int), x) {
   int* itr = list_begin(x);
   int* end = list_end(x);
   if (itr == end) {

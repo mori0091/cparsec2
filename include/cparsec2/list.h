@@ -7,117 +7,113 @@
 extern "C" {
 #endif
 
-// ---- List ----
-#define List(T) CAT(T, List)
-#define LIST_BEGIN(T) CAT(list_begin_, T)
-#define LIST_END(T) CAT(list_end_, T)
-#define LIST_LENGTH(T) CAT(list_length_, T)
+#define ELEMENT_TYPE(T) CAT(T, _elem_type)
 
+// clang-format off
+#define GENERIC_METHOD(expr, C, F)              \
+  _Generic((expr)                               \
+           , C(Char)   : F(Char)                \
+           , C(String) : F(String)              \
+           , C(Int)    : F(Int)                 \
+           , C(Ptr)    : F(Ptr)                 \
+           )
+// clang-format on
+
+// ---- List ----
+// Name of List(T)
+#define List(T) CAT(T, List)
+
+// Name of functions for List(T)
+#define LIST_BEGIN(T) CAT(List(T), _begin)
+#define LIST_END(T) CAT(List(T), _end)
+#define LIST_LENGTH(T) CAT(List(T), _length)
+
+// Generic functions for List(T)
+#define list_begin(xs) GENERIC_METHOD(xs, List, LIST_BEGIN)(xs)
+#define list_end(xs) GENERIC_METHOD(xs, List, LIST_END)(xs)
+#define list_length(xs) GENERIC_METHOD(xs, List, LIST_LENGTH)(xs)
+
+// Defines List(T) type whose element type is E, and
+// defines type alias of E as ELEMENT_TYPE(List(T)) type.
 #define TYPEDEF_LIST(T, E)                                               \
+  typedef E ELEMENT_TYPE(List(T));                                       \
   typedef struct {                                                       \
-    E* data;                                                             \
+    ELEMENT_TYPE(List(T)) * data;                                        \
     int len;                                                             \
   } List(T)
 
-#define DECLARE_LIST(T, E)                                               \
-  E* LIST_BEGIN(T)(List(T) xs);                                          \
-  E* LIST_END(T)(List(T) xs);                                            \
+// Declares function prototypes for List(T)
+#define DECLARE_LIST(T)                                                  \
+  ELEMENT_TYPE(List(T)) * LIST_BEGIN(T)(List(T) xs);                     \
+  ELEMENT_TYPE(List(T)) * LIST_END(T)(List(T) xs);                       \
   int LIST_LENGTH(T)(List(T) xs)
 
 // List(Char)
 #define CharList String
 typedef const char* List(Char);
-DECLARE_LIST(Char, const char);
+typedef const char ELEMENT_TYPE(List(Char));
+DECLARE_LIST(Char);
 
 // List(String)
 TYPEDEF_LIST(String, const char*);
-DECLARE_LIST(String, const char*);
+DECLARE_LIST(String);
 
 // List(Int)
 TYPEDEF_LIST(Int, int);
-DECLARE_LIST(Int, int);
+DECLARE_LIST(Int);
 
 // List(Ptr)
 TYPEDEF_LIST(Ptr, void*);
-DECLARE_LIST(Ptr, void*);
-
-// clang-format off
-#define list_begin(xs)                          \
-  _Generic((xs)                                 \
-           , List(Char)   : LIST_BEGIN(Char)    \
-           , List(String) : LIST_BEGIN(String)  \
-           , List(Int)    : LIST_BEGIN(Int)     \
-           , List(Ptr)    : LIST_BEGIN(Ptr)     \
-           )(xs)
-#define list_end(xs)                            \
-  _Generic((xs)                                 \
-           , List(Char)   : LIST_END(Char)      \
-           , List(String) : LIST_END(String)    \
-           , List(Int)    : LIST_END(Int)       \
-           , List(Ptr)    : LIST_END(Ptr)       \
-           )(xs)
-#define list_length(xs)                         \
-  _Generic((xs)                                 \
-           , List(Char)   : LIST_LENGTH(Char)   \
-           , List(String) : LIST_LENGTH(String) \
-           , List(Int)    : LIST_LENGTH(Int)    \
-           , List(Ptr)    : LIST_LENGTH(Ptr)    \
-           )(xs)
-// clang-format on
+DECLARE_LIST(Ptr);
 
 // ---- Buffer (List builder) ----
+// Name of Buff(T)
 #define Buff(T) CAT(T, Buff)
+
+// Name of functions for Buff(T)
 #define BUFF_ENSURE(T) CAT(buff_ensure_, T)
 #define BUFF_PUSH(T) CAT(buff_push_, T)
 #define BUFF_APPEND(T) CAT(buff_append_, T)
 #define BUFF_FINISH(T) CAT(buff_finish_, T)
 
-#define DECLARE_BUFF(T, E)                                               \
+// Generic functions for Buff(T)
+#define buff_ensure(b) GENERIC_METHOD(*(b), Buff, BUFF_ENSURE)(b)
+#define buff_push(b, x) GENERIC_METHOD(*(b), Buff, BUFF_PUSH)(b, x)
+#define buff_append(b, xs) GENERIC_METHOD(*(b), Buff, BUFF_APPEND)(b, xs)
+#define buff_finish(b) GENERIC_METHOD(*(b), Buff, BUFF_FINISH)(b)
+
+// Defines Buff(T) type whose element type is E, and
+// defines type alias of E as ELEMENT_TYPE(Buff(T)) type.
+#define TYPEDEF_BUFF(T, E)                                               \
+  typedef E ELEMENT_TYPE(Buff(T));                                       \
   typedef struct {                                                       \
-    E* data;                                                             \
+    ELEMENT_TYPE(Buff(T)) * data;                                        \
     int capacity;                                                        \
     int len;                                                             \
-  } Buff(T);                                                             \
+  } Buff(T)
+
+// Declares function prototypes for Buff(T)
+#define DECLARE_BUFF(T)                                                  \
   void BUFF_ENSURE(T)(Buff(T) * b);                                      \
-  void BUFF_PUSH(T)(Buff(T) * b, E x);                                   \
+  void BUFF_PUSH(T)(Buff(T) * b, ELEMENT_TYPE(Buff(T)) x);               \
   void BUFF_APPEND(T)(Buff(T) * b, List(T) xs);                          \
   List(T) BUFF_FINISH(T)(Buff(T) * b)
 
-DECLARE_BUFF(Char, char);
-DECLARE_BUFF(String, const char*);
-DECLARE_BUFF(Int, int);
-DECLARE_BUFF(Ptr, void*);
+// Buff(Char)
+TYPEDEF_BUFF(Char, char);
+DECLARE_BUFF(Char);
 
-// clang-format off
-#define buff_ensure(b)                          \
-  _Generic((*(b))                               \
-           , Buff(Char)   : BUFF_ENSURE(Char)   \
-           , Buff(String) : BUFF_ENSURE(String) \
-           , Buff(Int)    : BUFF_ENSURE(Int)    \
-           , Buff(Ptr)    : BUFF_ENSURE(Ptr)    \
-           )(b)
-#define buff_push(b, x)                         \
-  _Generic((*(b))                               \
-           , Buff(Char)   : BUFF_PUSH(Char)     \
-           , Buff(String) : BUFF_PUSH(String)   \
-           , Buff(Int)    : BUFF_PUSH(Int)      \
-           , Buff(Ptr)    : BUFF_PUSH(Ptr)      \
-           )(b, x)
-#define buff_append(b, xs)                      \
-  _Generic((*(b))                               \
-           , Buff(Char)   : BUFF_APPEND(Char)   \
-           , Buff(String) : BUFF_APPEND(String) \
-           , Buff(Int)    : BUFF_APPEND(Int)    \
-           , Buff(Ptr)    : BUFF_APPEND(Ptr)    \
-           )(b, xs)
-#define buff_finish(b)                          \
-  _Generic((*(b))                               \
-           , Buff(Char)   : BUFF_FINISH(Char)   \
-           , Buff(String) : BUFF_FINISH(String) \
-           , Buff(Int)    : BUFF_FINISH(Int)    \
-           , Buff(Ptr)    : BUFF_FINISH(Ptr)    \
-           )(b)
-// clang-format on
+// Buff(String)
+TYPEDEF_BUFF(String, const char*);
+DECLARE_BUFF(String);
+
+// Buff(Int)
+TYPEDEF_BUFF(Int, int);
+DECLARE_BUFF(Int);
+
+// Buff(Ptr)
+TYPEDEF_BUFF(Ptr, void*);
+DECLARE_BUFF(Ptr);
 
 #ifdef __cplusplus
 }

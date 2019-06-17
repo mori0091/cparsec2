@@ -3,8 +3,9 @@
 #include "cparsec2.h"
 
 #define TRYP_FN(T) run_tryp##T
-#define DEFINE_TRYP(T, R)                                                \
-  static R TRYP_FN(T)(void* arg, Source src, Ctx* ex) {                  \
+#define DEFINE_TRYP(T)                                                   \
+  static RETURN_TYPE(PARSER(T))                                          \
+      TRYP_FN(T)(void* arg, Source src, Ctx* ex) {                       \
     PARSER(T) p = (PARSER(T))arg;                                        \
     const char* state = src->p;                                          \
     Ctx ctx;                                                             \
@@ -21,8 +22,4 @@
   }                                                                      \
   _Static_assert(1, "")
 
-DEFINE_TRYP(Char, char);
-DEFINE_TRYP(String, const char*);
-DEFINE_TRYP(Int, int);
-DEFINE_TRYP(List(String), List(String));
-DEFINE_TRYP(List(Int), List(Int));
+DEFINE_P1(TRYP);

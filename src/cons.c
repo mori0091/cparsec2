@@ -27,6 +27,4 @@
   }                                                                      \
   _Static_assert(1, "")
 
-DEFINE_CONS(Char);
-DEFINE_CONS(String);
-DEFINE_CONS(Int);
+DEFINE_P0(CONS);
