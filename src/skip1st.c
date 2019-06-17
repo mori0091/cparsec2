@@ -3,8 +3,9 @@
 #include "cparsec2.h"
 
 #define SKIP1ST_FN(T) run_skip##T
-#define DEFINE_SKIP1ST(T, R)                                             \
-  static R SKIP1ST_FN(T)(void* arg, Source src, Ctx* ex) {               \
+#define DEFINE_SKIP1ST(T)                                                \
+  static RETURN_TYPE(PARSER(T))                                          \
+      SKIP1ST_FN(T)(void* arg, Source src, Ctx* ex) {                    \
     void** ps = (void**)arg;                                             \
     parse((IntParser)ps[0], src, ex);                                    \
     return parse((PARSER(T))ps[1], src, ex);                             \
@@ -17,8 +18,4 @@
   }                                                                      \
   _Static_assert(1, "")
 
-DEFINE_SKIP1ST(Char, char);
-DEFINE_SKIP1ST(String, const char*);
-DEFINE_SKIP1ST(Int, int);
-DEFINE_SKIP1ST(List(String), List(String));
-DEFINE_SKIP1ST(List(Int), List(Int));
+DEFINE_P1(SKIP1ST);

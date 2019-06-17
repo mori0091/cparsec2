@@ -3,8 +3,9 @@
 #include "cparsec2.h"
 
 #define EITHER_FN(T) run_either##T
-#define DEFINE_EITHER(T, R)                                              \
-  static R EITHER_FN(T)(void* arg, Source src, Ctx* ex) {                \
+#define DEFINE_EITHER(T)                                                 \
+  static RETURN_TYPE(PARSER(T))                                          \
+      EITHER_FN(T)(void* arg, Source src, Ctx* ex) {                     \
     PARSER(T)* p = (PARSER(T)*)arg;                                      \
     const char* state = src->p;                                          \
     Ctx ctx;                                                             \
@@ -26,8 +27,4 @@
   }                                                                      \
   _Static_assert(1, "")
 
-DEFINE_EITHER(Char, char);
-DEFINE_EITHER(String, const char*);
-DEFINE_EITHER(Int, int);
-DEFINE_EITHER(List(String), List(String));
-DEFINE_EITHER(List(Int), List(Int));
+DEFINE_P1(EITHER);

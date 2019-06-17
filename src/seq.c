@@ -21,7 +21,7 @@
       cthrow(ex, ctx.msg);                                               \
     }                                                                    \
   }                                                                      \
-  PARSER(List(T)) SEQ(T)(void* ps[]) {                               \
+  PARSER(List(T)) SEQ(T)(void* ps[]) {                                   \
     Buff(Ptr) buf = {0};                                                 \
     while (*ps) {                                                        \
       buff_push(&buf, *ps++);                                            \
@@ -32,6 +32,4 @@
   }                                                                      \
   _Static_assert(1, "")
 
-DEFINE_SEQ(Char);
-DEFINE_SEQ(String);
-DEFINE_SEQ(Int);
+DEFINE_P0(SEQ);

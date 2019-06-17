@@ -8,8 +8,4 @@
   }                                                                      \
   _Static_assert(1, "")
 
-DEFINE_TOKEN(Char);
-DEFINE_TOKEN(String);
-DEFINE_TOKEN(Int);
-DEFINE_TOKEN(List(String));
-DEFINE_TOKEN(List(Int));
+DEFINE_P1(TOKEN);
