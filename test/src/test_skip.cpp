@@ -40,5 +40,39 @@ SCENARIO("skip", "[cparsec2][parser][skip]") {
       }
     }
   }
+
+  GIVEN("an input: \"123 456 789\"") {
+    Source src = Source_new("123 456 789");
+    WHEN("apply skip(number)") {
+      THEN("success") {
+        REQUIRE_NOTHROW(parse(skip(number), src));
+        AND_WHEN("apply string1(\" 456 789\")") {
+          THEN("results \" 456 789\"") {
+            REQUIRE(" 456 789" == parse(string1(" 456 789"), src));
+          }
+        }
+      }
+    }
+    WHEN("apply skip(many1(number))") {
+      THEN("success") {
+        REQUIRE_NOTHROW(parse(skip(many1(number)), src));
+        AND_WHEN("apply anyChar") {
+          THEN("causes exception(\"too short\")") {
+            REQUIRE_THROWS_WITH(parse(anyChar, src), "too short");
+          }
+        }
+      }
+    }
+    WHEN("apply skip(many1(token(many1(digit))))") {
+      THEN("success") {
+        REQUIRE_NOTHROW(parse(skip(many1(token(many1(digit)))), src));
+        AND_WHEN("apply anyChar") {
+          THEN("causes exception(\"too short\")") {
+            REQUIRE_THROWS_WITH(parse(anyChar, src), "too short");
+          }
+        }
+      }
+    }
+  }
   cparsec2_end();
 }
