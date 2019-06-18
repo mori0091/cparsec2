@@ -6,8 +6,8 @@ _Static_assert(1, "PARSER(Int) is already defined.");
 
 #include "IntParser.h"
 
-/* define (implement) class PARSER(Int) */
-DEFINE_PARSER(Int, int) {
+/* Defines (implement) functions/methods for PARSER(Int) */
+DEFINE_PARSER(Int, x) {
   /* implementation of void SHOW(Int)(int x) */
   printf("%d\n", x);
 }

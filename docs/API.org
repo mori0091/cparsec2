@@ -8,26 +8,23 @@
 - [[#core-api][Core API]] :: 
   - CPARSEC2 core APIs
   - Exception handling API for C.
-  - Containers
-    - ~List(T)~ - a list container
-    - Iteration API for ~List(T)~
-    - ~Buff(T)~ - a list builer
-    - List builder API for ~Buff(T)~
-- [[#type-of-parsers][Type of Parsers]] ::
-  - PARSER(Char)
-  - PARSER(String)
-  - PARSER(Int)
-  - PARSER(List(Char))
-  - PARSER(List(String))
-  - PARSER(List(Int))
+- [[#container-classes][Container classes]] :: 
+  - Type of Containers
+  - Supporting concrete ~List(T)~ types
+  - Iteration API for ~List(T)~
+  - Supporting concrete ~Buff(T)~ types
+  - List builder API for ~Buff(T)~
+- [[#parser-classes][Parser classes]] :: 
+  - Type of Parsers
+  - Supporting concrete ~PARSER(T)~ types
 - [[#built-in-parsers-parser-generators-and-parser-combinators][Built-in Parsers, Parser generators, and Parser combinators]] ::
   - Built-in Parsers and Parser-generators
   - Built-in *GENERIC* Parser-combinators
 - [[#building-block-of-parser-class][Building block of Parser-class]] ::
-  - PARSER(T) class
-  - Declare and Define PARSER(T) class
+  - Declares/Defines PARSER(T) class
   - Construct an instance of PARSER(T)
   - Apply an instance of PARSER(T) to a text
+
 
 * Core API
 :PROPERTIES:
@@ -84,34 +81,52 @@ Example:
   }
 #+end_src
 
-** Containers
+
+* Container Classes
 :PROPERTIES:
-:CUSTOM_ID: containers
+:CUSTOM_ID: container-classes
 :END:
 
-*** List(T) - a list container
-~List(T)~ is a Generic type of list container.\\
-To construct a ~List(T)~ object, use list-builder ~Buff(T)~.
+** Type of Containers
+
+- List(T)               ::
+     Generic type of a list ; container of object sequence.\\
+     *NOTE* : To construct a ~List(T)~ object, use ~Buff(T)~.
+- ELEMENT_TYPE(List(T)) ::
+     Element type of ~List(T)~.
+
+
+- Buff(T)               ::
+     Generic type of a list builder ; variadic buffer of object sequence for
+     building a list.
+- ELEMENT_TYPE(Buff(T)) ::
+     Element type of ~Buff(T)~.
+
+** Supporting *concrete List(T)* types
 
 - List(Char)          ::
-     A type of a list container whose element type is ~const char~.
+     A type of a list container whose element type is ~const char~.\\
+     (i.e. ~ELEMENT_TYPE(List(Char))~ is ~const char~.)
 - List(String)        ::
-     A type of a list container whose element type is ~const char*~.
+     A type of a list container whose element type is ~const char*~.\\
+     (i.e. ~ELEMENT_TYPE(List(String))~ is ~const char*~.)
 - List(Int)           ::
-     A type of a list container whose element type is ~int~.
+     A type of a list container whose element type is ~int~.\\
+     (i.e. ~ELEMENT_TYPE(List(Int))~ is ~int~.)
 - List(Ptr)           ::
-     A type of a list container whose element type is ~void*~.
+     A type of a list container whose element type is ~void*~.\\
+     (i.e. ~ELEMENT_TYPE(List(Ptr))~ is ~void*~.)
 
 *NOTE* : ~List(Char)~ is same as ~const char*~ (i.e. string in C)
 
-*** Iteration API for List(T)
-To iterate elements contained in a ~List(T)~ object, use the following APIs.\\
-*NOTE* : ~E~ is the element type of ~List(T)~ object.
+** Iteration API for List(T)
 
-- E* list_begin(List(T) xs) ::
+To iterate elements contained in a ~List(T)~ object, use the following APIs.
+
+- ELEMENT_TYPE(List(T))* list_begin(List(T) xs) ::
    Retunrs an iterator, which points to the 1st element of the list. (inclusive)
 
-- E* list_end(List(T) xs)   ::
+- ELEMENT_TYPE(List(T))* list_end(List(T) xs)   ::
    Returns an iterator, which points to the next of the last element. (out of range)
 
 - int list_length(List(T) xs) ::
@@ -132,24 +147,26 @@ For example:
   }
 #+end_src
 
-*** Buff(T) - a list builder
-~Buff(T)~ is a generic type of list builder.\\
-It is a variadic length buffer to build a ~List(T)~ object.
+** Supporting *concrete Buff(T)* types
 
 - Buff(Char)         ::
-     A type of a list-builder whose element type is ~char~.
+     A type of a list-builder whose element type is ~char~.\\
+     (i.e. ~ELEMENT_TYPE(Buff(Char))~ is ~char~.)
 - Buff(String)       ::
-     A type of a list-builder whose element type is ~const char*~.
+     A type of a list-builder whose element type is ~const char*~.\\
+     (i.e. ~ELEMENT_TYPE(Buff(String))~ is ~const char*~.)
 - Buff(Int)          ::
-     A type of a list-builder whose element type is ~int~.
+     A type of a list-builder whose element type is ~int~.\\
+     (i.e. ~ELEMENT_TYPE(Buff(Int))~ is ~int~.)
 - Buff(Ptr)          ::
-     A type of a list-builder whose element type is ~void*~.
+     A type of a list-builder whose element type is ~void*~.\\
+     (i.e. ~ELEMENT_TYPE(Buff(Ptr))~ is ~void*~.)
 
-*** List builder API for Buff(T)
-To build a ~List(T)~ object, use the following APIs:\\
-*NOTE* : ~E~ is the element type of ~Buff(T)~ object and resulting ~List(T)~ object.
+** List builder API for Buff(T)
 
-- void buff_push(Buff(T)* buf, E x) ::
+To build a ~List(T)~ object, use the following APIs:
+
+- void buff_push(Buff(T)* buf, ELEMENT_TYPE(Buff(T)) x) ::
      Adds an element ~x~ to the last of ~buf~.
 - void buff_append(Buff(T)* buf, List(T) xs) ::
      Adds elements in the ~xs~ to the last of ~buf~.
@@ -175,32 +192,56 @@ For example:
 #+end_src
 
 
-* Type of Parsers
+* Parser Classes
+:PROPERTIES:
+:CUSTOM_ID: parser-classes
+:END:
+
+** Type of Parsers
 :PROPERTIES:
 :CUSTOM_ID: type-of-parsers
 :END:
 
+- PARSER(T)               ::
+     Generic type of parser.\\
+     When a parser applied to a text (char sequence), the parser reads the given
+     text and returns a corresponding value as the parsed result.
+
+- RETURN_TYPE(PARSER(T))  ::
+     Type of a value to be returned by a parser of ~PARSER(T)~ type.
+
+** Supporting *concrete PARSER(T)* types
+
 - PARSER(Char)            ::
   A parser of ~PARSER(Char)~ type reads one char, and \\
-  returns a ~char~ value, when it is applied to a text.
+  returns a ~char~ value, when it is applied to a text.\\
+  (i.e. ~RETURN_TYPE(PARSER(Char))~ is ~char~.)
 - PARSER(String)          ::
   A parser of ~PARSER(String)~ type reads chars, and \\
   returns a ~const char*~ value, when it is applied to a text.
+  (i.e. ~RETURN_TYPE(PARSER(String))~ is ~const char*~.)
 - PARSER(Int)             ::
   A parser of ~PARSER(Int)~ type reads chars, and \\
   returns a ~int~ value, when it is applied to a text.
+  (i.e. ~RETURN_TYPE(PARSER(Int))~ is ~int~.)
+
+
 - PARSER(List(Char))      ::
   A parser of ~PARSER(List(Char))~ type reads chars, and \\
   returns a ~List(Char)~ value, when it is applied to a text.
+  (i.e. ~RETURN_TYPE(PARSER(List(Char)))~ is ~List(Char)~.)
   - *NOTE* :
     - ~PARSER(List(Char))~ is same as ~PARSER(String)~, and
     - ~List(Char)~ is same as ~const char*~.
 - PARSER(List(String))    ::
   A parser of ~PARSER(List(String))~ type reads chars, and \\
   returns a ~List(String)~ value, when it is applied to a text.
+  (i.e. ~RETURN_TYPE(PARSER(List(String)))~ is ~List(String)~.)
 - PARSER(List(Int))       ::
   A parser of ~PARSER(List(Int))~ type reads chars, and \\
-  returns a ~List(int)~ value, when it is applied to a text.
+  returns a ~List(Int)~ value, when it is applied to a text.
+  (i.e. ~RETURN_TYPE(PARSER(List(Int)))~ is ~List(Int)~.)
+
 
 * Built-in Parsers, Parser generators, and Parser combinators
 :PROPERTIES:
@@ -432,19 +473,20 @@ parseTest(skip1st(string1("ab"), char1('c')), "abc"); // -> 'c'
 :CUSTOM_ID: building-block-of-parser-class
 :END:
 
-** PARSER(T) class
+** Declares/Defines new PASER(T) class
 
-- PARSER(T)             :: 
-     Type of parser class. (ex. ~PARSER(Char)~ is ~CharParser~)
+*NOTE* : This section is mainly described *for developers of CPARSEC2 library*,
+not for users at the present.
 
-** Declare and Define PASER(T) class
-
-- DECLARE_PARSER(T, R)  :: 
-     Declare a parser class ~PARSER(T)~, whose instance (i.e. parser of type
-     ~PARSER(T)~) return a value of type ~R~ when the parser was applied to a
-     text.
-- DEFINE_PARSER(T, R) { ~/* print x; */~ } :: 
-     Define a parser class ~PARSER(T)~.\\
+- TYPEDEF_PARSER(T, R)  ::
+     Define new concrete ~PARSER(T)~ type and ~RETURN_TYPE(PARSER(T))~.\\
+     A parser of type ~PARSER(T)~ returns a value of type ~R~ when the parser
+     was applied to a text.\\
+     (i.e. ~RETURN_TYPE(PARSER(T))~ will be ~R~)
+- DECLARE_PARSER(T)     :: 
+     Declares functions/methods for ~PARSER(T)~.
+- DEFINE_PARSER(T, x) { ~/* print x; */~ } :: 
+     Defines functions/methods for ~PARSER(T)~.\\
   - *NOTE* : The trailing block ~{...}~ is body of function ~void SHOW(T)(R x)~.
   - *NOTE* : ~void SHOW(T)(R x)~ is called by ~parseTest(p, text)~ to print ~x~.
   - *NOTE* : ~x~ is the result of parser ~p~ applied to the ~text~.
@@ -453,16 +495,18 @@ Example: 'IntParser.h'
 #+begin_src c
   #include <cparsec2.h>
 
-  /* declare class PARSER(Int), whose instance return int when applied */
-  DECLARE_PARSER(Int, int);
+  /* Defines PARSER(Int) type, and RETURN_TYPE(PARSER(T)) as int */
+  TYPEDEF_PARSER(Int, int);
+  /* Declares functions/methods for PARSER(Int) */
+  DECLARE_PARSER(Int);
 #+end_src
 
 Example: 'IntParser.c'
 #+begin_src c
   #include "IntParser.h"
 
-  /* define (implement) class PARSER(Int) */
-  DEFINE_PARSER(Int, int) {
+  /* Defines (implement) functions/methods for PARSER(Int) */
+  DEFINE_PARSER(Int, x) {
     /* implementation of void SHOW(Int)(int x) */
     printf("%d\n", x);
   }
@@ -475,8 +519,22 @@ Example: 'IntParser.c'
      ~f~ is used as a function body of the parser instance, and ~arg~ is
      argument to be passed to ~f~ when the parser instance was applied to a
      text.
-- PARESR_FN(T)          :: 
-     Type of function pointer ~R (*)(void* arg, Source src, Ctx* ex)~.
+- PARESR_FN(T)          ::
+     Type of function body of a parser instance of ~PARSER(T)~ type.\\
+     ~PARSER_FN(T)~ is the type of function pointer ~RETURN_TYPE(PARSER(T)) (*)(void* arg, Source src, Ctx* ex)~.
+
+For example, ~PARSER_GEN(Int)~ and ~PARSER_FN(Int)~ are defiened as follows:
+#+begin_src c
+typedef int (* PARSER_FN(Int))(void* arg, Source src, Ctx* ex);
+PARSER(Int) PARSER_GEN(Int)(PARSER_FN(Int) f, void* arg);
+#+end_src
+
+*** Example of Parser-generator ~PARSER(Int) mult(int a)~
+
+The below is a example of parser-generator ~mult(int a)~, which\\
+- creates a parser of ~PARSER(Int)~ type.
+  - When the parser applied to one or more digits,
+    - it returns a ~int~ value multiplied by ~a~.
 
 Example: 'mult.h'
 #+begin_src c
