@@ -8,4 +8,4 @@
   }                                                                      \
   _Static_assert(1, "")
 
-DEFINE_P1(TOKEN);
+DEFINE_FORALL_P1(TOKEN);

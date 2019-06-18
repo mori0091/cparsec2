@@ -18,4 +18,4 @@
   }                                                                      \
   _Static_assert(1, "")
 
-DEFINE_P1(SKIP1ST);
+DEFINE_FORALL_P1(SKIP1ST);

@@ -21,10 +21,15 @@
   - Built-in Parsers and Parser-generators
   - Built-in *GENERIC* Parser-combinators
 - [[#building-block-of-parser-class][Building block of Parser-class]] ::
-  - Declares/Defines PARSER(T) class
+  - Declares/Defines new PARSER(T) class
   - Construct an instance of PARSER(T)
   - Apply an instance of PARSER(T) to a text
-
+- [[#building-block-of-parser-combinators][Building block of Parser-combinators]] ::
+  - Declares/Defines new Parser-combinators
+  - PARSER_CAST(expr)
+  - GENERIC_FORALL_P<n>(expr, F)
+  - DECLARE_FORALL_P<n>(F)
+  - DEFINE_FORALL_P<n>(F)
 
 * Core API
 :PROPERTIES:
@@ -599,3 +604,112 @@ Example: 'main.c'
     }
   }
 #+end_src
+
+
+* Building block of Parser-combinators
+:PROPERTIES:
+:CUSTOM_ID: building-block-of-parser-combinators
+:END:
+
+** Declares/Defines new Parser-combinators
+
+For example in case of ~many(p)~ :
+#+begin_src c
+  /* Name of MANY(T) */
+  #define MANY(T) CAT(many_, T)
+
+  /* Generic macro function `many(p)` */
+  #define many(p) (GENERIC_FORALL_P0(PARSER_CAST(p), MANY)(PARSER_CAST(p)))
+  /*
+   ,* For example:
+   ,* - `many("abc")` is expanded to `MANY(String)(string1("abc"))`
+   ,* - `many(number)` is expanded to `MANY(Int)(number)`
+   ,*/
+
+  /* Generic function prototype `MANY(T)(p)` */
+  #define DECLARE_MANY(T) PARSER(List(T)) MANY(T)(PARSER(T) p)
+
+  /* Declares `PARSER(List(T)) MANY(T)(PARSER(T) p)` for all suppoting PARSER(T) */
+  DECLARE_FORALL_P0(MANY);
+  /*
+   ,* `DECLARE_FORALL_P0(MANY);` is expanded to as follows:
+   ,* ~~~c
+   ,* DECLARE_MANY(Char);
+   ,* DECLARE_MANY(String);
+   ,* DECLARE_MANY(Int);
+   ,* ~~~
+   ,*/
+
+  /* Implementation of `MANY(T)(p)` */
+  #define DEFINE_MANY(T)                          \
+    PARSER(List(T)) MANY(T)(PARSER(T) p) {        \
+      /* implementation of MANY(T)(p) */          \
+    }                                             \
+    _Static_assert(1, "")
+
+  /* Defines `PARSER(List(T)) MANY(T)(PARSER(T) p)` for all suppoting PARSER(T) */
+  DEFINE_FORALL_P0(MANY);
+  /*
+   ,* `DEFINE_FORALL_P0(MANY);` is expanded to as follows:
+   ,* ~~~c
+   ,* DEFINE_MANY(Char);
+   ,* DEFINE_MANY(String);
+   ,* DEFINE_MANY(Int);
+   ,* ~~~
+   ,*/
+#+end_src
+
+** PARSER_CAST(expr)
+
+~PARSER_CAST(expr)~ cast ~expr~ to a parser.
+- if ~expr~ was a parser of supported ~PARSER(T)~ type, returns ~expr~ itself.
+- if ~expr~ was a ~char~ or ~const char~, returns ~char1(expr)~.
+- if ~expr~ was a ~char*~ or ~const char*~, returns ~string1(expr)~.
+
+** GENERIC_FORALL_P<n>(expr, F)
+
+~GENERIC_FORALL_P<n>(expr, F)~ is a macro function to define generic
+parser-combinator function. (it is expanded to "C11 _Generic selection"
+expression.)
+- if ~expr~ was a parser of supported ~PARSER(T)~ type, returns ~F(T)~.
+- where ~T~ is one of the following (~<n>~ must be 0 or 1):
+  - ~Char~
+  - ~String~
+  - ~Int~
+  - ~List(String)~ (only if 0 \lt ~<n>~)
+  - ~List(Int)~ (only if 0 \lt ~<n>~)
+
+** DECLARE_FORALL_P<n>(F)
+
+~DECLARE_FORALL_P<n>(F)~ is a macro function to declare function prototypes of
+concrete parser-combinator ~F(T)~ for all supported ~PARSER(T)~ type.
+
+This macro is expanded to ~DECLARE_F(T);~ statements for all supported
+~PARSER(T)~ type. Therefore the ~F(T)~ and ~DECLARE_F(T)~ macro function must be
+defined before.
+- ~F(T)~ shall be expanded to the name of a concrete parser-combinator.
+- ~DECLARE_F(T)~ shall be expanded to the function prototype of ~F(T)~.
+- where ~T~ is one of the following (~<n>~ must be 0 or 1):
+  - ~Char~
+  - ~String~
+  - ~Int~
+  - ~List(String)~ (only if 0 \lt ~<n>~)
+  - ~List(Int)~ (only if 0 \lt ~<n>~)
+
+** DEFINE_FORALL_P<n>(F)
+
+~DEFINE_FORALL_P<n>(F)~ is a macro function to define function of concrete
+parser-combinator ~F(T)~ for all supported ~PARSER(T)~ type.
+
+This macro is expanded to ~DEFINE_F(T);~ statements for all supported
+~PARSER(T)~ type. Therefore the ~F(T)~ and ~DEFINE_F(T)~ macro function must be
+defined before.
+- ~F(T)~ shall be expanded to the name of a concrete parser-combinator.
+- ~DEFINE_F(T)~ shall be expanded to the function definition of ~F(T)~.
+- where ~T~ is one of the following (~<n>~ must be 0 or 1):
+  - ~Char~
+  - ~String~
+  - ~Int~
+  - ~List(String)~ (only if 0 \lt ~<n>~)
+  - ~List(Int)~ (only if 0 \lt ~<n>~)
+
