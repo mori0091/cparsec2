@@ -313,9 +313,11 @@ For example:
 
 - PARSER(List(T)) cons(PARSER(T) p, PARSER(List(T)) ps) ::
      Create a parser of PARSER(List(T)) type, which
-  - apply ~p~ and parsers in the list ~ps~ to a text.
-  - return a list consists of the result of ~p~ and results of each parsers in ~ps~.
-  - if any parser failed, throws an error of it.
+  - apply ~p~ at first, and then apply ~ps~ to the subsequent text.
+  - return a list consists of the following:
+    - the result of ~p~ and
+    - elements of the result of ~ps~.
+  - if ~p~ or ~ps~ failed, throws an error of it.
   - *NOTE* : ~T~ must be one of the following:
     - ~Char~
     - ~String~ aka ~List(Char)~
