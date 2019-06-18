@@ -8,7 +8,9 @@ _Static_assert(1, "PARSER(Int) is already defined.");
 
 #if 0
 
-/* declare class PARSER(Int), whose instance return int when applied */
-DECLARE_PARSER(Int, int);
+/* Defines PARSER(Int) type, and RETURN_TYPE(PARSER(T)) as int */
+TYPEDEF_PARSER(Int, int);
+/* Declares functions/methods for PARSER(Int) */
+DECLARE_PARSER(Int);
 
 #endif
