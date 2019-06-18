@@ -22,4 +22,4 @@
   }                                                                      \
   _Static_assert(1, "")
 
-DEFINE_P1(TRYP);
+DEFINE_FORALL_P1(TRYP);

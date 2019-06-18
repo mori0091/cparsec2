@@ -25,4 +25,4 @@
   }                                                                      \
   _Static_assert(1, "")
 
-DEFINE_P0(MANY);
+DEFINE_FORALL_P0(MANY);

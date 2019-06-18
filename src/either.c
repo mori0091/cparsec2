@@ -27,4 +27,4 @@
   }                                                                      \
   _Static_assert(1, "")
 
-DEFINE_P1(EITHER);
+DEFINE_FORALL_P1(EITHER);

@@ -9,16 +9,6 @@ extern "C" {
 
 #define ELEMENT_TYPE(T) CAT(T, _elem_type)
 
-// clang-format off
-#define GENERIC_METHOD(expr, C, F)              \
-  _Generic((expr)                               \
-           , C(Char)   : F(Char)                \
-           , C(String) : F(String)              \
-           , C(Int)    : F(Int)                 \
-           , C(Ptr)    : F(Ptr)                 \
-           )
-// clang-format on
-
 // ---- List ----
 // Name of List(T)
 #define List(T) CAT(T, List)

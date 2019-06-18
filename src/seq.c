@@ -32,4 +32,4 @@
   }                                                                      \
   _Static_assert(1, "")
 
-DEFINE_P0(SEQ);
+DEFINE_FORALL_P0(SEQ);

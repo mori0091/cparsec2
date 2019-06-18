@@ -27,4 +27,4 @@
   }                                                                      \
   _Static_assert(1, "")
 
-DEFINE_P0(CONS);
+DEFINE_FORALL_P0(CONS);
