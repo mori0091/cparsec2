@@ -20,7 +20,7 @@ SCENARIO("Buff(T) and List(T)", "[cparsec2][parser][Buff][List]") {
         THEN("buf is cleared") {
           REQUIRE(0 == buf.len);
           REQUIRE(0 == buf.capacity);
-          REQUIRE(NULL == buf.data);
+          REQUIRE(nullptr == buf.data);
           AND_THEN("list_length(xs) == 10") {
             REQUIRE(list_length(xs) == 10);
             REQUIRE(list_begin(xs) + list_length(xs) == list_end(xs));
@@ -47,7 +47,7 @@ SCENARIO("Buff(T) and List(T)", "[cparsec2][parser][Buff][List]") {
         THEN("buf is cleared") {
           REQUIRE(0 == buf.len);
           REQUIRE(0 == buf.capacity);
-          REQUIRE(NULL == buf.data);
+          REQUIRE(nullptr == buf.data);
           AND_THEN("list_length(xs) == 10") {
             REQUIRE(list_length(xs) == 10);
             REQUIRE(list_begin(xs) + list_length(xs) == list_end(xs));
@@ -80,7 +80,7 @@ SCENARIO("Buff(T) and List(T)", "[cparsec2][parser][Buff][List]") {
         THEN("buf is cleared") {
           REQUIRE(0 == buf.len);
           REQUIRE(0 == buf.capacity);
-          REQUIRE(NULL == buf.data);
+          REQUIRE(nullptr == buf.data);
           AND_THEN("list_length(xs) == 10") {
             REQUIRE(list_length(xs) == 10);
             REQUIRE(list_begin(xs) + list_length(xs) == list_end(xs));
@@ -119,7 +119,7 @@ SCENARIO("Buff(T) and List(T)", "[cparsec2][parser][Buff][List]") {
         THEN("buf is cleared") {
           REQUIRE(0 == buf.len);
           REQUIRE(0 == buf.capacity);
-          REQUIRE(NULL == buf.data);
+          REQUIRE(nullptr == buf.data);
           AND_THEN("list_length(xs) == 10") {
             REQUIRE(list_length(xs) == 10);
             REQUIRE(list_begin(xs) + list_length(xs) == list_end(xs));
