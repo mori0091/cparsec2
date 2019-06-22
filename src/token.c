@@ -6,6 +6,6 @@
   PARSER(T) TOKEN(T)(PARSER(T) p) {                                      \
     return skip1st(spaces, p);                                           \
   }                                                                      \
-  _Static_assert(1, "")
+  END_OF_STATEMENTS
 
-DEFINE_FORALL_P1(TOKEN);
+FOREACH(DEFINE_TOKEN, TYPESET(1));

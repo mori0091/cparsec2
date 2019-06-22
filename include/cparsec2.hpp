@@ -5,6 +5,17 @@
 #include <cparsec2/list.hpp>
 #include <string>
 
+template <typename P>
+inline P parser_cast(P p) {
+  return p;
+}
+inline PARSER(Char) parser_cast(char c) {
+  return char1(c);
+}
+inline PARSER(String) parser_cast(const char* s) {
+  return string1(s);
+}
+
 #ifdef parse
 #undef parse
 #endif
@@ -32,231 +43,104 @@ inline std::string parse(PARSER(String) p, Source src) {
   }
 }
 
-#ifdef skip
-#undef skip
-inline PARSER(Int) skip(char c) {
-  return SKIP(Char)(char1(c));
-}
-inline PARSER(Int) skip(const char* s) {
-  return SKIP(String)(string1(s));
-}
-inline PARSER(Int) skip(PARSER(Char) p) {
-  return SKIP(Char)(p);
-}
-inline PARSER(Int) skip(PARSER(String) p) {
-  return SKIP(String)(p);
-}
-inline PARSER(Int) skip(PARSER(Int) p) {
-  return SKIP(Int)(p);
-}
-inline PARSER(Int) skip(PARSER(List(String)) p) {
-  return SKIP(List(String))(p);
-}
-inline PARSER(Int) skip(PARSER(List(Int)) p) {
-  return SKIP(List(Int))(p);
-}
-#endif
-
-#ifdef skip1st
-#undef skip1st
-template <typename P>
-inline PARSER(Char) skip1st(P p1, char c) {
-  return SKIP1ST(Char)(p1, char1(c));
-}
-template <typename P>
-inline PARSER(String) skip1st(P p1, const char* s) {
-  return SKIP1ST(String)(p1, string1(s));
-}
-template <typename P>
-inline PARSER(Char) skip1st(P p1, PARSER(Char) p2) {
-  return SKIP1ST(Char)(skip(p1), p2);
-}
-template <typename P>
-inline PARSER(String) skip1st(P p1, PARSER(String) p2) {
-  return SKIP1ST(String)(skip(p1), p2);
-}
-template <typename P>
-inline PARSER(Int) skip1st(P p1, PARSER(Int) p2) {
-  return SKIP1ST(Int)(skip(p1), p2);
-}
-template <typename P>
-inline PARSER(List(String)) skip1st(P p1, PARSER(List(String)) p2) {
-  return SKIP1ST(List(String))(skip(p1), p2);
-}
-template <typename P>
-inline PARSER(List(Int)) skip1st(P p1, PARSER(List(Int)) p2) {
-  return SKIP1ST(List(Int))(skip(p1), p2);
-}
-#endif
-
 #ifdef many
 #undef many
-inline PARSER(List(Char)) many(char c) {
-  return MANY(Char)(char1(c));
-}
-inline PARSER(List(String)) many(const char* s) {
-  return MANY(String)(string1(s));
-}
-inline PARSER(List(Char)) many(PARSER(Char) p) {
-  return MANY(Char)(p);
-}
-inline PARSER(List(String)) many(PARSER(String) p) {
-  return MANY(String)(p);
-}
-inline PARSER(List(Int)) many(PARSER(Int) p) {
-  return MANY(Int)(p);
-}
+#define many(p) cxx_many(parser_cast(p))
+#define DEFINE_CXX_MANY(T)                                               \
+  inline auto cxx_many(PARSER(T) p) {                                    \
+    return MANY(T)(p);                                                   \
+  }                                                                      \
+  END_OF_STATEMENTS
+FOREACH(DEFINE_CXX_MANY, TYPESET(0));
 #endif
 
 #ifdef many1
 #undef many1
-inline PARSER(List(Char)) many1(char c) {
-  return MANY1(Char)(char1(c));
-}
-inline PARSER(List(String)) many1(const char* s) {
-  return MANY1(String)(string1(s));
-}
-inline PARSER(List(Char)) many1(PARSER(Char) p) {
-  return MANY1(Char)(p);
-}
-inline PARSER(List(String)) many1(PARSER(String) p) {
-  return MANY1(String)(p);
-}
-inline PARSER(List(Int)) many1(PARSER(Int) p) {
-  return MANY1(Int)(p);
-}
+#define many1(p) cxx_many1(parser_cast(p))
+#define DEFINE_CXX_MANY1(T)                                              \
+  inline auto cxx_many1(PARSER(T) p) {                                   \
+    return MANY1(T)(p);                                                  \
+  }                                                                      \
+  END_OF_STATEMENTS
+FOREACH(DEFINE_CXX_MANY1, TYPESET(0));
 #endif
 
 #ifdef seq
 #undef seq
-template <typename... Parser>
-inline PARSER(List(Char)) seq(PARSER(Char) p, Parser... args) {
-  PARSER(Char) ps[] = {p, args..., NULL};
-  return SEQ(Char)((void**)ps);
-}
-template <typename... Parser>
-inline PARSER(List(String)) seq(PARSER(String) p, Parser... args) {
-  PARSER(String) ps[] = {p, args..., NULL};
-  return SEQ(String)((void**)ps);
-}
-template <typename... Parser>
-inline PARSER(List(Int)) seq(PARSER(Int) p, Parser... args) {
-  PARSER(Int) ps[] = {p, args..., NULL};
-  return SEQ(Int)((void**)ps);
-}
+#define seq(...) cxx_seq(__VA_ARGS__)
+#define DEFINE_CXX_SEQ(T)                                                \
+  template <typename... P>                                               \
+  inline auto cxx_seq(PARSER(T) p, P... args) {                          \
+    PARSER(T) ps[] = {p, args..., NULL};                                 \
+    return SEQ(T)((void**)ps);                                           \
+  }                                                                      \
+  END_OF_STATEMENTS
+FOREACH(DEFINE_CXX_SEQ, TYPESET(0));
 #endif
 
 #ifdef cons
 #undef cons
-inline PARSER(List(Char)) cons(char c, const char* s) {
-  return CONS(Char)(char1(c), string1(s));
-}
-inline PARSER(List(Char)) cons(char c, PARSER(List(Char)) ps) {
-  return CONS(Char)(char1(c), ps);
-}
-inline PARSER(List(Char)) cons(PARSER(Char) p, const char* s) {
-  return CONS(Char)(p, string1(s));
-}
-inline PARSER(List(String)) cons(const char* s, PARSER(List(String)) ps) {
-  return CONS(String)(string1(s), ps);
-}
-inline PARSER(List(Char)) cons(PARSER(Char) p, PARSER(List(Char)) ps) {
-  return CONS(Char)(p, ps);
-}
-inline PARSER(List(String))
-    cons(PARSER(String) p, PARSER(List(String)) ps) {
-  return CONS(String)(p, ps);
-}
-inline PARSER(List(Int)) cons(PARSER(Int) p, PARSER(List(Int)) ps) {
-  return CONS(Int)(p, ps);
-}
+#define cons(p, ps) cxx_cons(parser_cast(p), parser_cast(ps))
+#define DEFINE_CXX_CONS(T)                                               \
+  inline auto cxx_cons(PARSER(T) p, PARSER(List(T)) ps) {                \
+    return CONS(T)(p, ps);                                               \
+  }                                                                      \
+  END_OF_STATEMENTS
+FOREACH(DEFINE_CXX_CONS, TYPESET(0));
+#endif
+
+#ifdef skip
+#undef skip
+#define skip(p) cxx_skip(parser_cast(p))
+#define DEFINE_CXX_SKIP(T)                                               \
+  inline auto cxx_skip(PARSER(T) p) {                                    \
+    return SKIP(T)(p);                                                   \
+  }                                                                      \
+  END_OF_STATEMENTS
+FOREACH(DEFINE_CXX_SKIP, TYPESET(1));
+#endif
+
+#ifdef skip1st
+#undef skip1st
+#define skip1st(p1, p2) cxx_skip1st(parser_cast(p1), parser_cast(p2))
+#define DEFINE_CXX_SKIP1ST(T)                                            \
+  template <typename P>                                                  \
+  inline auto cxx_skip1st(P p1, PARSER(T) p2) {                          \
+    return SKIP1ST(T)(skip(p1), p2);                                     \
+  }                                                                      \
+  END_OF_STATEMENTS
+FOREACH(DEFINE_CXX_SKIP1ST, TYPESET(1));
 #endif
 
 #ifdef either
 #undef either
-inline PARSER(Char) either(char c1, char c2) {
-  return EITHER(Char)(char1(c1), char1(c2));
-}
-inline PARSER(Char) either(char c, PARSER(Char) p) {
-  return EITHER(Char)(char1(c), p);
-}
-inline PARSER(Char) either(PARSER(Char) p, char c) {
-  return EITHER(Char)(p, char1(c));
-}
-inline PARSER(Char) either(PARSER(Char) p1, PARSER(Char) p2) {
-  return EITHER(Char)(p1, p2);
-}
-inline PARSER(String) either(const char* s1, const char* s2) {
-  return EITHER(String)(string1(s1), string1(s2));
-}
-inline PARSER(String) either(const char* s, PARSER(String) p) {
-  return EITHER(String)(string1(s), p);
-}
-inline PARSER(String) either(PARSER(String) p, const char* s) {
-  return EITHER(String)(p, string1(s));
-}
-inline PARSER(String) either(PARSER(String) p1, PARSER(String) p2) {
-  return EITHER(String)(p1, p2);
-}
-inline PARSER(Int) either(PARSER(Int) p1, PARSER(Int) p2) {
-  return EITHER(Int)(p1, p2);
-}
-inline PARSER(List(String))
-    either(PARSER(List(String)) p1, PARSER(List(String)) p2) {
-  return EITHER(List(String))(p1, p2);
-}
-inline PARSER(List(Int))
-    either(PARSER(List(Int)) p1, PARSER(List(Int)) p2) {
-  return EITHER(List(Int))(p1, p2);
-}
+#define either(p1, p2) cxx_either(parser_cast(p1), parser_cast(p2))
+#define DEFINE_CXX_EITHER(T)                                             \
+  inline auto cxx_either(PARSER(T) p1, PARSER(T) p2) {                   \
+    return EITHER(T)(p1, p2);                                            \
+  }                                                                      \
+  END_OF_STATEMENTS
+FOREACH(DEFINE_CXX_EITHER, TYPESET(1));
 #endif
 
 #ifdef tryp
 #undef tryp
-inline PARSER(Char) tryp(char p) {
-  return TRYP(Char)(char1(p));
-}
-inline PARSER(String) tryp(const char* s) {
-  return TRYP(String)(string1(s));
-}
-inline PARSER(Char) tryp(PARSER(Char) p) {
-  return TRYP(Char)(p);
-}
-inline PARSER(String) tryp(PARSER(String) p) {
-  return TRYP(String)(p);
-}
-inline PARSER(Int) tryp(PARSER(Int) p) {
-  return TRYP(Int)(p);
-}
-inline PARSER(List(String)) tryp(PARSER(List(String)) p) {
-  return TRYP(List(String))(p);
-}
-inline PARSER(List(Int)) tryp(PARSER(List(Int)) p) {
-  return TRYP(List(Int))(p);
-}
+#define tryp(p) cxx_tryp(parser_cast(p))
+#define DEFINE_CXX_TRYP(T)                                               \
+  inline auto cxx_tryp(PARSER(T) p) {                                    \
+    return TRYP(T)(p);                                                   \
+  }                                                                      \
+  END_OF_STATEMENTS
+FOREACH(DEFINE_CXX_TRYP, TYPESET(1));
 #endif
 
 #ifdef token
 #undef token
-inline PARSER(Char) token(char c) {
-  return TOKEN(Char)(char1(c));
-}
-inline PARSER(String) token(const char* s) {
-  return TOKEN(String)(string1(s));
-}
-inline PARSER(Char) token(PARSER(Char) p) {
-  return TOKEN(Char)(p);
-}
-inline PARSER(String) token(PARSER(String) p) {
-  return TOKEN(String)(p);
-}
-inline PARSER(Int) token(PARSER(Int) p) {
-  return TOKEN(Int)(p);
-}
-inline PARSER(List(String)) token(PARSER(List(String)) p) {
-  return TOKEN(List(String))(p);
-}
-inline PARSER(List(Int)) token(PARSER(List(Int)) p) {
-  return TOKEN(List(Int))(p);
-}
+#define token(p) cxx_token(parser_cast(p))
+#define DEFINE_CXX_TOKEN(T)                                              \
+  inline auto cxx_token(PARSER(T) p) {                                   \
+    return TOKEN(T)(p);                                                  \
+  }                                                                      \
+  END_OF_STATEMENTS
+FOREACH(DEFINE_CXX_TOKEN, TYPESET(1));
 #endif

@@ -20,6 +20,6 @@
   PARSER(T) TRYP(T)(PARSER(T) p) {                                       \
     return PARSER_GEN(T)(TRYP_FN(T), (void*)p);                          \
   }                                                                      \
-  _Static_assert(1, "")
+  END_OF_STATEMENTS
 
-DEFINE_FORALL_P1(TRYP);
+FOREACH(DEFINE_TRYP, TYPESET(1));

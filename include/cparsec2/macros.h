@@ -1,61 +1,43 @@
 /* -*- coding:utf-8-unix -*- */
 #pragma once
 
-#define CAT(x,y) CAT_0(x,y)
-#define CAT_0(x,y) x ## y
+#include "metac.h"
+
+#define CAT(x, y) CAT_0(x, y)
+#define CAT_0(x, y) x##y
 
 #define EXPAND(...) __VA_ARGS__
 
-// ** Lists of supporting primitive typenames (except for Char, Ptr) **
-// clang-format off
-#define GENERIC_SELECTORS(P, F, C)              \
-  P(C(String)) : F(C(String)),                  \
-  P(C(Int))    : F(C(Int))
-#define GENERIC_STATEMENTS(F, C)                \
-  F(C(String));                                 \
-  F(C(Int))
-// clang-format on
+#ifdef __cplusplus
+#define END_OF_STATEMENTS static_assert(1, "end of statement")
+#else
+#define END_OF_STATEMENTS _Static_assert(1, "end of statement")
+#endif
+
+#define TYPESET(n) Char, CAT(TYPESET_, n)()
+#define TYPESET_C(C) C(String), C(Int)
+#define TYPESET_0() TYPESET_C(EXPAND)
+#define TYPESET_1() TYPESET_0(), TYPESET_C(List)
+// #define TYPESET_0() String, Int
+// #define TYPESET_1() TYPESET_0(), METAC_APPLY_I(List, TYPESET_0())
+
+// ---- F(T); ... for each T in varargs
+#define FOREACH(F, ...) METAC_SEP_BY(METAC_SEMICOLON, F, __VA_ARGS__)
+
+// ---- _Generic(expr, C(T) : F(T), ...) for each T in varargs
+#define GENERIC_METHOD(expr, C, F, ...)                                  \
+  METAC_GENERIC(expr, C, F, __VA_ARGS__)
+// ---- _Generic(expr, PARSER(T) : F(T), ...) for each T in varargs
+#define GENERIC_P(expr, F, ...)                                          \
+  METAC_GENERIC(expr, PARSER, F, __VA_ARGS__)
 
 // ---- generic macros for containers
-// clang-format off
-#define GENERIC_METHOD(expr, CLASS, METHOD)           \
-  _Generic((expr)                                     \
-           , CLASS(Ptr)  : METHOD(Ptr)                \
-           , CLASS(Char) : METHOD(Char)               \
-           , GENERIC_SELECTORS(CLASS, METHOD, EXPAND) \
-           )
-// clang-format on
+#define ELEMENT_TYPESET TYPESET(0), Ptr
 
 // ---- generic macros for parser-combinators
-#define GENERIC_FORALL_P0_SELECTORS(F)                                   \
-  PARSER(Char) : F(Char), GENERIC_SELECTORS(PARSER, F, EXPAND)
-#define GENERIC_FORALL_P1_SELECTORS(F)                                   \
-  GENERIC_FORALL_P0_SELECTORS(F), GENERIC_SELECTORS(PARSER, F, List)
-#define GENERIC_FORALL_P0_STATEMENTS(F)                                  \
-  F(Char);                                                               \
-  GENERIC_STATEMENTS(F, EXPAND)
-#define GENERIC_FORALL_P1_STATEMENTS(F)                                  \
-  GENERIC_FORALL_P0_STATEMENTS(F);                                       \
-  GENERIC_STATEMENTS(F, List)
-// ----
-#define GENERIC_FORALL_P0(expr, F)                                       \
-  _Generic((expr), GENERIC_FORALL_P0_SELECTORS(F))
-#define GENERIC_FORALL_P1(expr, F)                                       \
-  _Generic((expr), GENERIC_FORALL_P1_SELECTORS(F))
-#define DECLARE_FORALL_P0(COMBINATOR)                                    \
-  GENERIC_FORALL_P0_STATEMENTS(CAT(DECLARE_, COMBINATOR))
-#define DECLARE_FORALL_P1(COMBINATOR)                                    \
-  GENERIC_FORALL_P1_STATEMENTS(CAT(DECLARE_, COMBINATOR))
-#define DEFINE_FORALL_P0(COMBINATOR)                                     \
-  GENERIC_FORALL_P0_STATEMENTS(CAT(DEFINE_, COMBINATOR))
-#define DEFINE_FORALL_P1(COMBINATOR)                                     \
-  GENERIC_FORALL_P1_STATEMENTS(CAT(DEFINE_, COMBINATOR))
-// ----
-// clang-format off
-#define PARSER_CAST(x)                                  \
-  _Generic((x)                                          \
-           , char                 : char1               \
-           , char*                : string1             \
-           , GENERIC_FORALL_P1_SELECTORS(PARSER_ID_FN)  \
-           )(x)
-// clang-format on
+#define PARSER_CAST(expr)                                                \
+  _Generic((expr)                                                        \
+           , char  : char1                                               \
+           , char* : string1                                             \
+           , METAC_GENERIC_SELECTORS(PARSER, PARSER_ID_FN, TYPESET(1))   \
+           )(expr)

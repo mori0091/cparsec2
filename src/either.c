@@ -25,6 +25,6 @@
     arg[1] = p2;                                                         \
     return PARSER_GEN(T)(EITHER_FN(T), arg);                             \
   }                                                                      \
-  _Static_assert(1, "")
+  END_OF_STATEMENTS
 
-DEFINE_FORALL_P1(EITHER);
+FOREACH(DEFINE_EITHER, TYPESET(1));

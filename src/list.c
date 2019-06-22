@@ -15,7 +15,7 @@
   int LIST_LENGTH(T)(List(T) xs) {                                       \
     return xs.len;                                                       \
   }                                                                      \
-  _Static_assert(1, "")
+  END_OF_STATEMENTS
 
 // List(String)
 DEFINE_LIST(String);
@@ -72,7 +72,7 @@ int LIST_LENGTH(Char)(List(Char) xs) {
       BUFF_PUSH(T)(b, *itr);                                             \
     }                                                                    \
   }                                                                      \
-  _Static_assert(1, "")
+  END_OF_STATEMENTS
 
 #define DEFINE_BUFF_FINISH(T)                                            \
   List(T) BUFF_FINISH(T)(Buff(T) * b) {                                  \
@@ -80,7 +80,7 @@ int LIST_LENGTH(Char)(List(Char) xs) {
     *b = (Buff(T)){0};                                                   \
     return xs;                                                           \
   }                                                                      \
-  _Static_assert(1, "")
+  END_OF_STATEMENTS
 
 // Buff(String)
 DEFINE_BUFF(String);

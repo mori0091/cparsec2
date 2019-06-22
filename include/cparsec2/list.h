@@ -19,9 +19,12 @@ extern "C" {
 #define LIST_LENGTH(T) CAT(List(T), _length)
 
 // Generic functions for List(T)
-#define list_begin(xs) GENERIC_METHOD(xs, List, LIST_BEGIN)(xs)
-#define list_end(xs) GENERIC_METHOD(xs, List, LIST_END)(xs)
-#define list_length(xs) GENERIC_METHOD(xs, List, LIST_LENGTH)(xs)
+#define list_begin(xs)                                                   \
+  GENERIC_METHOD((xs), List, LIST_BEGIN, ELEMENT_TYPESET)(xs)
+#define list_end(xs)                                                     \
+  GENERIC_METHOD((xs), List, LIST_END, ELEMENT_TYPESET)(xs)
+#define list_length(xs)                                                  \
+  GENERIC_METHOD((xs), List, LIST_LENGTH, ELEMENT_TYPESET)(xs)
 
 // Defines List(T) type whose element type is E, and
 // defines type alias of E as ELEMENT_TYPE(List(T)) type.
@@ -42,19 +45,17 @@ extern "C" {
 #define CharList String
 typedef const char* List(Char);
 typedef const char ELEMENT_TYPE(List(Char));
-DECLARE_LIST(Char);
 
 // List(String)
 TYPEDEF_LIST(String, const char*);
-DECLARE_LIST(String);
 
 // List(Int)
 TYPEDEF_LIST(Int, int);
-DECLARE_LIST(Int);
 
 // List(Ptr)
 TYPEDEF_LIST(Ptr, void*);
-DECLARE_LIST(Ptr);
+
+FOREACH(DECLARE_LIST, ELEMENT_TYPESET);
 
 // ---- Buffer (List builder) ----
 // Name of Buff(T)
@@ -67,10 +68,14 @@ DECLARE_LIST(Ptr);
 #define BUFF_FINISH(T) CAT(buff_finish_, T)
 
 // Generic functions for Buff(T)
-#define buff_ensure(b) GENERIC_METHOD(*(b), Buff, BUFF_ENSURE)(b)
-#define buff_push(b, x) GENERIC_METHOD(*(b), Buff, BUFF_PUSH)(b, x)
-#define buff_append(b, xs) GENERIC_METHOD(*(b), Buff, BUFF_APPEND)(b, xs)
-#define buff_finish(b) GENERIC_METHOD(*(b), Buff, BUFF_FINISH)(b)
+#define buff_ensure(b)                                                   \
+  GENERIC_METHOD(*(b), Buff, BUFF_ENSURE, ELEMENT_TYPESET)(b)
+#define buff_push(b, x)                                                  \
+  GENERIC_METHOD(*(b), Buff, BUFF_PUSH, ELEMENT_TYPESET)(b, x)
+#define buff_append(b, xs)                                               \
+  GENERIC_METHOD(*(b), Buff, BUFF_APPEND, ELEMENT_TYPESET)(b, xs)
+#define buff_finish(b)                                                   \
+  GENERIC_METHOD(*(b), Buff, BUFF_FINISH, ELEMENT_TYPESET)(b)
 
 // Defines Buff(T) type whose element type is E, and
 // defines type alias of E as ELEMENT_TYPE(Buff(T)) type.
@@ -91,19 +96,17 @@ DECLARE_LIST(Ptr);
 
 // Buff(Char)
 TYPEDEF_BUFF(Char, char);
-DECLARE_BUFF(Char);
 
 // Buff(String)
 TYPEDEF_BUFF(String, const char*);
-DECLARE_BUFF(String);
 
 // Buff(Int)
 TYPEDEF_BUFF(Int, int);
-DECLARE_BUFF(Int);
 
 // Buff(Ptr)
 TYPEDEF_BUFF(Ptr, void*);
-DECLARE_BUFF(Ptr);
+
+FOREACH(DECLARE_BUFF, ELEMENT_TYPESET);
 
 #ifdef __cplusplus
 }

@@ -155,23 +155,16 @@ void consume(Source src);
 
 // ---- CharParser ----
 TYPEDEF_PARSER(Char, char);
-DECLARE_PARSER(Char);
-
 // ---- StringParser ----
 TYPEDEF_PARSER(String, const char*);
-DECLARE_PARSER(String);
-
 // ---- IntParser ----
 TYPEDEF_PARSER(Int, int);
-DECLARE_PARSER(Int);
-
 // ---- StringListParser ----
 TYPEDEF_PARSER(List(String), List(String));
-DECLARE_PARSER(List(String));
-
 // ---- IntListParser ----
 TYPEDEF_PARSER(List(Int), List(Int));
-DECLARE_PARSER(List(Int));
+
+FOREACH(DECLARE_PARSER, TYPESET(1));
 
 // ---- predicates ----
 
@@ -219,78 +212,72 @@ PARSER(Char) expects(const char* desc, PARSER(Char) p); // TODO test
 
 // Parser<T[]> many(Parser<T> p);
 #define MANY(T) CAT(many_, T)
-#define many(p) (GENERIC_FORALL_P0(PARSER_CAST(p), MANY)(PARSER_CAST(p)))
 #define DECLARE_MANY(T) PARSER(List(T)) MANY(T)(PARSER(T) p)
-
-DECLARE_FORALL_P0(MANY);
+FOREACH(DECLARE_MANY, TYPESET(0));
+#define many(p)                                                          \
+  (GENERIC_P(PARSER_CAST(p), MANY, TYPESET(0))(PARSER_CAST(p)))
 
 // Parser<T[]> many1(Parser<T> p);
 #define MANY1(T) CAT(many1_, T)
-#define many1(p)                                                         \
-  (GENERIC_FORALL_P0(PARSER_CAST(p), MANY1)(PARSER_CAST(p)))
 #define DECLARE_MANY1(T) PARSER(List(T)) MANY1(T)(PARSER(T) p)
-
-DECLARE_FORALL_P0(MANY1);
+FOREACH(DECLARE_MANY1, TYPESET(0));
+#define many1(p)                                                         \
+  (GENERIC_P(PARSER_CAST(p), MANY1, TYPESET(0))(PARSER_CAST(p)))
 
 // Parser<T[]> seq(Parser<T> p, ...);
 #define SEQ(T) CAT(seq_, T)
+#define DECLARE_SEQ(T) PARSER(List(T)) SEQ(T)(void* ps[])
+FOREACH(DECLARE_SEQ, TYPESET(0));
 #define seq(...) SEQ_0(__VA_ARGS__, NULL)
 #define SEQ_0(p, ...)                                                    \
-  (GENERIC_FORALL_P0(p, SEQ)((void*[]){p, __VA_ARGS__}))
-#define DECLARE_SEQ(T) PARSER(List(T)) SEQ(T)(void* ps[])
-
-DECLARE_FORALL_P0(SEQ);
+  (GENERIC_P(p, SEQ, TYPESET(0))((void*[]){p, __VA_ARGS__}))
 
 // Parser<T[]> cons(Parser<T> p, Parser<T[]> ps);
 #define CONS(T) CAT(cons_, T)
-#define cons(p, ps)                                                      \
-  (GENERIC_FORALL_P0(PARSER_CAST(p), CONS)(PARSER_CAST(p),               \
-                                           PARSER_CAST(ps)))
 #define DECLARE_CONS(T)                                                  \
   PARSER(List(T)) CONS(T)(PARSER(T) p, PARSER(List(T)) ps)
-
-DECLARE_FORALL_P0(CONS);
+FOREACH(DECLARE_CONS, TYPESET(0));
+#define cons(p, ps)                                                      \
+  (GENERIC_P(PARSER_CAST(p), CONS, TYPESET(0))(PARSER_CAST(p),           \
+                                               PARSER_CAST(ps)))
 
 // Parser<Int> skip(Parser<T> p);
 #define SKIP(T) CAT(skip_, T)
-#define skip(p) (GENERIC_FORALL_P1(PARSER_CAST(p), SKIP)(PARSER_CAST(p)))
 #define DECLARE_SKIP(T) PARSER(Int) SKIP(T)(PARSER(T) p)
-
-DECLARE_FORALL_P1(SKIP);
+FOREACH(DECLARE_SKIP, TYPESET(1));
+#define skip(p)                                                          \
+  (GENERIC_P(PARSER_CAST(p), SKIP, TYPESET(1))(PARSER_CAST(p)))
 
 // Parser<T2> skip1st(Parser<T1> p1, Parser<T2> p2);
 #define SKIP1ST(T) CAT(skip1st_, T)
-#define skip1st(p1, p2)                                                  \
-  (GENERIC_FORALL_P1(PARSER_CAST(p2), SKIP1ST)(skip(p1),                 \
-                                               (PARSER_CAST(p2))))
 #define DECLARE_SKIP1ST(T)                                               \
   PARSER(T) SKIP1ST(T)(PARSER(Int) p1, PARSER(T) p2)
-
-DECLARE_FORALL_P1(SKIP1ST);
+FOREACH(DECLARE_SKIP1ST, TYPESET(1));
+#define skip1st(p1, p2)                                                  \
+  (GENERIC_P(PARSER_CAST(p2), SKIP1ST, TYPESET(1))(skip(p1),             \
+                                                   (PARSER_CAST(p2))))
 
 // Parser<T> either(Parser<T> p1, Parser<T> p2);
 #define EITHER(T) CAT(either_, T)
-#define either(p1, p2)                                                   \
-  (GENERIC_FORALL_P1(PARSER_CAST(p1), EITHER)(PARSER_CAST(p1),           \
-                                              PARSER_CAST(p2)))
 #define DECLARE_EITHER(T) PARSER(T) EITHER(T)(PARSER(T) p1, PARSER(T) p2)
-
-DECLARE_FORALL_P1(EITHER);
+FOREACH(DECLARE_EITHER, TYPESET(1));
+#define either(p1, p2)                                                   \
+  (GENERIC_P(PARSER_CAST(p1), EITHER, TYPESET(1))(PARSER_CAST(p1),       \
+                                                  PARSER_CAST(p2)))
 
 // Parser<T> tryp(Parser<T> p);
 #define TRYP(T) CAT(tryp_, T)
-#define tryp(p) (GENERIC_FORALL_P1(PARSER_CAST(p), TRYP)(PARSER_CAST(p)))
 #define DECLARE_TRYP(T) PARSER(T) TRYP(T)(PARSER(T) p)
-
-DECLARE_FORALL_P1(TRYP);
+FOREACH(DECLARE_TRYP, TYPESET(1));
+#define tryp(p)                                                          \
+  (GENERIC_P(PARSER_CAST(p), TRYP, TYPESET(1))(PARSER_CAST(p)))
 
 // Parser<T> token(Parser<T> p);
 #define TOKEN(T) CAT(token_, T)
-#define token(p)                                                         \
-  (GENERIC_FORALL_P1(PARSER_CAST(p), TOKEN)(PARSER_CAST(p)))
 #define DECLARE_TOKEN(T) PARSER(T) TOKEN(T)(PARSER(T) p)
-
-DECLARE_FORALL_P1(TOKEN);
+FOREACH(DECLARE_TOKEN, TYPESET(1));
+#define token(p)                                                         \
+  (GENERIC_P(PARSER_CAST(p), TOKEN, TYPESET(1))(PARSER_CAST(p)))
 
 #ifdef __cplusplus
 }
