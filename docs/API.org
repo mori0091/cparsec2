@@ -27,9 +27,10 @@
 - [[#building-block-of-parser-combinators][Building block of Parser-combinators]] ::
   - Declares/Defines new Parser-combinators
   - PARSER_CAST(expr)
-  - GENERIC_FORALL_P<n>(expr, F)
-  - DECLARE_FORALL_P<n>(F)
-  - DEFINE_FORALL_P<n>(F)
+  - GENERIC_METHOD(expr, C, F, ...)
+  - GENERIC_P(expr, F, ...)
+  - FOREACH(F, ...)
+  - TYPESET
 
 * Core API
 :PROPERTIES:
@@ -619,44 +620,50 @@ For example in case of ~many(p)~ :
   #define MANY(T) CAT(many_, T)
 
   /* Generic macro function `many(p)` */
-  #define many(p) (GENERIC_FORALL_P0(PARSER_CAST(p), MANY)(PARSER_CAST(p)))
-  /*
-   ,* For example:
-   ,* - `many("abc")` is expanded to `MANY(String)(string1("abc"))`
-   ,* - `many(number)` is expanded to `MANY(Int)(number)`
-   ,*/
+  #define many(p) (GENERIC_P(PARSER_CAST(p), MANY, TYPESET(0))(PARSER_CAST(p)))
+
+  // For example:
+  // - `many("abc")` is expanded to `MANY(String)(string1("abc"))`
+  // - `many(number)` is expanded to `MANY(Int)(number)`
 
   /* Generic function prototype `MANY(T)(p)` */
   #define DECLARE_MANY(T) PARSER(List(T)) MANY(T)(PARSER(T) p)
 
-  /* Declares `PARSER(List(T)) MANY(T)(PARSER(T) p)` for all suppoting PARSER(T) */
-  DECLARE_FORALL_P0(MANY);
-  /*
-   ,* `DECLARE_FORALL_P0(MANY);` is expanded to as follows:
-   ,* ~~~c
-   ,* DECLARE_MANY(Char);
-   ,* DECLARE_MANY(String);
-   ,* DECLARE_MANY(Int);
-   ,* ~~~
-   ,*/
+  /* Declares `PARSER(List(T)) MANY(T)(PARSER(T) p);` for each T in TYPESET(0) */
+  FOREACH(DECLARE_MANY, TYPESET(0));
+
+  // `FOREACH(DECLARE_MANY, TYPESET(0));` is expanded to as follows:
+  // ~~~c
+  // PARSER(List(Char)) MANY(Char)(PARSER(Char) p);
+  // PARSER(List(String)) MANY(String)(PARSER(String) p);
+  // PARSER(List(Int)) MANY(Int)(PARSER(Int) p);
+  // ~~~
 
   /* Implementation of `MANY(T)(p)` */
   #define DEFINE_MANY(T)                          \
     PARSER(List(T)) MANY(T)(PARSER(T) p) {        \
       /* implementation of MANY(T)(p) */          \
     }                                             \
-    _Static_assert(1, "")
+    END_OF_STATEMENTS
 
-  /* Defines `PARSER(List(T)) MANY(T)(PARSER(T) p)` for all suppoting PARSER(T) */
-  DEFINE_FORALL_P0(MANY);
-  /*
-   ,* `DEFINE_FORALL_P0(MANY);` is expanded to as follows:
-   ,* ~~~c
-   ,* DEFINE_MANY(Char);
-   ,* DEFINE_MANY(String);
-   ,* DEFINE_MANY(Int);
-   ,* ~~~
-   ,*/
+  /* Defines `PARSER(List(T)) MANY(T)(PARSER(T) p)` for each T in TYPESET(0) */
+  FOREACH(DEFINE_MANY, TYPESET(0));
+
+  // `FOREACH(DEFINE_MANY, TYPESET(0));` is expanded to as follows:
+  // ~~~c
+  // PARSER(List(Char)) MANY(Char)(PARSER(Char) p) {
+  //   /* implementation of MANY(T)(p) */
+  // }
+  // _Static_assert(1, "");
+  // PARSER(List(String)) MANY(String)(PARSER(String) p) {
+  //   /* implementation of MANY(T)(p) */
+  // }
+  // _Static_assert(1, "");
+  // PARSER(List(Int)) MANY(Int)(PARSER(Int) p) {
+  //   /* implementation of MANY(T)(p) */
+  // }
+  // _Static_assert(1, "");
+  // ~~~
 #+end_src
 
 ** PARSER_CAST(expr)
@@ -666,50 +673,61 @@ For example in case of ~many(p)~ :
 - if ~expr~ was a ~char~ or ~const char~, returns ~char1(expr)~.
 - if ~expr~ was a ~char*~ or ~const char*~, returns ~string1(expr)~.
 
-** GENERIC_FORALL_P<n>(expr, F)
+** GENERIC_METHOD(expr, C, F, args...)
 
-~GENERIC_FORALL_P<n>(expr, F)~ is a macro function to define generic
-parser-combinator function. (it is expanded to "C11 _Generic selection"
-expression.)
-- if ~expr~ was a parser of supported ~PARSER(T)~ type, returns ~F(T)~.
-- where ~T~ is one of the following (~<n>~ must be 0 or 1):
-  - ~Char~
-  - ~String~
-  - ~Int~
-  - ~List(String)~ (only if 0 \lt ~<n>~)
-  - ~List(Int)~ (only if 0 \lt ~<n>~)
+~GENERIC_METHOD(expr, C, F, args...)~ is a macro function to define a "C11
+~_Generic~ selection" expression.
+- ~GENERIC_METHOD(expr, C, F, args...)~ is expanded to ~_Generic(expr, C(T) : F(T), ...)~ for each ~T~ in ~args...~.
 
-** DECLARE_FORALL_P<n>(F)
+** GENERIC_P(expr, F, args...)
 
-~DECLARE_FORALL_P<n>(F)~ is a macro function to declare function prototypes of
-concrete parser-combinator ~F(T)~ for all supported ~PARSER(T)~ type.
+~GENERIC_P(expr, F, args...)~ is a macro function to define a "C11 ~_Generic~
+selection" expression.
+- ~GENERIC_P(expr, F, args...)~ is expanded to ~_Generic(expr, PARSER(T) : F(T), ...)~ for each ~T~ in ~args...~.
+- Same as ~GENERIC_METHOD(expr, PARSER, T, args...)~.
 
-This macro is expanded to ~DECLARE_F(T);~ statements for all supported
-~PARSER(T)~ type. Therefore the ~F(T)~ and ~DECLARE_F(T)~ macro function must be
-defined before.
-- ~F(T)~ shall be expanded to the name of a concrete parser-combinator.
-- ~DECLARE_F(T)~ shall be expanded to the function prototype of ~F(T)~.
-- where ~T~ is one of the following (~<n>~ must be 0 or 1):
-  - ~Char~
-  - ~String~
-  - ~Int~
-  - ~List(String)~ (only if 0 \lt ~<n>~)
-  - ~List(Int)~ (only if 0 \lt ~<n>~)
+** FOREACH(F, args...)
 
-** DEFINE_FORALL_P<n>(F)
+~FOREACH(F, args...)~ is a macro function for unrolling statements.
+- ~FOREACH(F, args...)~ is expanded to ~F(T);~ for each ~T~ in ~args...~.
 
-~DEFINE_FORALL_P<n>(F)~ is a macro function to define function of concrete
-parser-combinator ~F(T)~ for all supported ~PARSER(T)~ type.
+#+begin_src c
+#define F(T) T CAT(T, _value)
+FOREACH(F, char, int, double);
+// `FOREACH(F, x, y, z)` is expanded to `F(x); F(y); F(z)`
+// Therefore the above is expanded to as follows:
+// ~~~c
+// char char_value;
+// int int_value;
+// double double_value;
+// ~~~
+#+end_src
 
-This macro is expanded to ~DEFINE_F(T);~ statements for all supported
-~PARSER(T)~ type. Therefore the ~F(T)~ and ~DEFINE_F(T)~ macro function must be
-defined before.
-- ~F(T)~ shall be expanded to the name of a concrete parser-combinator.
-- ~DEFINE_F(T)~ shall be expanded to the function definition of ~F(T)~.
-- where ~T~ is one of the following (~<n>~ must be 0 or 1):
-  - ~Char~
-  - ~String~
-  - ~Int~
-  - ~List(String)~ (only if 0 \lt ~<n>~)
-  - ~List(Int)~ (only if 0 \lt ~<n>~)
+** TYPESET
 
+Set of type-names.
+
+- TYPESET(0)      ::
+     A set of type-names for parser-combinators. \\
+     ~TYPESET(0)~ is expanded to ~Char, String, Int~.
+- TYPESET(1)      ::
+     Another set of type-names for parser-combinators. \\
+     ~TYPESET(1)~ is expanded to ~Char, String, Int, List(String), List(Int)~.
+- ELEMENT_TYPESET ::
+     A set of type-names for element-type of generic-containers. \\
+     ~ELEMENT_TYPESET~ is expanded to ~Ptr, Char, String, Int~
+
+These macros are convenient and easy to use with
+ - ~GENERIC_METHOD(expr, C, F, ...)~,
+ - ~GENERIC_P(expr, F, ...)~, and
+ - ~FOREACH(F, ...)~.
+
+For example :
+#+begin_src c
+GENERIC_P(expr, F, TYPESET(0))(expr);
+#+end_src
+
+The above code is expanded as follows:
+#+begin_src c
+_Generic(expr, PARSER(Char) : F(Char), PARSER(String) : F(String), PARSER(Int) : F(Int))(expr);
+#+end_src
