@@ -684,7 +684,7 @@ For example in case of ~many(p)~ :
 ~GENERIC_P(expr, F, args...)~ is a macro function to define a "C11 ~_Generic~
 selection" expression.
 - ~GENERIC_P(expr, F, args...)~ is expanded to ~_Generic(expr, PARSER(T) : F(T), ...)~ for each ~T~ in ~args...~.
-- Same as ~GENERIC_METHOD(expr, PARSER, T, args...)~.
+- Same as ~GENERIC_METHOD(expr, PARSER, F, args...)~.
 
 ** FOREACH(F, args...)
 
