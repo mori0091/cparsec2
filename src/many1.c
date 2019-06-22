@@ -6,6 +6,6 @@
   PARSER(List(T)) MANY1(T)(PARSER(T) p) {                                \
     return cons(p, many(p));                                             \
   }                                                                      \
-  _Static_assert(1, "")
+  END_OF_STATEMENTS
 
-DEFINE_FORALL_P0(MANY1);
+FOREACH(DEFINE_MANY1, TYPESET(0));

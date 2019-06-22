@@ -12,6 +12,6 @@
   PARSER(Int) SKIP(T)(PARSER(T) p) {                                     \
     return PARSER_GEN(Int)(SKIP_FN(T), (void*)p);                        \
   }                                                                      \
-  _Static_assert(1, "")
+  END_OF_STATEMENTS
 
-DEFINE_FORALL_P1(SKIP);
+FOREACH(DEFINE_SKIP, TYPESET(1));

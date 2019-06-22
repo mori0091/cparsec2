@@ -25,6 +25,6 @@
     arg[1] = ps;                                                         \
     return PARSER_GEN(List(T))(CONS_FN(T), (void*)arg);                  \
   }                                                                      \
-  _Static_assert(1, "")
+  END_OF_STATEMENTS
 
-DEFINE_FORALL_P0(CONS);
+FOREACH(DEFINE_CONS, TYPESET(0));

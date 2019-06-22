@@ -30,6 +30,6 @@
     void* arg = list_begin(buff_finish(&buf));                           \
     return PARSER_GEN(List(T))(SEQ_FN(T), arg);                          \
   }                                                                      \
-  _Static_assert(1, "")
+  END_OF_STATEMENTS
 
-DEFINE_FORALL_P0(SEQ);
+FOREACH(DEFINE_SEQ, TYPESET(0));

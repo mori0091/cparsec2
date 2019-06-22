@@ -16,6 +16,6 @@
     arg[1] = (void*)p2;                                                  \
     return PARSER_GEN(T)(SKIP1ST_FN(T), (void*)arg);                     \
   }                                                                      \
-  _Static_assert(1, "")
+  END_OF_STATEMENTS
 
-DEFINE_FORALL_P1(SKIP1ST);
+FOREACH(DEFINE_SKIP1ST, TYPESET(1));
