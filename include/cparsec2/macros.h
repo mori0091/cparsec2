@@ -14,12 +14,10 @@
 #define END_OF_STATEMENTS _Static_assert(1, "end of statement")
 #endif
 
+#define ELEMENT_TYPESET TYPESET(0), Ptr
 #define TYPESET(n) Char, CAT(TYPESET_, n)()
-#define TYPESET_C(C) C(String), C(Int)
-#define TYPESET_0() TYPESET_C(EXPAND)
-#define TYPESET_1() TYPESET_0(), TYPESET_C(List)
-// #define TYPESET_0() String, Int
-// #define TYPESET_1() TYPESET_0(), METAC_APPLY_I(List, TYPESET_0())
+#define TYPESET_0() String, Int
+#define TYPESET_1() TYPESET_0(), METAC_APPLY(List, TYPESET_0())
 
 // ---- F(T); ... for each T in varargs
 #define FOREACH(F, ...) METAC_SEP_BY(METAC_SEMICOLON, F, __VA_ARGS__)
@@ -30,9 +28,6 @@
 // ---- _Generic(expr, PARSER(T) : F(T), ...) for each T in varargs
 #define GENERIC_P(expr, F, ...)                                          \
   METAC_GENERIC(expr, PARSER, F, __VA_ARGS__)
-
-// ---- generic macros for containers
-#define ELEMENT_TYPESET TYPESET(0), Ptr
 
 // ---- generic macros for parser-combinators
 #define PARSER_CAST(expr)                                                \
