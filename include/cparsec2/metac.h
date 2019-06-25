@@ -80,35 +80,15 @@
 /**
  * \brief EVAL(...): expands and expands and expands ...
  */
-#define METAC_EVAL_1(...) __VA_ARGS__
-#define METAC_EVAL_2(...) METAC_EVAL_1(METAC_EVAL_1(__VA_ARGS__))
-#define METAC_EVAL_3(...) METAC_EVAL_2(METAC_EVAL_2(__VA_ARGS__))
-#define METAC_EVAL_4(...) METAC_EVAL_3(METAC_EVAL_3(__VA_ARGS__))
-#define METAC_EVAL_5(...) METAC_EVAL_4(METAC_EVAL_4(__VA_ARGS__))
-#define METAC_EVAL_6(...) METAC_EVAL_5(METAC_EVAL_5(__VA_ARGS__))
-#define METAC_EVAL_7(...) METAC_EVAL_6(METAC_EVAL_6(__VA_ARGS__))
-#define METAC_EVAL_8(...) METAC_EVAL_7(METAC_EVAL_7(__VA_ARGS__))
-#define METAC_EVAL(...) METAC_EVAL_8(__VA_ARGS__)
-
-#define METAC_EVAL_A_1(...) __VA_ARGS__
-#define METAC_EVAL_A_2(...) METAC_EVAL_A_1(METAC_EVAL_A_1(__VA_ARGS__))
-#define METAC_EVAL_A_3(...) METAC_EVAL_A_2(METAC_EVAL_A_2(__VA_ARGS__))
-#define METAC_EVAL_A_4(...) METAC_EVAL_A_3(METAC_EVAL_A_3(__VA_ARGS__))
-#define METAC_EVAL_A_5(...) METAC_EVAL_A_4(METAC_EVAL_A_4(__VA_ARGS__))
-#define METAC_EVAL_A_6(...) METAC_EVAL_A_5(METAC_EVAL_A_5(__VA_ARGS__))
-#define METAC_EVAL_A_7(...) METAC_EVAL_A_6(METAC_EVAL_A_6(__VA_ARGS__))
-#define METAC_EVAL_A_8(...) METAC_EVAL_A_7(METAC_EVAL_A_7(__VA_ARGS__))
-#define METAC_EVAL_A(...) METAC_EVAL_A_8(__VA_ARGS__)
-
-#define METAC_EVAL_B_1(...) __VA_ARGS__
-#define METAC_EVAL_B_2(...) METAC_EVAL_B_1(METAC_EVAL_B_1(__VA_ARGS__))
-#define METAC_EVAL_B_3(...) METAC_EVAL_B_2(METAC_EVAL_B_2(__VA_ARGS__))
-#define METAC_EVAL_B_4(...) METAC_EVAL_B_3(METAC_EVAL_B_3(__VA_ARGS__))
-#define METAC_EVAL_B_5(...) METAC_EVAL_B_4(METAC_EVAL_B_4(__VA_ARGS__))
-#define METAC_EVAL_B_6(...) METAC_EVAL_B_5(METAC_EVAL_B_5(__VA_ARGS__))
-#define METAC_EVAL_B_7(...) METAC_EVAL_B_6(METAC_EVAL_B_6(__VA_ARGS__))
-#define METAC_EVAL_B_8(...) METAC_EVAL_B_7(METAC_EVAL_B_7(__VA_ARGS__))
-#define METAC_EVAL_B(...) METAC_EVAL_B_8(__VA_ARGS__)
+#define METAC_EVAL1(...) __VA_ARGS__
+#define METAC_EVAL2(...) METAC_EVAL1(METAC_EVAL1(__VA_ARGS__))
+#define METAC_EVAL3(...) METAC_EVAL2(METAC_EVAL2(__VA_ARGS__))
+#define METAC_EVAL4(...) METAC_EVAL3(METAC_EVAL3(__VA_ARGS__))
+#define METAC_EVAL5(...) METAC_EVAL4(METAC_EVAL4(__VA_ARGS__))
+#define METAC_EVAL6(...) METAC_EVAL5(METAC_EVAL5(__VA_ARGS__))
+#define METAC_EVAL7(...) METAC_EVAL6(METAC_EVAL6(__VA_ARGS__))
+#define METAC_EVAL8(...) METAC_EVAL7(METAC_EVAL7(__VA_ARGS__))
+#define METAC_EVAL(...) METAC_EVAL8(__VA_ARGS__)
 
 /**
  * \brief EQUAL(x,y):
@@ -190,11 +170,27 @@
  * ~~~
  */
 #define METAC_FOLD(f, a, ...)                                            \
-  METAC_EVAL(METAC_FOLD_I(f, a, __VA_ARGS__, ))
+  METAC_FOLD_EVAL(METAC_FOLD_I(f, a, __VA_ARGS__, ))
 #define METAC_FOLD_I(f, a, x, ...)                                       \
   METAC_IF(METAC_IS_NIL(__VA_ARGS__))                                    \
   (f(a, x), METAC_DEFER2(METAC_FOLD_INDIRECT)()(f, f(a, x), __VA_ARGS__))
 #define METAC_FOLD_INDIRECT() METAC_FOLD_I
+#define METAC_FOLD_EVAL1(...) __VA_ARGS__
+#define METAC_FOLD_EVAL2(...)                                            \
+  METAC_FOLD_EVAL1(METAC_FOLD_EVAL1(__VA_ARGS__))
+#define METAC_FOLD_EVAL3(...)                                            \
+  METAC_FOLD_EVAL2(METAC_FOLD_EVAL2(__VA_ARGS__))
+#define METAC_FOLD_EVAL4(...)                                            \
+  METAC_FOLD_EVAL3(METAC_FOLD_EVAL3(__VA_ARGS__))
+#define METAC_FOLD_EVAL5(...)                                            \
+  METAC_FOLD_EVAL4(METAC_FOLD_EVAL4(__VA_ARGS__))
+#define METAC_FOLD_EVAL6(...)                                            \
+  METAC_FOLD_EVAL5(METAC_FOLD_EVAL5(__VA_ARGS__))
+#define METAC_FOLD_EVAL7(...)                                            \
+  METAC_FOLD_EVAL6(METAC_FOLD_EVAL6(__VA_ARGS__))
+#define METAC_FOLD_EVAL8(...)                                            \
+  METAC_FOLD_EVAL7(METAC_FOLD_EVAL7(__VA_ARGS__))
+#define METAC_FOLD_EVAL(...) METAC_FOLD_EVAL8(__VA_ARGS__)
 
 /**
  * \brief METAC_SEP_BY(sep, f, ...):
@@ -202,12 +198,28 @@
  * --> f(a); f(b); f(c)
  */
 #define METAC_SEP_BY(sep, f, ...)                                        \
-  METAC_EVAL(METAC_SEP_BY_I(sep, f, __VA_ARGS__, ))
+  METAC_SEP_BY_EVAL(METAC_SEP_BY_I(sep, f, __VA_ARGS__, ))
 #define METAC_SEP_BY_I(sep, f, x, ...)                                   \
   METAC_IF(METAC_IS_NIL(__VA_ARGS__))                                    \
   (f(x), f(x) METAC_DEFER2(sep)()                                        \
              METAC_DEFER2(METAC_SEP_BY_INDIRECT)()(sep, f, __VA_ARGS__))
 #define METAC_SEP_BY_INDIRECT() METAC_SEP_BY_I
+#define METAC_SEP_BY_EVAL1(...) __VA_ARGS__
+#define METAC_SEP_BY_EVAL2(...)                                          \
+  METAC_SEP_BY_EVAL1(METAC_SEP_BY_EVAL1(__VA_ARGS__))
+#define METAC_SEP_BY_EVAL3(...)                                          \
+  METAC_SEP_BY_EVAL2(METAC_SEP_BY_EVAL2(__VA_ARGS__))
+#define METAC_SEP_BY_EVAL4(...)                                          \
+  METAC_SEP_BY_EVAL3(METAC_SEP_BY_EVAL3(__VA_ARGS__))
+#define METAC_SEP_BY_EVAL5(...)                                          \
+  METAC_SEP_BY_EVAL4(METAC_SEP_BY_EVAL4(__VA_ARGS__))
+#define METAC_SEP_BY_EVAL6(...)                                          \
+  METAC_SEP_BY_EVAL5(METAC_SEP_BY_EVAL5(__VA_ARGS__))
+#define METAC_SEP_BY_EVAL7(...)                                          \
+  METAC_SEP_BY_EVAL6(METAC_SEP_BY_EVAL6(__VA_ARGS__))
+#define METAC_SEP_BY_EVAL8(...)                                          \
+  METAC_SEP_BY_EVAL7(METAC_SEP_BY_EVAL7(__VA_ARGS__))
+#define METAC_SEP_BY_EVAL(...) METAC_SEP_BY_EVAL8(__VA_ARGS__)
 
 #define METAC_COMMA() ,
 #define METAC_SEMICOLON() ;
@@ -217,7 +229,30 @@
  * APPLY(f, a, b, c)
  * --> f(a), f(b), f(c)
  */
-#define METAC_APPLY(f, ...) METAC_SEP_BY(METAC_COMMA, f, __VA_ARGS__)
+// #define METAC_APPLY(f, ...) METAC_SEP_BY(METAC_COMMA, f, __VA_ARGS__)
+#define METAC_APPLY(f, ...)                                              \
+  METAC_APPLY_EVAL(METAC_APPLY_I(f, __VA_ARGS__, ))
+#define METAC_APPLY_I(f, x, ...)                                         \
+  METAC_IF(METAC_IS_NIL(__VA_ARGS__))                                    \
+  (f(x), f(x) METAC_DEFER2(METAC_COMMA)()                                \
+             METAC_DEFER2(METAC_APPLY_INDIRECT)()(f, __VA_ARGS__))
+#define METAC_APPLY_INDIRECT() METAC_APPLY_I
+#define METAC_APPLY_EVAL1(...) __VA_ARGS__
+#define METAC_APPLY_EVAL2(...)                                           \
+  METAC_APPLY_EVAL1(METAC_APPLY_EVAL1(__VA_ARGS__))
+#define METAC_APPLY_EVAL3(...)                                           \
+  METAC_APPLY_EVAL2(METAC_APPLY_EVAL2(__VA_ARGS__))
+#define METAC_APPLY_EVAL4(...)                                           \
+  METAC_APPLY_EVAL3(METAC_APPLY_EVAL3(__VA_ARGS__))
+#define METAC_APPLY_EVAL5(...)                                           \
+  METAC_APPLY_EVAL4(METAC_APPLY_EVAL4(__VA_ARGS__))
+#define METAC_APPLY_EVAL6(...)                                           \
+  METAC_APPLY_EVAL5(METAC_APPLY_EVAL5(__VA_ARGS__))
+#define METAC_APPLY_EVAL7(...)                                           \
+  METAC_APPLY_EVAL6(METAC_APPLY_EVAL6(__VA_ARGS__))
+#define METAC_APPLY_EVAL8(...)                                           \
+  METAC_APPLY_EVAL7(METAC_APPLY_EVAL7(__VA_ARGS__))
+#define METAC_APPLY_EVAL(...) METAC_APPLY_EVAL8(__VA_ARGS__)
 
 /**
  * \brief METAC_GENERIC(expr, f, g, ...):
@@ -227,7 +262,8 @@
 #define METAC_GENERIC(expr, f, g, ...)                                   \
   _Generic((expr), METAC_GENERIC_SELECTORS(f, g, __VA_ARGS__))
 #define METAC_GENERIC_SELECTORS(f, g, ...)                               \
-  METAC_EVAL_B(METAC_GENERIC_SELECTORS_I(f, g, __VA_ARGS__, ))
+  METAC_GENERIC_SELECTORS_EVAL(                                          \
+      METAC_GENERIC_SELECTORS_I(f, g, __VA_ARGS__, ))
 #define METAC_GENERIC_SELECTORS_I(f, g, x, ...)                          \
   METAC_IF(METAC_IS_NIL(__VA_ARGS__))                                    \
   (f(x)                                                                  \
@@ -235,3 +271,27 @@
    : g(x) METAC_DEFER2(METAC_COMMA)() METAC_DEFER2(                      \
        METAC_GENERIC_SELECTORS_INDIRECT)()(f, g, __VA_ARGS__))
 #define METAC_GENERIC_SELECTORS_INDIRECT() METAC_GENERIC_SELECTORS_I
+#define METAC_GENERIC_SELECTORS_EVAL1(...) __VA_ARGS__
+#define METAC_GENERIC_SELECTORS_EVAL2(...)                               \
+  METAC_GENERIC_SELECTORS_EVAL1(                                         \
+      METAC_GENERIC_SELECTORS_EVAL1(__VA_ARGS__))
+#define METAC_GENERIC_SELECTORS_EVAL3(...)                               \
+  METAC_GENERIC_SELECTORS_EVAL2(                                         \
+      METAC_GENERIC_SELECTORS_EVAL2(__VA_ARGS__))
+#define METAC_GENERIC_SELECTORS_EVAL4(...)                               \
+  METAC_GENERIC_SELECTORS_EVAL3(                                         \
+      METAC_GENERIC_SELECTORS_EVAL3(__VA_ARGS__))
+#define METAC_GENERIC_SELECTORS_EVAL5(...)                               \
+  METAC_GENERIC_SELECTORS_EVAL4(                                         \
+      METAC_GENERIC_SELECTORS_EVAL4(__VA_ARGS__))
+#define METAC_GENERIC_SELECTORS_EVAL6(...)                               \
+  METAC_GENERIC_SELECTORS_EVAL5(                                         \
+      METAC_GENERIC_SELECTORS_EVAL5(__VA_ARGS__))
+#define METAC_GENERIC_SELECTORS_EVAL7(...)                               \
+  METAC_GENERIC_SELECTORS_EVAL6(                                         \
+      METAC_GENERIC_SELECTORS_EVAL6(__VA_ARGS__))
+#define METAC_GENERIC_SELECTORS_EVAL8(...)                               \
+  METAC_GENERIC_SELECTORS_EVAL7(                                         \
+      METAC_GENERIC_SELECTORS_EVAL7(__VA_ARGS__))
+#define METAC_GENERIC_SELECTORS_EVAL(...)                                \
+  METAC_GENERIC_SELECTORS_EVAL8(__VA_ARGS__)
