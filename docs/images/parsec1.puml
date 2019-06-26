@@ -1,0 +1,13 @@
+' -*- coding: utf-8-unix -*-
+@startuml
+file text [
+  "123 456 789"
+]
+rectangle parseTest as "parseTest(number, text)"
+rectangle number as "number::PARSER(Int)" <<parser>>
+artifact result as "123"
+
+text "text" -> parseTest
+parseTest -> result
+parseTest <-- number
+@enduml

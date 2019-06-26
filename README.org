@@ -24,6 +24,11 @@ This project is an exercise to construct *parsec* like library for C11.
 
 The *CPARSEC2* is a parser combinator library for C/C++ language.
 
+| Example 1 (using built-in parser) | Example 2 (using parser-combinator) |
+|-----------------------------------+-------------------------------------|
+| [[file:docs/images/parsec1.png]]  | [[file:docs/images/parsec2.png]]    |
+
+
 - Supporting C/C++ standards ::
   - C11
   - C++17
@@ -33,6 +38,7 @@ The *CPARSEC2* is a parser combinator library for C/C++ language.
   - *Mingw* (MINGW64 on 64bit Windows)
   - *Ubuntu 18.04* (including WSL - Windows Subsystem for Linux)
   - or else (probably works well but not tested)
+
 
 * Why for C11?
 :PROPERTIES:
