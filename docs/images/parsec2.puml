@@ -1,0 +1,17 @@
+' -*- coding: utf-8-unix -*-
+@startuml
+file text [
+"123 456 789"
+]
+rectangle parseTest as "parseTest(p, text)"
+rectangle parser as "p::PARSER(List(Int))" <<parser>>
+rectangle many as "many(number)" <<parser-combinator>>
+rectangle number as "number::PARSER(Int)" <<parser>>
+file result as "[123, 456, 789]"
+
+text "text" -> parseTest
+parseTest -> result
+parseTest <-- parser
+parser <-- many : create
+many <-- number
+@enduml

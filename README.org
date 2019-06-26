@@ -34,6 +34,12 @@ The *CPARSEC2* is a parser combinator library for C/C++ language.
   - *Ubuntu 18.04* (including WSL - Windows Subsystem for Linux)
   - or else (probably works well but not tested)
 
+#+CAPTION: Example 1. parse a number by using built-in parser ~number~
+[[file:docs/images/parsec1.png]]
+
+#+CAPTION: Example 2. parse zero or more number by using parser-combinator ~many(p)~
+[[file:docs/images/parsec2.png]]
+
 * Why for C11?
 :PROPERTIES:
 :CUSTOM_ID: why-for-c11
