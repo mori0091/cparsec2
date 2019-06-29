@@ -11,13 +11,13 @@ SCENARIO("either(p1, p2)", "[cparsec2][parser][either]") {
     WHEN("applied to an input: \"ab\"") {
       Source src = Source_new("ab");
       THEN("results \"ab\"") {
-        REQUIRE("ab" == parse(p, src));
+        REQUIRE(std::string("ab") == parse(p, src));
       }
     }
     WHEN("applied to an input: \"bc\"") {
       Source src = Source_new("bc");
       THEN("results \"bc\"") {
-        REQUIRE("bc" == parse(p, src));
+        REQUIRE(std::string("bc") == parse(p, src));
       }
     }
     WHEN("applied to an input: \"ac\"") {
@@ -45,13 +45,13 @@ SCENARIO("either(p1, p2)", "[cparsec2][parser][either]") {
     WHEN("applied to an input: \"ab\"") {
       Source src = Source_new("ab");
       THEN("results \"ab\"") {
-        REQUIRE("ab" == parse(p, src));
+        REQUIRE(std::string("ab") == parse(p, src));
       }
     }
     WHEN("applied to an input: \"bc\"") {
       Source src = Source_new("bc");
       THEN("results \"bc\"") {
-        REQUIRE("bc" == parse(p, src));
+        REQUIRE(std::string("bc") == parse(p, src));
       }
     }
     WHEN("applied to an input: \"ac\"") {
@@ -124,8 +124,10 @@ SCENARIO("either(p1, p2)", "[cparsec2][parser][either]") {
     }
   }
 
-  GIVEN("PARSER(List(Int)) p = either(many1(number), many1(skip1st(\"++\", number)))") {
-    PARSER(List(Int)) p = either(many1(number), many1(skip1st("++", number)));
+  GIVEN("PARSER(List(Int)) p = either(many1(number), "
+        "many1(skip1st(\"++\", number)))") {
+    PARSER(List(Int))
+    p = either(many1(number), many1(skip1st("++", number)));
     WHEN("applied to an input: \"123++456++789\"") {
       Source src = Source_new("123++456++789");
       List(Int) xs = parse(p, src);
@@ -154,14 +156,16 @@ SCENARIO("either(p1, p2)", "[cparsec2][parser][either]") {
     }
   }
 
-  GIVEN("PARSER(List(String)) p = either(many1(many1(digit)), many1(skip1st(\"++\", many1(digit))))") {
-    PARSER(List(String)) p = either(many1(many1(digit)), many1(skip1st("++", many1(digit))));
+  GIVEN("PARSER(List(String)) p = either(many1(many1(digit)), "
+        "many1(skip1st(\"++\", many1(digit))))") {
+    PARSER(List(String))
+    p = either(many1(many1(digit)), many1(skip1st("++", many1(digit))));
     WHEN("applied to an input: \"123++456++789\"") {
       Source src = Source_new("123++456++789");
       List(String) xs = parse(p, src);
       THEN("results [\"123\"]") {
         const char** itr = list_begin(xs);
-        REQUIRE("123" == std::string(itr[0]));
+        REQUIRE(std::string("123") == itr[0]);
         REQUIRE(list_end(xs) == itr + 1);
       }
     }
@@ -170,9 +174,9 @@ SCENARIO("either(p1, p2)", "[cparsec2][parser][either]") {
       List(String) xs = parse(p, src);
       THEN("results [\"123\", \"456\", \"789\"]") {
         const char** itr = list_begin(xs);
-        REQUIRE("123" == std::string(itr[0]));
-        REQUIRE("456" == std::string(itr[1]));
-        REQUIRE("789" == std::string(itr[2]));
+        REQUIRE(std::string("123") == itr[0]);
+        REQUIRE(std::string("456") == itr[1]);
+        REQUIRE(std::string("789") == itr[2]);
         REQUIRE(list_end(xs) == itr + 3);
       }
     }

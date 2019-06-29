@@ -41,7 +41,7 @@ SCENARIO("octDigit", "[cparsec2][parser][octDigit]") {
     Source src = Source_new("0123456789abcdefg");
     WHEN("apply many1(octDigit)") {
       THEN("reaulst \"01234567\"") {
-        REQUIRE("01234567" == parse(many1(octDigit), src));
+        REQUIRE(std::string("01234567") == parse(many1(octDigit), src));
       }
     }
   }
@@ -49,7 +49,7 @@ SCENARIO("octDigit", "[cparsec2][parser][octDigit]") {
     Source src = Source_new("0123456789ABCDEFG");
     WHEN("apply many1(octDigit)") {
       THEN("reaulst \"01234567\"") {
-        REQUIRE("01234567" == parse(many1(octDigit), src));
+        REQUIRE(std::string("01234567") == parse(many1(octDigit), src));
       }
     }
   }

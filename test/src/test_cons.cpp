@@ -9,7 +9,8 @@ SCENARIO("cons(letter, many(digit))", "[cparsec2][parser][cons]") {
     Source src = Source_new("a1234");
     WHEN("apply cons(letter, many(digit))") {
       THEN("results \"a1234\"") {
-        REQUIRE("a1234" == parse(cons(letter, many(digit)), src));
+        REQUIRE(std::string("a1234") ==
+                parse(cons(letter, many(digit)), src));
       }
     }
   }
@@ -17,7 +18,8 @@ SCENARIO("cons(letter, many(digit))", "[cparsec2][parser][cons]") {
     Source src = Source_new("abc123");
     WHEN("apply cons(letter, many(digit))") {
       THEN("results \"a\"") {
-        REQUIRE("a" == parse(cons(letter, many(digit)), src));
+        REQUIRE(std::string("a") ==
+                parse(cons(letter, many(digit)), src));
       }
     }
   }
@@ -25,7 +27,8 @@ SCENARIO("cons(letter, many(digit))", "[cparsec2][parser][cons]") {
     Source src = Source_new("a123bc");
     WHEN("apply cons(letter, many(digit))") {
       THEN("results \"a123\"") {
-        REQUIRE("a123" == parse(cons(letter, many(digit)), src));
+        REQUIRE(std::string("a123") ==
+                parse(cons(letter, many(digit)), src));
       }
     }
   }
@@ -59,9 +62,9 @@ SCENARIO("cons(p, ps)", "[cparsec2][parser][cons]") {
       List(String) xs = parse(cons(x, many(x)), src);
       THEN("results [\"123\", \"456\", \"789\"]") {
         const char** itr = list_begin(xs);
-        REQUIRE("123" == std::string(itr[0]));
-        REQUIRE("456" == std::string(itr[1]));
-        REQUIRE("789" == std::string(itr[2]));
+        REQUIRE(std::string("123") == itr[0]);
+        REQUIRE(std::string("456") == itr[1]);
+        REQUIRE(std::string("789") == itr[2]);
       }
     }
   }

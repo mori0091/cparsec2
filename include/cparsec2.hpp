@@ -18,30 +18,32 @@ inline PARSER(String) parser_cast(const char* s) {
 
 #ifdef parse
 #undef parse
+#define parse(p, src) cxx_parse(p, src)
+#define DEFINE_CXX_PARSE(T)                                              \
+  inline auto cxx_parse(PARSER(T) p, Source src) {                       \
+    Ctx ctx;                                                             \
+    TRY(&ctx) {                                                          \
+      return PARSE(T)(p, src, &ctx);                                     \
+    }                                                                    \
+    else {                                                               \
+      throw std::string(ctx.msg);                                        \
+    }                                                                    \
+  }                                                                      \
+  END_OF_STATEMENTS
+FOREACH(DEFINE_CXX_PARSE, TYPESET(1));
 #endif
 
-template <typename Parser>
-inline auto parse(Parser p, Source src) {
-  Ctx ctx;
-  TRY(&ctx) {
-    return p->run(p->arg, src, &ctx);
-  }
-  else {
-    std::string ex(ctx.msg);
-    throw ex;
-  }
-}
-
-inline std::string parse(PARSER(String) p, Source src) {
-  Ctx ctx;
-  TRY(&ctx) {
-    return p->run(p->arg, src, &ctx);
-  }
-  else {
-    std::string ex(ctx.msg);
-    throw ex;
-  }
-}
+#ifdef PARSE_TEST_I
+#undef PARSE_TEST_I
+#define PARSE_TEST_I(msg, p, input) cxx_parsetest(msg, p, input)
+#define DEFINE_CXX_PARSETEST(T)                                          \
+  inline auto cxx_parsetest(const char* msg, PARSER(T) p,                \
+                            const char* input) {                         \
+    return PARSETEST(T)(msg, p, input);                                  \
+  }                                                                      \
+  END_OF_STATEMENTS
+FOREACH(DEFINE_CXX_PARSETEST, TYPESET(1));
+#endif
 
 #ifdef many
 #undef many

@@ -48,7 +48,8 @@ SCENARIO("skip", "[cparsec2][parser][skip]") {
         REQUIRE_NOTHROW(parse(skip(number), src));
         AND_WHEN("apply string1(\" 456 789\")") {
           THEN("results \" 456 789\"") {
-            REQUIRE(" 456 789" == parse(string1(" 456 789"), src));
+            REQUIRE(std::string(" 456 789") ==
+                    parse(string1(" 456 789"), src));
           }
         }
       }

@@ -10,7 +10,7 @@ SCENARIO("tryp(p)", "[cparsec2][parser][tryp]") {
     Source src = Source_new("123");
     WHEN("applied 'tryp(many(digit))'") {
       THEN("resuls \"123\"") {
-        REQUIRE("123" == parse(tryp(many(digit)), src));
+        REQUIRE(std::string("123") == parse(tryp(many(digit)), src));
       }
     }
     WHEN("applied 'tryp(char1('a'))'") {
@@ -30,13 +30,13 @@ SCENARIO("tryp(p)", "[cparsec2][parser][tryp]") {
     WHEN("an input was \"ab\"") {
       Source src = Source_new("ab");
       THEN("applied 'p' results \"ab\"") {
-        REQUIRE("ab" == parse(p, src));
+        REQUIRE(std::string("ab") == parse(p, src));
       }
     }
     WHEN("an input was \"bc\"") {
       Source src = Source_new("bc");
       THEN("applied 'p' results \"bc\"") {
-        REQUIRE("bc" == parse(p, src));
+        REQUIRE(std::string("bc") == parse(p, src));
       }
     }
     WHEN("an input was \"ac\"") {
@@ -84,9 +84,9 @@ SCENARIO("tryp(PARSER(List(T)))", "[cparsec2][parser][tryp]") {
       List(String) xs = parse(tryp(p), src);
       THEN("results [\"123\", \"456\", \"789\"]") {
         const char** itr = list_begin(xs);
-        REQUIRE("123" == std::string(itr[0]));
-        REQUIRE("456" == std::string(itr[1]));
-        REQUIRE("789" == std::string(itr[2]));
+        REQUIRE(std::string("123") == itr[0]);
+        REQUIRE(std::string("456") == itr[1]);
+        REQUIRE(std::string("789") == itr[2]);
       }
     }
   }
@@ -98,18 +98,19 @@ SCENARIO("tryp(PARSER(List(T)))", "[cparsec2][parser][tryp]") {
                             "not satisfy");
         AND_WHEN("apply string1(\",abc\")") {
           THEN("results \",abc\"") {
-            REQUIRE(",abc" == std::string(parse(string1(",abc"), src)));
+            REQUIRE(std::string(",abc") == parse(string1(",abc"), src));
           }
         }
       }
     }
     WHEN("apply tryp(skip1st(char1(','), many1(digit)))") {
       THEN("cause exception(\"not satisfy\")") {
-        REQUIRE_THROWS_WITH(parse(tryp(skip1st(char1(','), many1(digit))), src),
-                            "not satisfy");
+        REQUIRE_THROWS_WITH(
+            parse(tryp(skip1st(char1(','), many1(digit))), src),
+            "not satisfy");
         AND_WHEN("apply string1(\",abc\")") {
           THEN("results \",abc\"") {
-            REQUIRE(",abc" == std::string(parse(string1(",abc"), src)));
+            REQUIRE(std::string(",abc") == parse(string1(",abc"), src));
           }
         }
       }
