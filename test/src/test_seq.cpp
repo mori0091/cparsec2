@@ -9,7 +9,8 @@ SCENARIO("seq(letter, digit, digit)", "[cparsec2][parser][seq]") {
     Source src = Source_new("a12");
     WHEN("apply seq(letter, digit, digit)") {
       THEN("results \"a12\"") {
-        REQUIRE("a12" == parse(seq(letter, digit, digit), src));
+        REQUIRE(std::string("a12") ==
+                parse(seq(letter, digit, digit), src));
       }
     }
   }
@@ -17,7 +18,8 @@ SCENARIO("seq(letter, digit, digit)", "[cparsec2][parser][seq]") {
     Source src = Source_new("_123");
     WHEN("apply seq(letter, digit, digit)") {
       THEN("results \"_12\"") {
-        REQUIRE("_12" == parse(seq(letter, digit, digit), src));
+        REQUIRE(std::string("_12") ==
+                parse(seq(letter, digit, digit), src));
       }
     }
   }
@@ -51,9 +53,9 @@ SCENARIO("seq", "[cparsec2][parser][seq]") {
       List(String) xs = parse(seq(x, x, x), src);
       THEN("results [\"123\", \"456\", \"789\"]") {
         const char** itr = list_begin(xs);
-        REQUIRE("123" == std::string(itr[0]));
-        REQUIRE("456" == std::string(itr[1]));
-        REQUIRE("789" == std::string(itr[2]));
+        REQUIRE(std::string("123") == itr[0]);
+        REQUIRE(std::string("456") == itr[1]);
+        REQUIRE(std::string("789") == itr[2]);
       }
     }
   }

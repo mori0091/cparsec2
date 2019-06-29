@@ -9,7 +9,7 @@ SCENARIO("string1(str)", "[cparsec2][parser][string1]") {
     Source src = Source_new("a1234");
     WHEN("apply string1(\"a1234\")") {
       THEN("results \"a1234\"") {
-        REQUIRE("a1234" == parse(string1("a1234"), src));
+        REQUIRE(std::string("a1234") == parse(string1("a1234"), src));
       }
     }
   }
@@ -17,7 +17,7 @@ SCENARIO("string1(str)", "[cparsec2][parser][string1]") {
     Source src = Source_new("a1234");
     WHEN("apply string1(\"a123\")") {
       THEN("results \"a123\"") {
-        REQUIRE("a123" == parse(string1("a123"), src));
+        REQUIRE(std::string("a123") == parse(string1("a123"), src));
       }
     }
   }
@@ -25,7 +25,7 @@ SCENARIO("string1(str)", "[cparsec2][parser][string1]") {
     Source src = Source_new("a123bc");
     WHEN("apply string1(\"a123\")") {
       THEN("results \"a123\"") {
-        REQUIRE("a123" == parse(string1("a123"), src));
+        REQUIRE(std::string("a123") == parse(string1("a123"), src));
       }
     }
   }

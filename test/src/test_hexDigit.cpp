@@ -41,7 +41,8 @@ SCENARIO("hexDigit", "[cparsec2][parser][hexDigit]") {
     Source src = Source_new("0123456789abcdefg");
     WHEN("apply many1(hexDigit)") {
       THEN("reaulst \"0123456789abcdef\"") {
-        REQUIRE("0123456789abcdef" == parse(many1(hexDigit), src));
+        REQUIRE(std::string("0123456789abcdef") ==
+                parse(many1(hexDigit), src));
       }
     }
   }
@@ -49,7 +50,8 @@ SCENARIO("hexDigit", "[cparsec2][parser][hexDigit]") {
     Source src = Source_new("0123456789ABCDEFG");
     WHEN("apply many1(hexDigit)") {
       THEN("reaulst \"0123456789ABCDEF\"") {
-        REQUIRE("0123456789ABCDEF" == parse(many1(hexDigit), src));
+        REQUIRE(std::string("0123456789ABCDEF") ==
+                parse(many1(hexDigit), src));
       }
     }
   }

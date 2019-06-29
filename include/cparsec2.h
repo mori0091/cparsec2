@@ -74,21 +74,6 @@ char peek(Source src, Ctx* ctx);
 // drop head char
 void consume(Source src);
 
-// ---- parser invocation ----
-
-// T parse(Parser<T> p, Souce src, Ctx *ctx)
-#define parse(p, src, ctx) ((p)->run((p)->arg, src, ctx))
-
-// ---- parser invocation (for debug purpose) ----
-
-// bool parseTest(Parser<T> p, const char *input);
-#define parseTest(p, input) PARSE_TEST_I("", p, input)
-
-#define PARSE_TEST(p, input)                                             \
-  PARSE_TEST_I(mem_printf("%s \"%s\" => ", #p, input), p, input)
-
-#define PARSE_TEST_I(msg, p, input) (p->test(msg, p, input))
-
 // ---- building-block for making parser ----
 
 #define RETURN_TYPE(T) CAT(T, _return_type)
@@ -96,7 +81,6 @@ void consume(Source src);
 #define PARSER(T) CAT(T, Parser)
 #define PARSER_ST(T) CAT(PARSER(T), St)
 #define PARSER_FN(T) CAT(PARSER(T), Fn)
-#define PARSER_TESTFN(T) CAT(PARSER(T), TestFn)
 #define PARSER_GEN(T) CAT(PARSER(T), _gen)
 #define PARSE(T) CAT(PARSER(T), _parse)
 #define PARSETEST(T) CAT(PARSER(T), _parseTest)
@@ -106,14 +90,7 @@ void consume(Source src);
 #define TYPEDEF_PARSER(T, R)                                             \
   typedef struct PARSER_ST(T) * PARSER(T);                               \
   typedef R RETURN_TYPE(PARSER(T));                                      \
-  typedef R (*PARSER_FN(T))(void* arg, Source src, Ctx* ex);             \
-  typedef bool (*PARSER_TESTFN(T))(const char* msg, PARSER(T) p,         \
-                                   const char* input);                   \
-  struct PARSER_ST(T) {                                                  \
-    PARSER_FN(T) run;                                                    \
-    PARSER_TESTFN(T) test;                                               \
-    void* arg;                                                           \
-  }
+  typedef R (*PARSER_FN(T))(void* arg, Source src, Ctx* ex)
 
 #define DECLARE_PARSER(T)                                                \
   PARSER(T) PARSER_GEN(T)(PARSER_FN(T) f, void* arg);                    \
@@ -123,10 +100,13 @@ void consume(Source src);
   void SHOW(T)(RETURN_TYPE(PARSER(T)) val)
 
 #define DEFINE_PARSER(T, RET)                                            \
+  struct PARSER_ST(T) {                                                  \
+    PARSER_FN(T) run;                                                    \
+    void* arg;                                                           \
+  };                                                                     \
   PARSER(T) PARSER_GEN(T)(PARSER_FN(T) f, void* arg) {                   \
     PARSER(T) p = mem_malloc(sizeof(struct PARSER_ST(T)));               \
     p->run = f;                                                          \
-    p->test = PARSETEST(T);                                              \
     p->arg = arg;                                                        \
     return p;                                                            \
   }                                                                      \
@@ -165,6 +145,23 @@ TYPEDEF_PARSER(List(String), List(String));
 TYPEDEF_PARSER(List(Int), List(Int));
 
 FOREACH(DECLARE_PARSER, TYPESET(1));
+
+// ---- parser invocation ----
+
+// T parse(Parser<T> p, Souce src, Ctx *ctx)
+#define parse(p, src, ctx) GENERIC_P(p, PARSE, TYPESET(1))(p, src, ctx)
+
+// ---- parser invocation (for debug purpose) ----
+
+// bool parseTest(Parser<T> p, const char *input);
+#define parseTest(p, input) PARSE_TEST_I("", p, input)
+
+#define PARSE_TEST(p, input)                                             \
+  PARSE_TEST_I(mem_printf("%s \"%s\" => ", #p, input), p, input)
+
+// #define PARSE_TEST_I(msg, p, input) (p->test(msg, p, input))
+#define PARSE_TEST_I(msg, p, input)                                      \
+  GENERIC_P(p, PARSETEST, TYPESET(1))(msg, p, input)
 
 // ---- predicates ----
 

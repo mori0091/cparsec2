@@ -9,7 +9,7 @@ SCENARIO("spaces", "[cparsec2][parser][spaces]") {
     Source src = Source_new("   a");
     WHEN("apply spaces") {
       THEN("results \"   \"") {
-        REQUIRE("   " == parse(spaces, src));
+        REQUIRE(std::string("   ") == parse(spaces, src));
       }
     }
   }
@@ -17,7 +17,7 @@ SCENARIO("spaces", "[cparsec2][parser][spaces]") {
     Source src = Source_new(" \t\n\r");
     WHEN("apply spaces") {
       THEN("results \" \\t\\n\\r\"") {
-        REQUIRE(" \t\n\r" == parse(spaces, src));
+        REQUIRE(std::string(" \t\n\r") == parse(spaces, src));
       }
     }
   }
@@ -25,7 +25,7 @@ SCENARIO("spaces", "[cparsec2][parser][spaces]") {
     Source src = Source_new("a");
     WHEN("apply spaces") {
       THEN("results \"\"") {
-        REQUIRE("" == parse(spaces, src));
+        REQUIRE(std::string("") == parse(spaces, src));
       }
     }
   }
@@ -33,7 +33,7 @@ SCENARIO("spaces", "[cparsec2][parser][spaces]") {
     Source src = Source_new("");
     WHEN("apply spaces") {
       THEN("results \"\"") {
-        REQUIRE("" == parse(spaces, src));
+        REQUIRE(std::string("") == parse(spaces, src));
       }
     }
   }

@@ -10,7 +10,7 @@ SCENARIO("token(many1(digit))", "[cparsec2][parser][token]") {
     WHEN("apply number = token(many1(digit))") {
       StringParser number = token(many1(digit));
       THEN("results \"1234\"") {
-        REQUIRE("1234" == parse(number, src));
+        REQUIRE(std::string("1234") == parse(number, src));
       }
     }
   }
@@ -19,7 +19,7 @@ SCENARIO("token(many1(digit))", "[cparsec2][parser][token]") {
     WHEN("apply number = token(many1(digit))") {
       StringParser number = token(many1(digit));
       THEN("value is \"1\"") {
-        REQUIRE("1" == parse(number, src));
+        REQUIRE(std::string("1") == parse(number, src));
       }
     }
   }
@@ -83,13 +83,13 @@ SCENARIO("token(\"foo\")", "[cparsec2][parser][token]") {
     WHEN("apply foo = token(\"foo\")") {
       StringParser foo = token("foo");
       THEN("results \"foo\"") {
-        REQUIRE("foo" == parse(foo, src));
+        REQUIRE(std::string("foo") == parse(foo, src));
         AND_WHEN("apply foo") {
           THEN("results \"foo\"") {
-            REQUIRE("foo" == parse(foo, src));
+            REQUIRE(std::string("foo") == parse(foo, src));
             AND_WHEN("apply foo") {
               THEN("results \"foo\"") {
-                REQUIRE("foo" == parse(foo, src));
+                REQUIRE(std::string("foo") == parse(foo, src));
                 AND_WHEN("apply foo") {
                   THEN("cause exception(\"expects 'f' but was 'b'\")") {
                     REQUIRE_THROWS_WITH(parse(foo, src),
@@ -126,9 +126,9 @@ SCENARIO("token(PARSER(List(T)))", "[cparsec2][parser][token]") {
       List(String) xs = parse(token(p), src);
       THEN("results [\"123\", \"456\", \"789\"]") {
         const char** itr = list_begin(xs);
-        REQUIRE("123" == std::string(itr[0]));
-        REQUIRE("456" == std::string(itr[1]));
-        REQUIRE("789" == std::string(itr[2]));
+        REQUIRE(std::string("123") == itr[0]);
+        REQUIRE(std::string("456") == itr[1]);
+        REQUIRE(std::string("789") == itr[2]);
       }
     }
   }
