@@ -27,5 +27,5 @@
   _Generic((expr)                                                        \
            , char  : char1                                               \
            , char* : string1                                             \
-           , GENERIC_SELECTORS(PARSER, PARSER_ID_FN, TYPESET(1))   \
+           , GENERIC_SELECTORS(PARSER, PARSER_ID_FN, TYPESET(1))         \
            )(expr)
