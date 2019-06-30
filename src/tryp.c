@@ -7,13 +7,13 @@
   static RETURN_TYPE(PARSER(T))                                          \
       TRYP_FN(T)(void* arg, Source src, Ctx* ex) {                       \
     PARSER(T) p = (PARSER(T))arg;                                        \
-    const char* state = src->p;                                          \
+    SourcePos pos = getSourcePos(src);                                   \
     Ctx ctx;                                                             \
     TRY(&ctx) {                                                          \
       return parse(p, src, &ctx);                                        \
     }                                                                    \
     else {                                                               \
-      src->p = state;                                                    \
+      setSourcePos(src, pos);                                            \
       cthrow(ex, ctx.msg);                                               \
     }                                                                    \
   }                                                                      \

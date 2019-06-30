@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 
 #include "cparsec2/list.h"
 #include "cparsec2/macros.h"
@@ -62,17 +63,24 @@ NORETURN void cthrow(Ctx* ctx, const char* msg);
 
 typedef struct stSource* Source;
 
-struct stSource {
-  const char* input; /* whole input */
-  const char* p;     /* pointer to next char */
-};
+typedef struct {
+  off_t offset;
+} SourcePos;
 
-// Construct new Source object
-Source Source_new(const char* input);
+// \deprecated use newStringSource() instead.
+Source Source_new(const char* text);
+// Construct new Source object from a string.
+Source newStringSource(const char* text);
 // peek head char
 char peek(Source src, Ctx* ctx);
 // drop head char
 void consume(Source src);
+// get current source position (backup state of the source)
+SourcePos getSourcePos(Source src);
+// set current souce position (revert state of the source)
+void setSourcePos(Source src, SourcePos pos);
+// tests if two SourcePos are same or not
+bool isSourcePosEqual(SourcePos p1, SourcePos p2);
 
 // ---- building-block for making parser ----
 

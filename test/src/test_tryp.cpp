@@ -15,11 +15,11 @@ SCENARIO("tryp(p)", "[cparsec2][parser][tryp]") {
     }
     WHEN("applied 'tryp(char1('a'))'") {
       THEN("causes an exception \"expects 'a' but was '1'\"") {
-        const char* previous_state = src->p;
+        SourcePos previous_state = getSourcePos(src);
         REQUIRE_THROWS_WITH(parse(tryp(char1('a')), src),
                             "expects 'a' but was '1'");
         AND_THEN("input-state is not changed") {
-          REQUIRE(src->p == previous_state);
+          REQUIRE(isSourcePosEqual(previous_state, getSourcePos(src)));
         }
       }
     }

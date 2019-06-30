@@ -155,10 +155,19 @@ _Noreturn void cthrow(Ctx* ctx, const char* msg) {
 
 // ---- source of input character sequence ----
 
-Source Source_new(const char* input) {
+struct stSource {
+  const char* input; /* whole input */
+  const char* p;     /* pointer to next char */
+};
+
+Source Source_new(const char* text) {
+  return newStringSource(text);
+}
+
+Source newStringSource(const char* text) {
   Source src = mem_malloc(sizeof(struct stSource));
-  src->input = input;
-  src->p = input;
+  src->input = text;
+  src->p = text;
   return src;
 }
 
@@ -173,6 +182,18 @@ char peek(Source src, Ctx* ctx) {
 void consume(Source src) {
   assert(*src->p);
   src->p++;
+}
+
+SourcePos getSourcePos(Source src) {
+  return (SourcePos){.offset = (off_t)(src->p - src->input)};
+}
+
+void setSourcePos(Source src, SourcePos pos) {
+  src->p = src->input + pos.offset;
+}
+
+bool isSourcePosEqual(SourcePos p1, SourcePos p2) {
+  return p1.offset == p2.offset;
 }
 
 // ---- CharParser ----
@@ -198,8 +219,7 @@ DEFINE_PARSER(List(String), x) {
   const char** end = list_end(x);
   if (itr == end) {
     printf("[]\n");
-  }
-  else {
+  } else {
     printf("[\"%s\"", *itr++);
     while (itr != end) {
       printf(", \"%s\"", *itr++);
@@ -214,8 +234,7 @@ DEFINE_PARSER(List(Int), x) {
   int* end = list_end(x);
   if (itr == end) {
     printf("[]\n");
-  }
-  else {
+  } else {
     printf("[%d", *itr++);
     while (itr != end) {
       printf(", %d", *itr++);
