@@ -5,6 +5,16 @@
 #include <cparsec2/list.hpp>
 #include <string>
 
+#ifdef Source_new
+#undef Source_new
+inline auto Source_new(const char* text) {
+  return newStringSource(text);
+}
+inline auto Source_new(FILE* fp) {
+  return newFileSource(fp);
+}
+#endif
+
 template <typename P>
 inline P parser_cast(P p) {
   return p;

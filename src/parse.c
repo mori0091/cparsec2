@@ -163,10 +163,6 @@ struct stSource {
   FILE* fp;
 };
 
-Source Source_new(const char* text) {
-  return newStringSource(text);
-}
-
 Source newStringSource(const char* text) {
   Source src = mem_malloc(sizeof(struct stSource));
   src->input = text;

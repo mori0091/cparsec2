@@ -67,8 +67,16 @@ typedef struct {
   off_t offset;
 } SourcePos;
 
-// \deprecated use newStringSource() instead.
-Source Source_new(const char* text);
+// Construct new Source object from a string or from a FILE pointer
+// clang-format off
+#define Source_new(x)                                                    \
+  _Generic((x)                                                           \
+           , char*       : newStringSource                               \
+           , const char* : newStringSource                               \
+           , FILE*       : newFileSource                                 \
+           )(x)
+// clang-format on
+
 // Construct new Source object from a string.
 Source newStringSource(const char* text);
 // Construct new Source object from a FILE pointer.
