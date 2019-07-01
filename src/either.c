@@ -7,16 +7,16 @@
   static RETURN_TYPE(PARSER(T))                                          \
       EITHER_FN(T)(void* arg, Source src, Ctx* ex) {                     \
     PARSER(T)* p = (PARSER(T)*)arg;                                      \
-    const char* state = src->p;                                          \
+    SourcePos pos = getSourcePos(src);                                   \
     Ctx ctx;                                                             \
     TRY(&ctx) {                                                          \
       return parse(p[0], src, &ctx);                                     \
     }                                                                    \
-    else if (state != src->p) {                                          \
-      cthrow(ex, ctx.msg);                                               \
+    else if (isSourcePosEqual(pos, getSourcePos(src))) {                 \
+      return parse(p[1], src, ex);                                       \
     }                                                                    \
     else {                                                               \
-      return parse(p[1], src, ex);                                       \
+      cthrow(ex, ctx.msg);                                               \
     }                                                                    \
   }                                                                      \
   PARSER(T) EITHER(T)(PARSER(T) p1, PARSER(T) p2) {                      \
