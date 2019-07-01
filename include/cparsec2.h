@@ -71,6 +71,8 @@ typedef struct {
 Source Source_new(const char* text);
 // Construct new Source object from a string.
 Source newStringSource(const char* text);
+// Construct new Source object from a FILE pointer.
+Source newFileSource(FILE* fp);
 // peek head char
 char peek(Source src, Ctx* ctx);
 // drop head char

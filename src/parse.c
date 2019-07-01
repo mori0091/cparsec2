@@ -156,8 +156,11 @@ _Noreturn void cthrow(Ctx* ctx, const char* msg) {
 // ---- source of input character sequence ----
 
 struct stSource {
+  // StringSource
   const char* input; /* whole input */
   const char* p;     /* pointer to next char */
+  // FileSource
+  FILE* fp;
 };
 
 Source Source_new(const char* text) {
@@ -168,28 +171,89 @@ Source newStringSource(const char* text) {
   Source src = mem_malloc(sizeof(struct stSource));
   src->input = text;
   src->p = text;
+  src->fp = NULL;
+  return src;
+}
+
+Source newFileSource(FILE* fp) {
+  assert(fp);
+  Source src = mem_malloc(sizeof(struct stSource));
+  src->input = NULL;
+  src->p = NULL;
+  src->fp = fp;
   return src;
 }
 
 char peek(Source src, Ctx* ctx) {
-  char c = *src->p;
-  if (!c) {
-    cthrow(ctx, error("too short"));
+  // StringSource
+  if (src->input) {
+    char c = *src->p;
+    if (!c) {
+      cthrow(ctx, mem_printf("too short"));
+    }
+    return c;
   }
-  return c;
+  // FileSource
+  else {
+    int c = fgetc(src->fp);
+    if (c == EOF) {
+      int e = errno;
+      if (feof(src->fp)) {
+        cthrow(ctx, mem_printf("too short"));
+      } else {
+        cthrow(ctx, mem_printf("%s", strerror(e)));
+      }
+    }
+    if (EOF == ungetc(c, src->fp)) {
+      cthrow(ctx, mem_printf("%s", strerror(errno)));
+    }
+    return (char)c;
+  }
 }
 
 void consume(Source src) {
-  assert(*src->p);
-  src->p++;
+  // StringSource
+  if (src->input) {
+    assert(*src->p);
+    src->p++;
+  }
+  // FileSource
+  else {
+    if (fgetc(src->fp) == EOF) {
+      perror("consume");
+      exit(1);
+    }
+  }
 }
 
 SourcePos getSourcePos(Source src) {
-  return (SourcePos){.offset = (off_t)(src->p - src->input)};
+  // StringSource
+  if (src->input) {
+    return (SourcePos){.offset = src->p - src->input};
+  }
+  // FileSource
+  else {
+    off_t off = ftello(src->fp);
+    if (off < 0) {
+      perror("getSourcePos");
+      exit(1);
+    }
+    return (SourcePos){.offset = off};
+  }
 }
 
 void setSourcePos(Source src, SourcePos pos) {
-  src->p = src->input + pos.offset;
+  // StringSource
+  if (src->input) {
+    src->p = src->input + pos.offset;
+  }
+  // FileSource
+  else {
+    if (fseeko(src->fp, pos.offset, SEEK_SET) < 0) {
+      perror("setSourcePos");
+      exit(1);
+    }
+  }
 }
 
 bool isSourcePosEqual(SourcePos p1, SourcePos p2) {
