@@ -192,6 +192,7 @@ char peek(Source src, Ctx* ctx) {
   // FileSource
   else {
     int c = fgetc(src->fp);
+    assert(c == EOF || isprint(c) || isspace(c) || ispunct(c));
     if (c == EOF) {
       int e = errno;
       if (feof(src->fp)) {
@@ -215,7 +216,9 @@ void consume(Source src) {
   }
   // FileSource
   else {
-    if (fgetc(src->fp) == EOF) {
+    int c = fgetc(src->fp);
+    assert(c == EOF || isprint(c) || isspace(c) || ispunct(c));
+    if (c == EOF) {
       perror("consume");
       exit(1);
     }
