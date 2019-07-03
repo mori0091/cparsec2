@@ -69,10 +69,26 @@ static void cparsec2_init__stage2(void) {
   number = PARSER_GEN(Int)(number_fn, token(many1(digit)));
 }
 
+static void cparsec2_init__stage3(void) {
+  PARSER(Char) t = range(0x80, 0xBF);
+  PARSER(String) u1 = seq(range(0x00, 0x7F));
+  PARSER(String) u2 = seq(range(0xC2, 0xDF), t);
+  PARSER(String) u3a = seq(char1((char)0xE0), range(0xA0, 0xBF), t);
+  PARSER(String) u3b = seq(range(0xE1, 0xEC), t, t);
+  PARSER(String) u3c = seq(char1((char)0xED), range(0x80, 0x9F));
+  PARSER(String) u3d = seq(range(0xEE, 0xEF), t, t);
+  PARSER(String) u4a = seq(char1((char)0xF0), range(0x90, 0xBF), t, t);
+  PARSER(String) u4b = seq(range(0xF1, 0xF3), t, t, t);
+  PARSER(String) u4c = seq(char1((char)0xF4), range(0x80, 0xBF), t, t);
+  anyUtf8 =
+      FOLDL(EITHER(String), u1, u2, u3a, u3b, u3c, u3d, u4a, u4b, u4c);
+}
+
 void cparsec2_init(void) {
   cparsec2_init__stage0();
   cparsec2_init__stage1();
   cparsec2_init__stage2();
+  cparsec2_init__stage3();
 }
 
 void cparsec2_end(void) {
@@ -290,3 +306,4 @@ CharParser crlf;
 CharParser endOfLine;
 CharParser tab;
 IntParser number;
+StringParser anyUtf8;

@@ -213,6 +213,7 @@ extern PARSER(Char) crlf;
 extern PARSER(Char) endOfLine;
 extern PARSER(Char) tab;
 extern PARSER(Int) number;
+extern PARSER(String) anyUtf8;
 
 PARSER(Char) range(uint8_t min, uint8_t max);
 PARSER(Char) oneOf(const char* cs);
