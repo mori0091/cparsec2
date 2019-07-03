@@ -214,6 +214,7 @@ extern PARSER(Char) endOfLine;
 extern PARSER(Char) tab;
 extern PARSER(Int) number;
 
+PARSER(Char) range(uint8_t min, uint8_t max);
 PARSER(Char) oneOf(const char* cs);
 PARSER(Char) noneOf(const char* cs);
 PARSER(Char) char1(char c);
