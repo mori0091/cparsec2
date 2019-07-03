@@ -1,6 +1,7 @@
 /* -*- coding:utf-8-unix -*- */
 
-#include "cparsec2.h"
+#include <cparsec2.h>
+#include <cparsec2/stream.h>
 
 // ---- resource management ----
 
@@ -156,102 +157,64 @@ _Noreturn void cthrow(Ctx* ctx, const char* msg) {
 // ---- source of input character sequence ----
 
 struct stSource {
-  // StringSource
-  const char* input; /* whole input */
-  const char* p;     /* pointer to next char */
-  // FileSource
-  FILE* fp;
+  Stream s;
 };
 
 Source newStringSource(const char* text) {
   Source src = mem_malloc(sizeof(struct stSource));
-  src->input = text;
-  src->p = text;
-  src->fp = NULL;
+  src->s = Stream_new(text);
   return src;
 }
 
 Source newFileSource(FILE* fp) {
-  assert(fp);
   Source src = mem_malloc(sizeof(struct stSource));
-  src->input = NULL;
-  src->p = NULL;
-  src->fp = fp;
+  src->s = Stream_new(fp);
   return src;
 }
 
 char peek(Source src, Ctx* ctx) {
-  // StringSource
-  if (src->input) {
-    char c = *src->p;
-    if (!c) {
-      cthrow(ctx, mem_printf("too short"));
-    }
-    return c;
+  char c;
+  off_t pos = Stream_getpos(src->s, ctx);
+  if (!Stream_read((void*)&c, 1, src->s, ctx)) {
+    cthrow(ctx, mem_printf("too short"));
   }
-  // FileSource
-  else {
-    int c = fgetc(src->fp);
-    assert(c == EOF || isprint(c) || isspace(c) || ispunct(c));
-    if (c == EOF) {
-      int e = errno;
-      if (feof(src->fp)) {
-        cthrow(ctx, mem_printf("too short"));
-      } else {
-        cthrow(ctx, mem_printf("%s", strerror(e)));
-      }
-    }
-    if (EOF == ungetc(c, src->fp)) {
-      cthrow(ctx, mem_printf("%s", strerror(errno)));
-    }
-    return (char)c;
-  }
+  Stream_setpos(pos, src->s, ctx);
+  return c;
 }
 
 void consume(Source src) {
-  // StringSource
-  if (src->input) {
-    assert(*src->p);
-    src->p++;
-  }
-  // FileSource
-  else {
-    int c = fgetc(src->fp);
-    assert(c == EOF || isprint(c) || isspace(c) || ispunct(c));
-    if (c == EOF) {
-      perror("consume");
-      exit(1);
+  Ctx ctx;
+  TRY(&ctx) {
+    char c;
+    if (!Stream_read((void*)&c, 1, src->s, &ctx)) {
+      cthrow(&ctx, mem_printf("too short"));
     }
+  }
+  else {
+    fprintf(stderr, "%s\n", ctx.msg);
+    exit(1);
   }
 }
 
 SourcePos getSourcePos(Source src) {
-  // StringSource
-  if (src->input) {
-    return (SourcePos){.offset = src->p - src->input};
+  Ctx ctx;
+  TRY(&ctx) {
+    return (SourcePos){.offset = Stream_getpos(src->s, &ctx)};
   }
-  // FileSource
   else {
-    off_t off = ftello(src->fp);
-    if (off < 0) {
-      perror("getSourcePos");
-      exit(1);
-    }
-    return (SourcePos){.offset = off};
+    fprintf(stderr, "%s\n", ctx.msg);
+    exit(1);
   }
 }
 
 void setSourcePos(Source src, SourcePos pos) {
-  // StringSource
-  if (src->input) {
-    src->p = src->input + pos.offset;
+  Ctx ctx;
+  TRY(&ctx) {
+    Stream_setpos(pos.offset, src->s, &ctx);
   }
-  // FileSource
   else {
-    if (fseeko(src->fp, pos.offset, SEEK_SET) < 0) {
-      perror("setSourcePos");
-      exit(1);
-    }
+    fprintf(stderr, "%s\n", ctx.msg);
+    exit(1);
   }
 }
 
