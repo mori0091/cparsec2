@@ -221,6 +221,7 @@ PARSER(Char) noneOf(const char* cs);
 PARSER(Char) char1(char c);
 PARSER(Char) satisfy(Predicate pred);
 PARSER(String) string1(const char* s);
+PARSER(String) utf8(const char* s);
 
 // ---- parser combinators ----
 
