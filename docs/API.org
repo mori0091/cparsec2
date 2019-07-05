@@ -50,10 +50,13 @@
      During after calling this API and before calling ~cparsec2_init()~, calling
      any other cparsec2 API and values returned from them are invalid (access to
      them will be undefined behavior).
+- Source_new(str_or_fp) ::
+     Constructs a ~Source~ object from a text (if the ~str_or_fp~ was a string)
+     or from a file (if the ~str_or_fp~ was a ~FILE*~).
 - parse(p, src, ctx)    :: 
-     Apply parser ~p~ to text provided from ~src~, and return result (such as
-     ~char~, ~const char *~). If an error occurred, it is thrown as exception
-     through ~ctx~. (see also [[#exception-handling][Exception handling]])
+     Apply parser ~p~ to text provided from the ~Source~ object ~src~, and
+     return result (such as ~char~, ~const char *~). If an error occurred, it is
+     thrown as exception through ~ctx~. (see also [[#exception-handling][Exception handling]])
 - parseTest(p, text)    :: 
      Apply parser ~p~ to ~text~ and print result.\\
      Return ~true~ if passed, ~false~ if failed.
@@ -289,16 +292,23 @@ For example:
 - number                :: 
      A PARSER(Int) which skips leading white-spaces and parse one or more
      subsequent digits then returns it as an ~int~ value when applied to a text.
+- anyUtf8               ::
+     A PARSER(String) which parse any one UTF-8 character and returns it as a
+     string.
 - char1(c)              :: 
      Create a PARSER(Char) which parse the char ~c~
 - string1(s)            :: 
      Create a PARSER(String) which parse the string ~s~.
+- utf8(s)               ::
+     Create a PARSER(String) which parse the UTF-8 string ~s~.
 - oneOf(cs)             :: 
      Create a PARSER(Char) which parse a char ~c~ satisfying it is contained in the string ~cs~.
 - noneOf(cs)            :: 
      Create a PARSER(Char) which parse a char ~c~ satisfying it is *not* contained in the string ~cs~.
 - satisfy(pred)         :: 
      Create a PARSER(Char) which parse a char ~c~ satisfying ~pred(c) == true~
+- range(min, max)       ::
+     Create a PARSER(Char) which parse a char ~c~ satisfying ~min <= c && c <= max~.
 
 ** Built-in GENERIC Parser-combinators
 *** many(p)
