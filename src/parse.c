@@ -80,8 +80,8 @@ static void cparsec2_init__stage3(void) {
   PARSER(String) u4a = seq(char1((char)0xF0), range(0x90, 0xBF), t, t);
   PARSER(String) u4b = seq(range(0xF1, 0xF3), t, t, t);
   PARSER(String) u4c = seq(char1((char)0xF4), range(0x80, 0xBF), t, t);
-  anyUtf8 =
-      FOLDL(EITHER(String), u1, u2, u3a, u3b, u3c, u3d, u4a, u4b, u4c);
+  anyUtf8 = TREE_FOLDL(EITHER(String), u1, u2, u3a, u3b, u3c, u3d, u4a,
+                       u4b, u4c);
 }
 
 void cparsec2_init(void) {
