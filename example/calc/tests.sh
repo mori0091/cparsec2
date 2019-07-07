@@ -35,7 +35,7 @@ assert 17 = ${CMD} '10 / 2 + 4 * 3'
 assert  5 = ${CMD} '-1+2*3'
 assert  9 = ${CMD} '-(1+2)*-3'
 assert  9 = ${CMD} '(-1 + -2) * -3'
-assert "error:expects <eom> but was ';'" = ${CMD} '1+2;'
+assert "error:expects <eof> but was ';'" = ${CMD} '1+2;'
 
 echo
 echo "$((pass + fail)) tests, $pass passed, $fail failed"
