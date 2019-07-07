@@ -31,6 +31,19 @@ static void* cparsec2_push(void* p) {
   return p;
 }
 
+static char endOfFile_fn(void* arg, Source src, Ctx* ex) {
+  UNUSED(arg);
+  Ctx ctx;
+  TRY(&ctx) {
+    char c = peek(src, &ctx);
+    cthrow(ex, mem_printf("expects <eof> but was '%c'", c));
+  }
+  else {
+    mem_free((void*)ctx.msg);
+  }
+  return 0;
+}
+
 static int number_fn(void* arg, Source src, Ctx* ex) {
   PARSER(String) p = (PARSER(String))arg;
   return atoi(parse(p, src, ex));
@@ -65,6 +78,7 @@ static void cparsec2_init__stage2(void) {
   newline = char1('\n');
   crlf = skip1st(char1('\r'), newline);
   endOfLine = expects("<endOfLine>", either(newline, crlf));
+  endOfFile = PARSER_GEN(Char)(endOfFile_fn, NULL);
   tab = char1('\t');
   number = PARSER_GEN(Int)(number_fn, token(many1(digit)));
 }
@@ -304,6 +318,7 @@ StringParser spaces;
 CharParser newline;
 CharParser crlf;
 CharParser endOfLine;
+CharParser endOfFile;
 CharParser tab;
 IntParser number;
 StringParser anyUtf8;
