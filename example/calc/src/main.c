@@ -98,16 +98,5 @@ int main(int argc, char** argv) {
   cparsec2_init();
 
   setup();
-  Source src = Source_new(argv[1]);
-  Ctx ctx;
-  TRY(&ctx) {
-    int x = parse(expr, src, &ctx);
-    parse(token(endOfFile), src, &ctx);
-    printf("%d\n", x);
-    return 0;
-  }
-  else {
-    printf("error:%s\n", ctx.msg);
-    return 1;
-  }
+  return !parseTest(skip2nd(expr, token(endOfFile)), argv[1]);
 }

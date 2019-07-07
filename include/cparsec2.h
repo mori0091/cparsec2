@@ -276,6 +276,15 @@ FOREACH(DECLARE_SKIP1ST, TYPESET(1));
   (GENERIC_P(PARSER_CAST(p2), SKIP1ST, TYPESET(1))(skip(p1),             \
                                                    (PARSER_CAST(p2))))
 
+// Parser<T2> skip2nd(Parser<T1> p1, Parser<T2> p2);
+#define SKIP2ND(T) CAT(skip2nd_, T)
+#define DECLARE_SKIP2ND(T)                                               \
+  PARSER(T) SKIP2ND(T)(PARSER(T) p1, PARSER(Int) p2)
+FOREACH(DECLARE_SKIP2ND, TYPESET(1));
+#define skip2nd(p1, p2)                                                  \
+  (GENERIC_P(PARSER_CAST(p1), SKIP2ND, TYPESET(1))((PARSER_CAST(p1)),    \
+                                                   skip(p2)))
+
 // Parser<T> either(Parser<T> p1, Parser<T> p2);
 #define EITHER(T) CAT(either_, T)
 #define DECLARE_EITHER(T) PARSER(T) EITHER(T)(PARSER(T) p1, PARSER(T) p2)

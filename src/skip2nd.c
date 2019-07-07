@@ -2,20 +2,21 @@
 
 #include "cparsec2.h"
 
-#define SKIP1ST_FN(T) run_skip1st##T
-#define DEFINE_SKIP1ST(T)                                                \
+#define SKIP2ND_FN(T) run_skip2nd##T
+#define DEFINE_SKIP2ND(T)                                                \
   static RETURN_TYPE(PARSER(T))                                          \
-      SKIP1ST_FN(T)(void* arg, Source src, Ctx* ex) {                    \
+      SKIP2ND_FN(T)(void* arg, Source src, Ctx* ex) {                    \
     void** ps = (void**)arg;                                             \
-    parse((IntParser)ps[0], src, ex);                                    \
-    return parse((PARSER(T))ps[1], src, ex);                             \
+    RETURN_TYPE(PARSER(T)) ret = parse((PARSER(T))ps[0], src, ex);       \
+    parse((IntParser)ps[1], src, ex);                                    \
+    return ret;                                                          \
   }                                                                      \
-  PARSER(T) SKIP1ST(T)(IntParser p1, PARSER(T) p2) {                     \
+  PARSER(T) SKIP2ND(T)(PARSER(T) p1, IntParser p2) {                     \
     void** arg = mem_malloc(sizeof(void*) * 2);                          \
     arg[0] = (void*)p1;                                                  \
     arg[1] = (void*)p2;                                                  \
-    return PARSER_GEN(T)(SKIP1ST_FN(T), (void*)arg);                     \
+    return PARSER_GEN(T)(SKIP2ND_FN(T), (void*)arg);                     \
   }                                                                      \
   END_OF_STATEMENTS
 
-FOREACH(DEFINE_SKIP1ST, TYPESET(1));
+FOREACH(DEFINE_SKIP2ND, TYPESET(1));
