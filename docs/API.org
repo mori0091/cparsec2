@@ -283,6 +283,9 @@ For example:
      A PARSER(Char) which parse a pair of CR and LF, and returns LF (i.e. CR LF \rightarrow LF)
 - endOfLine             ::
      A PARSER(Char) which parse a LF or a CR-LF pair and returns LF.
+- endOfFile             ::
+     A PARSER(Char) which succeeds if and only if it was the end of input, and
+     returns ~\0~.
 - tab                   ::
      A PARSER(Char) which parse a TAB character.
 - space                 :: 

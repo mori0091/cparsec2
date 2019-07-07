@@ -7,14 +7,11 @@ PARSER(Int) addsub; // addsub = muldiv { ("+" | "-") muldiv }
 PARSER(Int) muldiv; // muldiv = unary { ("*" | "/") unary }
 PARSER(Int) unary;  // unary  = ["+" | "-"] term
 PARSER(Int) term;   // term   = number | "(" expr ")"
-PARSER(Int) number; // number = digits
 
-PARSER(String) digits;    // digits = digit { digit }
 PARSER(Char) plus_minus;  // plus_minus = "+" | "-"
 PARSER(Char) star_slash;  // star_slash = "*" | "/"
 PARSER(Char) open_paren;  // open_paren = "("
 PARSER(Char) close_paren; // close_paren = ")"
-PARSER(Char) eom;         // end of message
 
 static int addsub_fn(void* arg, Source src, Ctx* ex) {
   UNUSED(arg);
@@ -79,23 +76,7 @@ static int term_fn(void* arg, Source src, Ctx* ex) {
   }
 }
 
-static int number_fn(void* arg, Source src, Ctx* ex) {
-  UNUSED(arg);
-  return atoi(parse(digits, src, ex));
-}
-
-static char eom_fn(void* arg, Source src, Ctx* ex) {
-  UNUSED(arg);
-  Ctx ctx;
-  TRY(&ctx) {
-    cthrow(ex, mem_printf("expects <eom> but was '%c'", peek(src, &ctx)));
-  }
-  return 0;
-}
-
 void setup(void) {
-  digits = many1(digit);
-  number = token(PARSER_GEN(Int)(number_fn, NULL));
   term = token(PARSER_GEN(Int)(term_fn, NULL));
   unary = token(PARSER_GEN(Int)(unary_fn, NULL));
   muldiv = token(PARSER_GEN(Int)(muldiv_fn, NULL));
@@ -106,8 +87,6 @@ void setup(void) {
   star_slash = token(either((char)'*', (char)'/'));
   open_paren = token(char1('('));
   close_paren = token(char1(')'));
-
-  eom = token(PARSER_GEN(Char)(eom_fn, NULL));
 }
 
 int main(int argc, char** argv) {
@@ -123,7 +102,7 @@ int main(int argc, char** argv) {
   Ctx ctx;
   TRY(&ctx) {
     int x = parse(expr, src, &ctx);
-    parse(eom, src, &ctx);
+    parse(token(endOfFile), src, &ctx);
     printf("%d\n", x);
     return 0;
   }
