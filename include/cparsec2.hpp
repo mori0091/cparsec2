@@ -124,6 +124,18 @@ FOREACH(DEFINE_CXX_SKIP, TYPESET(1));
 FOREACH(DEFINE_CXX_SKIP1ST, TYPESET(1));
 #endif
 
+#ifdef skip2nd
+#undef skip2nd
+#define skip2nd(p1, p2) cxx_skip2nd(parser_cast(p1), parser_cast(p2))
+#define DEFINE_CXX_SKIP2ND(T)                                            \
+  template <typename P>                                                  \
+  inline auto cxx_skip2nd(PARSER(T) p1, P p2) {                          \
+    return SKIP2ND(T)(p1, skip(p2));                                     \
+  }                                                                      \
+  END_OF_STATEMENTS
+FOREACH(DEFINE_CXX_SKIP2ND, TYPESET(1));
+#endif
+
 #ifdef either
 #undef either
 #define either(p1, p2) cxx_either(parser_cast(p1), parser_cast(p2))

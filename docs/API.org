@@ -422,6 +422,45 @@ parseTest(skip1st(char1('a'), string1("bc")), "abc"); // -> "bc"
 parseTest(skip1st(string1("ab"), char1('c')), "abc"); // -> 'c'
 #+end_src
 
+*** skip2nd(p1, p2)
+- PARSER(Char) skip2nd(char c1, char c2) ::
+     Same as ~skip2nd(char1(c1), char1(c2))~.
+- PARSER(Char) skip2nd(char c, const char* s) ::
+     Same as ~skip2nd(char1(c), string1(s))~.
+- PARSER(Char) skip2nd(char c, PARSER(S) p) ::
+     Same as ~skip2nd(char1(c), p)~.
+- PARSER(String) skip2nd(const char* s, char c) ::
+     Same as ~skip2nd(string1(s), char1(c))~.
+- PARSER(String) skip2nd(const char* s1, const char* s2) ::
+     Same as ~skip2nd(string1(s1), string1(s2))~.
+- PARSER(String) skip2nd(const char* s, PARSER(S) p) ::
+     Same as ~skip2nd(string1(s), p)~.
+- PARSER(T) skip2nd(PARSER(T) p, char c) ::
+     Same as ~skip2nd(p, char1(c))~.
+- PARSER(T) skip2nd(PARSER(T) p, const char* s) ::
+     Same as ~skip2nd(p, string1(s))~.
+
+- PARSER(T) skip2nd(PARSER(T) p1, PARSER(S) p2) ::
+     Create a parser of PARSER(T) type, which
+  - apply ~p1~ at first, and then apply ~p2~ to the subsequent text.
+  - return the result of ~p1~ if both ~p1~ and ~p2~ success.
+  - if ~p1~ failed, ~p2~ is not applied and throws error of ~p1~.
+  - if ~p1~ success and then ~p2~ failed, throws error of ~p2~.
+  - *NOTE* : ~S~ and ~T~ must be one of the following:
+    - ~Char~
+    - ~String~ aka ~List(Char)~
+    - ~Int~
+    - ~List(String)~
+    - ~List(Int)~
+  - *NOTE* : ~S~ and ~T~ may or may not be same.\\
+    (i.e. ~p1~ and ~p2~ may be a parser of same type or different type)
+
+For example:
+#+begin_src c
+parseTest(skip2nd(char1('a'), string1("bc")), "abc"); // -> 'a'
+parseTest(skip2nd(string1("ab"), char1('c')), "abc"); // -> "ab"
+#+end_src
+
 *** token(p)
 *NOTE* : ~token(p)~ is same as ~skip1st(spaces, p)~.
 
