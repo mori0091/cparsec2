@@ -338,13 +338,12 @@
 #define SQUASH_EVAL(...) SQUASH_EVAL8(__VA_ARGS__)
 // SQUASH(,,1,,2,3,,4,,,) -> 1, 2, 3, 4
 
-#define PAIR(...) SQUASH(PAIR_EVAL(PAIR1(__VA_ARGS__, )))
+#define PAIR(...) PAIR_EVAL(PAIR1(__VA_ARGS__, ))
 #define PAIR_INDIRECT() PAIR1
 #define PAIR1(x, ...)                                                    \
-  COMMA()                                                                \
   PAIR0(x, __VA_ARGS__, )                                                \
-  IF(IS_NIL(__VA_ARGS__))                                                \
-  (, DEFER2(PAIR_INDIRECT)()(TAIL(__VA_ARGS__), ))
+  IF(IS_NIL(TAIL(__VA_ARGS__)))                                          \
+  (, DEFER2(COMMA)() DEFER2(PAIR_INDIRECT)()(TAIL(__VA_ARGS__)))
 #define PAIR0(x, y, ...) IF(IS_NULL(y))(x, (x, y))
 #define PAIR_EVAL1(...) __VA_ARGS__
 #define PAIR_EVAL2(...) PAIR_EVAL1(PAIR_EVAL1(__VA_ARGS__))
@@ -358,11 +357,11 @@
 // PAIR(1,2,3,4,5,6,7,8)   -> (1,2) , (3,4) , (5,6) , (7,8)
 // PAIR(1,2,3,4,5,6,7,8,9) -> (1,2) , (3,4) , (5,6) , (7,8) , 9
 
-#define TREE(...) TREE_EVAL(TREE1(__VA_ARGS__, ))
+#define TREE(...) TREE_EVAL(TREE1(__VA_ARGS__))
 #define TREE_INDIRECT() TREE1
-#define TREE1(x, ...)                                                    \
-  IF(IS_NIL(__VA_ARGS__))                                                \
-  (x, DEFER2(TREE_INDIRECT)()(PAIR(SQUASH(x, __VA_ARGS__)), ))
+#define TREE1(...)                                                       \
+  IF(IS_NIL(TAIL(__VA_ARGS__, )))                                        \
+  (HEAD(__VA_ARGS__), DEFER2(TREE_INDIRECT)()(PAIR(__VA_ARGS__)))
 #define TREE_EVAL1(...) __VA_ARGS__
 #define TREE_EVAL2(...) TREE_EVAL1(TREE_EVAL1(__VA_ARGS__))
 #define TREE_EVAL3(...) TREE_EVAL2(TREE_EVAL2(__VA_ARGS__))
