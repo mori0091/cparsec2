@@ -86,7 +86,6 @@
     e54, e55, e56, e57, e58, e59, e60, e61, e62, e63, size, ...)         \
   size
 
-#define NIL NIL
 #define IS_NIL(...)                                                      \
   EXTRACT_OR_DEFAULT(CAT(IS_NIL, VARIADIC_SIZE(__VA_ARGS__)), 0)
 #define IS_NIL1 JUST(1)
@@ -140,50 +139,7 @@
 #define COMMA() ,
 #define SEMICOLON() ;
 
-#define TO_REV_LIST(...)                                                 \
-  TO_REV_LIST_EVAL(TO_REV_LIST_I(NIL, __VA_ARGS__, ))
-#define TO_REV_LIST_I(xs, x, ...)                                        \
-  IF(IS_NIL(__VA_ARGS__))                                                \
-  ((x, xs), DEFER2(TO_REV_LIST_INDIRECT)()((x, xs), __VA_ARGS__))
-#define TO_REV_LIST_INDIRECT() TO_REV_LIST_I
-#define TO_REV_LIST_EVAL1(...) __VA_ARGS__
-#define TO_REV_LIST_EVAL2(...)                                           \
-  TO_REV_LIST_EVAL1(TO_REV_LIST_EVAL1(__VA_ARGS__))
-#define TO_REV_LIST_EVAL3(...)                                           \
-  TO_REV_LIST_EVAL2(TO_REV_LIST_EVAL2(__VA_ARGS__))
-#define TO_REV_LIST_EVAL4(...)                                           \
-  TO_REV_LIST_EVAL3(TO_REV_LIST_EVAL3(__VA_ARGS__))
-#define TO_REV_LIST_EVAL5(...)                                           \
-  TO_REV_LIST_EVAL4(TO_REV_LIST_EVAL4(__VA_ARGS__))
-#define TO_REV_LIST_EVAL6(...)                                           \
-  TO_REV_LIST_EVAL5(TO_REV_LIST_EVAL5(__VA_ARGS__))
-#define TO_REV_LIST_EVAL7(...)                                           \
-  TO_REV_LIST_EVAL6(TO_REV_LIST_EVAL6(__VA_ARGS__))
-#define TO_REV_LIST_EVAL8(...)                                           \
-  TO_REV_LIST_EVAL7(TO_REV_LIST_EVAL7(__VA_ARGS__))
-#define TO_REV_LIST_EVAL(...) TO_REV_LIST_EVAL8(__VA_ARGS__)
-// TO_REV_LIST(1,2,3,4) -> (4, (3, (2, (1, NIL))))
-
-#define UNLIST(xs) UNLIST_EVAL(UNLIST_I xs)
-#define UNLIST_I(x, xs)                                                  \
-  x IF_ENCLOSED(xs)(DEFER2(COMMA)() DEFER2(UNLIST_INDIRECT)() xs, )
-#define UNLIST_INDIRECT() UNLIST_I
-#define UNLIST_EVAL1(...) __VA_ARGS__
-#define UNLIST_EVAL2(...) UNLIST_EVAL1(UNLIST_EVAL1(__VA_ARGS__))
-#define UNLIST_EVAL3(...) UNLIST_EVAL2(UNLIST_EVAL2(__VA_ARGS__))
-#define UNLIST_EVAL4(...) UNLIST_EVAL3(UNLIST_EVAL3(__VA_ARGS__))
-#define UNLIST_EVAL5(...) UNLIST_EVAL4(UNLIST_EVAL4(__VA_ARGS__))
-#define UNLIST_EVAL6(...) UNLIST_EVAL5(UNLIST_EVAL5(__VA_ARGS__))
-#define UNLIST_EVAL7(...) UNLIST_EVAL6(UNLIST_EVAL6(__VA_ARGS__))
-#define UNLIST_EVAL8(...) UNLIST_EVAL7(UNLIST_EVAL7(__VA_ARGS__))
-#define UNLIST_EVAL(...) UNLIST_EVAL8(__VA_ARGS__)
-// UNLIST((1,(2,(3,NIL))))       -> 1,2,3
-// UNLIST((1,(2,(3,(4,(5,?)))))) -> 1,2,3,4,5
-// UNLIST(NIL)                   ->
-// UNLIST(())                    -> error
-// UNLIST((1))                   -> error
-
-#define REVERSE(...) UNLIST(TO_REV_LIST(__VA_ARGS__))
+#define REVERSE(...) DISCLOSE(FOLDL(STACK_PUSH, (), __VA_ARGS__))
 // REVERSE(1)     -> 1
 // REVERSE(1,2)   -> 2, 1
 // REVERSE(1,2,3) -> 3, 2, 1
@@ -417,8 +373,8 @@
 #define STACK_NODE STACK_OP2
 #define STACK_PUSH(stack, x) (SQUASH(x, DISCLOSE(stack)))
 #define STACK_OP2(stack, f) (f STACK_POP2 stack)
-#define STACK_POP2(y, ...) STACK_POP2_(y, __VA_ARGS__, )
-#define STACK_POP2_(y, x, ...) SQUASH((x, y), __VA_ARGS__)
+#define STACK_POP2(y, ...)                                               \
+  SQUASH((HEAD(__VA_ARGS__), y), TAIL(__VA_ARGS__))
 // #define add(x, y) (x + y)
 // STACK(, (PUSH, 1))                 -> (1)
 // STACK((), (PUSH, 1))               -> (1)
@@ -430,28 +386,7 @@
 
 #define TREE_FOLDL(f, ...) TREE_FOLDL_PRIMITIVE(f, TREE(__VA_ARGS__))
 #define TREE_FOLDL_PRIMITIVE(f, tree)                                    \
-  DISCLOSE(TREE_FOLDL_EVAL(DEFER(TREE_FOLDL1)(, TREE_COMPILE(f, tree), )))
-#define TREE_FOLDL_INDIRECT() TREE_FOLDL1
-#define TREE_FOLDL1(stack, x, ...)                                       \
-  IF(IS_NIL(__VA_ARGS__))                                                \
-  (STACK(stack, x),                                                      \
-   DEFER2(TREE_FOLDL_INDIRECT)()(STACK(stack, x), __VA_ARGS__))
-#define TREE_FOLDL_EVAL1(...) __VA_ARGS__
-#define TREE_FOLDL_EVAL2(...)                                            \
-  TREE_FOLDL_EVAL1(TREE_FOLDL_EVAL1(__VA_ARGS__))
-#define TREE_FOLDL_EVAL3(...)                                            \
-  TREE_FOLDL_EVAL2(TREE_FOLDL_EVAL2(__VA_ARGS__))
-#define TREE_FOLDL_EVAL4(...)                                            \
-  TREE_FOLDL_EVAL3(TREE_FOLDL_EVAL3(__VA_ARGS__))
-#define TREE_FOLDL_EVAL5(...)                                            \
-  TREE_FOLDL_EVAL4(TREE_FOLDL_EVAL4(__VA_ARGS__))
-#define TREE_FOLDL_EVAL6(...)                                            \
-  TREE_FOLDL_EVAL5(TREE_FOLDL_EVAL5(__VA_ARGS__))
-#define TREE_FOLDL_EVAL7(...)                                            \
-  TREE_FOLDL_EVAL6(TREE_FOLDL_EVAL6(__VA_ARGS__))
-#define TREE_FOLDL_EVAL8(...)                                            \
-  TREE_FOLDL_EVAL7(TREE_FOLDL_EVAL7(__VA_ARGS__))
-#define TREE_FOLDL_EVAL(...) TREE_FOLDL_EVAL8(__VA_ARGS__)
+  DISCLOSE(FOLDL(STACK, (), TREE_COMPILE(f, tree)))
 // #define add(x, y) (x + y)
 // TREE_FOLDL(add, 1,2,3,4,5,6,7,8,9)
 // -> ((((1 + 2) + (3 + 4)) + ((5 + 6) + (7 + 8))) + 9)
