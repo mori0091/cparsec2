@@ -26,6 +26,9 @@ DEFINE_LIST(Int);
 // List(Ptr)
 DEFINE_LIST(Ptr);
 
+// List(Node)
+DEFINE_LIST(Node);
+
 // List(Char) ; a special case of List(T)
 ELEMENT_TYPE(List(Char)) * LIST_BEGIN(Char)(List(Char) xs) {
   assert(xs);
@@ -90,6 +93,9 @@ DEFINE_BUFF(Int);
 
 // Buff(Ptr)
 DEFINE_BUFF(Ptr);
+
+// Buff(Node)
+DEFINE_BUFF(Node);
 
 // Buff(Char) ; a special case of Buff(T)
 DEFINE_BUFF_COMMON(Char);

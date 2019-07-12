@@ -1,6 +1,7 @@
 /* -*- coding:utf-8-unix -*- */
 #pragma once
 
+#include "codegen.h"
 #include "macros.h"
 
 #ifdef __cplusplus
@@ -55,6 +56,9 @@ TYPEDEF_LIST(Int, int);
 // List(Ptr)
 TYPEDEF_LIST(Ptr, void*);
 
+// List(Node)
+TYPEDEF_LIST(Node, Node);
+
 FOREACH(DECLARE_LIST, ELEMENT_TYPESET);
 
 // ---- Buffer (List builder) ----
@@ -105,6 +109,9 @@ TYPEDEF_BUFF(Int, int);
 
 // Buff(Ptr)
 TYPEDEF_BUFF(Ptr, void*);
+
+// Buff(Node)
+TYPEDEF_BUFF(Node, Node);
 
 FOREACH(DECLARE_BUFF, ELEMENT_TYPESET);
 

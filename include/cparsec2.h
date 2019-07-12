@@ -13,6 +13,7 @@
 #include <string.h>
 #include <sys/types.h>
 
+#include "cparsec2/codegen.h"
 #include "cparsec2/list.h"
 #include "cparsec2/macros.h"
 
@@ -161,6 +162,10 @@ TYPEDEF_PARSER(Int, int);
 TYPEDEF_PARSER(List(String), List(String));
 // ---- IntListParser ----
 TYPEDEF_PARSER(List(Int), List(Int));
+// ---- NodeParser ----
+TYPEDEF_PARSER(Node, Node);
+// ---- NodeListParser ----
+TYPEDEF_PARSER(List(Node), List(Node));
 
 FOREACH(DECLARE_PARSER, TYPESET(1));
 
