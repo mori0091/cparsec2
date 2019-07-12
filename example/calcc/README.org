@@ -1,0 +1,31 @@
+# -*- coding: utf-8-unix -*-
+#+STARTUP: showall indent
+
+* A simple calculator (compiler version)
+
+~calcc~ - a simple calculator (compiler version) - is a sample application using
+CPARSEC2 library
+ 
+~calcc~ parses an integer arithmetic expression, and generates x86_64 assembly
+code. (i.e. compiles an integer arithmetic expression)
+
+* How to build
+#+begin_src shell
+make
+#+end_src
+
+* Usage
+
+- Usage :: calcc <expression>
+
+#+BEGIN_src shell
+$ ./bin/calcc '10 + 2 * 3' > tmp.s
+$ gcc -o tmp tmp.s
+$ ./tmp
+16
+
+$ ./bin/calcc '(10 + 2) * 3' > tmp.s
+$ gcc -o tmp tmp.s
+$ ./tmp
+36
+#+end_src
