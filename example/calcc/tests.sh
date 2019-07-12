@@ -1,13 +1,14 @@
 #!/bin/sh
 
 CMD=./bin/calcc
+CC=${CC:-gcc}
 
 compile_and_run() {
     "$@" > tmp.s 2> err.log || {
         cat err.log
         return 127
     }
-    gcc -o tmp tmp.s
+    ${CC} ${CFLAGS} -o tmp tmp.s ${LDFLAGS} ${LDLIBS}
     ./tmp
     echo $?
 }
