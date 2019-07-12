@@ -120,7 +120,7 @@ static void codegen_epilogue(void) {
 
 int main(int argc, char** argv) {
   if (argc < 2) {
-    fprintf(stderr, "Usage: c4c <expr>\n");
+    fprintf(stderr, "Usage: calcc <expr>\n");
     return 0;
   }
 
