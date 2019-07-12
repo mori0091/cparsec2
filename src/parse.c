@@ -299,6 +299,26 @@ DEFINE_PARSER(List(Int), x) {
   }
 }
 
+// ---- NodeParser ----
+DEFINE_PARSER(Node, x) {
+  printf("<Node:%p>\n", (void*)x);
+}
+
+// ---- NodeListParser ----
+DEFINE_PARSER(List(Node), x) {
+  Node* itr = list_begin(x);
+  Node* end = list_end(x);
+  if (itr == end) {
+    printf("[]\n");
+  } else {
+    printf("[<Node:%p>", (void*)*itr++);
+    while (itr != end) {
+      printf(", <Node:%p>", (void*)*itr++);
+    }
+    printf("]\n");
+  }
+}
+
 // ---- predicates ----
 // -- (see 'predicate.c')
 

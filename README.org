@@ -80,6 +80,8 @@ To build and test anything all in the project:
 
 - [[file:example/calc][calc]] :: 
      A simple calculator
+- [[file:example/calcc][calcc]] :: 
+     A simple calculator (compiler version)
 - [[file:example/digit3][digit3]] :: 
      example of user-defined *parser*
      - See also [[file:docs/TUTORIAL.org#how-to-make-your-parser][Tutorial / How to make your parser]]

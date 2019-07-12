@@ -11,7 +11,7 @@
 
 #define ELEMENT_TYPESET TYPESET(0), Ptr
 #define TYPESET(n) Char, CAT(TYPESET_, n)()
-#define TYPESET_0() String, Int
+#define TYPESET_0() String, Int, Node
 #define TYPESET_1() TYPESET_0(), APPLY(List, TYPESET_0())
 
 // ---- F(T); ... for each T in varargs
