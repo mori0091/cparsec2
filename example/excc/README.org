@@ -1,0 +1,78 @@
+# -*- coding: utf-8-unix -*-
+#+STARTUP: showall indent
+
+* An experimental C compiler subset
+
+~excc~ - an experimental C compiler subset - is a sample application using
+CPARSEC2 library.
+ 
+~excc~ parses a souce code written in the (subset of) C language, and generates
+x86_64 assembly code.
+
+* How to build
+#+begin_src shell
+make
+#+end_src
+
+* Usage
+
+- Usage :: excc <expression>
+
+#+begin_src shell
+$ ./bin/excc '10 + 2 * 3' > tmp.s
+$ gcc -o tmp tmp.s
+$ ./tmp
+16
+
+$ ./bin/excc '(10 + 2) * 3' > tmp.s
+$ gcc -o tmp tmp.s
+$ ./tmp
+36
+#+end_src
+
+* Feature
+- types ::
+  - integer values/variables only.
+  - no type declaration is supported yet.
+- local variables ::
+  - supports only 26 local variables (~a~ .. ~z~)
+- global variables ::
+  - not supported yet.
+- functions ::
+  - not supported yet.
+- literal ::
+  - decimal integer (ex. ~0~, ~1~, ~100~, ~123456~)
+- arithmetic expression ::
+  - unary operators
+    - optional sign (~+x~ / ~-x~)
+  - binary operators
+    - add (~x + y~)
+    - sub (~x - y~)
+    - mul (~x * y~)
+    - div (~x / y~)
+  - grouping
+    - parens (~(expr)~)
+- equality expression ::
+  - equal (~x == y~)
+  - not equal (~x != y~)
+- relational expression ::
+  - less than (~x < y~)
+  - less than or equal (~x <= y~)
+  - greater than (~x > y~)
+  - greater than or equal (~x >= y~)
+
+* Language syntax
+
+EBNF:
+#+begin_src c
+// program  = {stmt} endOfFile
+// stmt     = expr ";" {expr ";"}
+// expr     = assign
+// assign   = equality {"=" assign}
+// equality = relation {("==" | "!=") relation}
+// relation = addsub {("<" | "<=" | ">" | ">=") addsub}
+// addsub   = muldiv { ("+" | "-") muldiv }
+// muldiv   = unary { ("*" | "/") unary }
+// unary    = ["+" | "-"] term
+// term     = number | "(" expr ")"
+#+end_src
