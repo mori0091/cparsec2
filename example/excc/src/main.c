@@ -5,9 +5,10 @@
 #include "LList.h"
 
 typedef struct {
-  const char* name;
-  int length;
-  int offset;
+  const char* name; // identifier
+  int length;       // length of the identifier
+  int offset;       // offset address of the local variable
+  int size;         // size of the local variable
 } LVar;
 
 TYPEDEF_LList(LVar, LVar);
@@ -21,7 +22,12 @@ DEFINE_LList(LVar);
 LList(LVar) locals = NULL;
 
 int getLVarOffsetMax(void) {
-  return !locals ? 0 : llist_head(locals).offset + 8;
+  if (!locals) {
+    return 0;
+  } else {
+    LVar x = llist_head(locals);
+    return x.offset + x.size;
+  }
 }
 
 // find local variable or register if not found
@@ -33,8 +39,12 @@ LVar findLVar(const char* name) {
       return x;
     }
   }
-  locals = llist_cons(((LVar){name, length, getLVarOffsetMax()}), locals);
-  return llist_head(locals);
+  LVar x = (LVar){.name = name,
+                  .length = length,
+                  .offset = getLVarOffsetMax(),
+                  .size = 8};
+  locals = llist_cons(x, locals);
+  return x;
 }
 
 // program  = {stmt} endOfFile
@@ -191,7 +201,7 @@ static Node term_fn(void* arg, Source src, Ctx* ex) {
   TRY(&ctx) {
     const char* name = parse(ident, src, &ctx);
     LVar lvar = findLVar(name);
-    return nd_lvar(lvar.offset, 8);
+    return nd_lvar(lvar.offset, lvar.size);
   }
   return nd_number(parse(number, src, ex));
 }
