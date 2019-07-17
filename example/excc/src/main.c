@@ -2,6 +2,41 @@
 
 #include <cparsec2.h>
 
+#include "LList.h"
+
+typedef struct {
+  const char* name;
+  int length;
+  int offset;
+} LVar;
+
+TYPEDEF_LList(LVar, LVar);
+DECLARE_LList(LVar);
+DEFINE_LList(LVar);
+#define llist_cons(x, xs) (GENERIC((xs), LList, LList_CONS, LVar)(x, xs))
+#define llist_head(xs) (GENERIC((xs), LList, LList_HEAD, LVar)(xs))
+#define llist_tail(xs) (GENERIC((xs), LList, LList_TAIL, LVar)(xs))
+
+// linked-list of local variables
+LList(LVar) locals = NULL;
+
+int getLVarOffsetMax(void) {
+  return !locals ? 0 : llist_head(locals).offset + 8;
+}
+
+// find local variable or register if not found
+LVar findLVar(const char* name) {
+  int length = list_length(name);
+  for (LList(LVar) xs = locals; xs; xs = llist_tail(xs)) {
+    LVar x = llist_head(xs);
+    if (length == x.length && strncmp(name, x.name, length) == 0) {
+      return x;
+    }
+  }
+  locals = llist_cons(((LVar){name, length, getLVarOffsetMax()}), locals);
+  return llist_head(locals);
+}
+
 // program  = {stmt} endOfFile
 // stmt     = expr ";" {expr ";"}
 // expr     = assign
@@ -22,6 +57,10 @@ PARSER(Node) addsub;
 PARSER(Node) muldiv;
 PARSER(Node) unary;
 PARSER(Node) term;
+
+PARSER(Char) identStart;
+PARSER(Char) identLetter;
+PARSER(String) ident;
 
 PARSER(String) eq_neq;    // eq_neq = "==" | "!="
 PARSER(Char) lt_gt;       // lt_gt = "<" | ">"
@@ -150,7 +189,9 @@ static Node term_fn(void* arg, Source src, Ctx* ex) {
     return x;
   }
   TRY(&ctx) {
-    return nd_ident(parse(lower, src, &ctx));
+    const char* name = parse(ident, src, &ctx);
+    LVar lvar = findLVar(name);
+    return nd_ident((uint8_t)('a' + lvar.offset / 8));
   }
   return nd_number(parse(number, src, ex));
 }
@@ -169,6 +210,10 @@ void setup(void) {
   expr = assign;
   stmt = skip2nd(expr, token(char1(';')));
   program = skip2nd(many(stmt), token(endOfFile));
+
+  identStart = either(char1('_'), alpha);
+  identLetter = either(char1('_'), alnum);
+  ident = cons(identStart, many(identLetter));
 
   eq_neq = token(tryp(either("!=", "==")));
   lt_gt = token(either((char)'<', (char)'>'));
@@ -197,7 +242,8 @@ static void codegen_prologue(void) {
   //   allocate 26 local variables 'a'-'z'
   fprintf(stdout, "  push rbp\n");
   fprintf(stdout, "  mov rbp, rsp\n");
-  fprintf(stdout, "  sub rsp, 208\n"); // 208 bytes = 8 bytes * 26
+  // fprintf(stdout, "  sub rsp, 208\n"); // 208 bytes = 8 bytes * 26
+  fprintf(stdout, "  sub rsp, %d\n", getLVarOffsetMax());
 }
 
 static void codegen_epilogue(void) {

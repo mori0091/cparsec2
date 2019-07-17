@@ -21,8 +21,8 @@ Node nd_number(int val) {
   return Node_new(run_nd_number, (void*)(intptr_t)val);
 }
 
-static void codegen_lval(uint8_t name, FILE* out) {
-  int offset = ('z' - name + 1) * 8;
+static void codegen_lval(uint8_t idx, FILE* out) {
+  int offset = (idx + 1) * 8;
   fprintf(out, "  mov rax, rbp\n");
   fprintf(out, "  sub rax, %d\n", offset);
   fprintf(out, "  push rax\n");
@@ -36,7 +36,7 @@ static void run_nd_ident(void* arg, FILE* out) {
 }
 
 Node nd_ident(uint8_t name) {
-  return Node_new(run_nd_ident, (void*)(uintptr_t)name);
+  return Node_new(run_nd_ident, (void*)(uintptr_t)(name - 'a'));
 }
 
 static void run_nd_assign(void* arg, FILE* out) {
