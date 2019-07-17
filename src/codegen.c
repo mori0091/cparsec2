@@ -21,31 +21,39 @@ Node nd_number(int val) {
   return Node_new(run_nd_number, (void*)(intptr_t)val);
 }
 
-static void codegen_lval(uint8_t name, FILE* out) {
-  int offset = ('z' - name + 1) * 8;
+static void codegen_lval(int offset, int size, FILE* out) {
   fprintf(out, "  mov rax, rbp\n");
-  fprintf(out, "  sub rax, %d\n", offset);
+  fprintf(out, "  sub rax, %d\n", offset + size);
   fprintf(out, "  push rax\n");
 }
 
-static void run_nd_ident(void* arg, FILE* out) {
-  codegen_lval((uint8_t)(uintptr_t)arg, out);
+static void run_nd_lvar(void* arg, FILE* out) {
+  int* lvar = arg;
+  int offset = lvar[0];
+  int size = lvar[1];
+  codegen_lval(offset, size, out);
   fprintf(out, "  pop rax\n");
   fprintf(out, "  mov rax, [rax]\n");
   fprintf(out, "  push rax\n");
 }
 
-Node nd_ident(uint8_t name) {
-  return Node_new(run_nd_ident, (void*)(uintptr_t)name);
+Node nd_lvar(int offset, int size) {
+  int* lvar = mem_malloc(sizeof(int) * 2);
+  lvar[0] = offset;
+  lvar[1] = size;
+  return Node_new(run_nd_lvar, (void*)lvar);
 }
 
 static void run_nd_assign(void* arg, FILE* out) {
   Node* node = (Node*)arg;
-  if (node[0]->run != run_nd_ident) {
+  if (node[0]->run != run_nd_lvar) {
     fprintf(stderr, "lvalue of assignment is not a variable");
     exit(1);
   }
-  codegen_lval((uint8_t)(uintptr_t)node[0]->arg, out);
+  int* lvar = node[0]->arg;
+  int offset = lvar[0];
+  int size = lvar[1];
+  codegen_lval(offset, size, out);
   codegen(node[1], out);
   fprintf(out, "  pop rdi\n");
   fprintf(out, "  pop rax\n");

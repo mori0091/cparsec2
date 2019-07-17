@@ -70,6 +70,7 @@ assert 0 = ${CMD} ' 99 >= 100;'
 assert 10 = ${CMD} 'a = 10;'
 assert 20 = ${CMD} 'a = b = 10; a+b;'
 assert 30 = ${CMD} 'a = b = 10; b = b + 10; a + b;'
+assert 30 = ${CMD} 'abc1 = _bcd32 = 10; 2 * abc1 + _bcd32;'
 
 echo
 echo "$((pass + fail)) tests, $pass passed, $fail failed"

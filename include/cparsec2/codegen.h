@@ -1,8 +1,8 @@
 /* -*- coding:utf-8-unix -*- */
 #pragma once
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,7 +19,7 @@ Node Node_new(NodeFn f, void* arg);
 void codegen(Node node, FILE* out);
 
 Node nd_number(int val);
-Node nd_ident(uint8_t name);
+Node nd_lvar(int offset, int size);
 Node nd_assign(Node lhs, Node rhs);
 Node nd_EQ(Node lhs, Node rhs);
 Node nd_NE(Node lhs, Node rhs);
