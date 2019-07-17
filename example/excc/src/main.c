@@ -249,16 +249,15 @@ static void codegen_footer(void) {
 
 static void codegen_prologue(void) {
   // - prologue
-  //   allocate 26 local variables 'a'-'z'
+  //   allocate local variables
   fprintf(stdout, "  push rbp\n");
   fprintf(stdout, "  mov rbp, rsp\n");
-  // fprintf(stdout, "  sub rsp, 208\n"); // 208 bytes = 8 bytes * 26
   fprintf(stdout, "  sub rsp, %d\n", getLVarOffsetMax());
 }
 
 static void codegen_epilogue(void) {
   // - epilogue
-  //   deallocate 26 local variables 'a'-'z'
+  //   deallocate local variables
   fprintf(stdout, "  mov rsp, rbp\n");
   fprintf(stdout, "  pop rbp\n");
 }
