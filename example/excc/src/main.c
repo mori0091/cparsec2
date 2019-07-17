@@ -191,7 +191,7 @@ static Node term_fn(void* arg, Source src, Ctx* ex) {
   TRY(&ctx) {
     const char* name = parse(ident, src, &ctx);
     LVar lvar = findLVar(name);
-    return nd_ident((uint8_t)('a' + lvar.offset / 8));
+    return nd_lvar(lvar.offset, 8);
   }
   return nd_number(parse(number, src, ex));
 }
