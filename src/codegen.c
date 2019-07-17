@@ -44,6 +44,32 @@ Node nd_lvar(int offset, int size) {
   return Node_new(run_nd_lvar, (void*)lvar);
 }
 
+static void run_nd_stmt(void* arg, FILE* out) {
+  Node expr = arg;
+  codegen(expr, out);
+  fprintf(out, "  pop rax\n");
+}
+
+Node nd_stmt(Node expr) {
+  return Node_new(run_nd_stmt, expr);
+}
+
+static void run_nd_return(void* arg, FILE* out) {
+  run_nd_stmt(arg, out);
+  // - epilogue
+  //   deallocate local variables
+  fprintf(out, "  mov rsp, rbp\n");
+  fprintf(out, "  pop rbp\n");
+  // - footer
+  //   note: 'rax' has already the result of the last expression,
+  //   and the value of 'rax' shall be the return value.
+  fprintf(out, "  ret\n");
+}
+
+Node nd_return(Node expr) {
+  return Node_new(run_nd_return, expr);
+}
+
 static void run_nd_assign(void* arg, FILE* out) {
   Node* node = (Node*)arg;
   if (node[0]->run != run_nd_lvar) {

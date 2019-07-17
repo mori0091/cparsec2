@@ -60,13 +60,17 @@ $ ./tmp
   - less than or equal (~x <= y~)
   - greater than (~x > y~)
   - greater than or equal (~x >= y~)
+- statements ::
+  - ~expr ;~
+  - ~return expr ;~
 
 * Language syntax
 
 EBNF:
 #+begin_src c
 // program  = {stmt} endOfFile
-// stmt     = expr ";" {expr ";"}
+// stmt     = expr ";"
+//          | "return" expr ";"
 // expr     = assign
 // assign   = equality {"=" assign}
 // equality = relation {("==" | "!=") relation}

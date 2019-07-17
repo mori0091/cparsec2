@@ -20,6 +20,8 @@ void codegen(Node node, FILE* out);
 
 Node nd_number(int val);
 Node nd_lvar(int offset, int size);
+Node nd_stmt(Node expr);
+Node nd_return(Node expr);
 Node nd_assign(Node lhs, Node rhs);
 Node nd_EQ(Node lhs, Node rhs);
 Node nd_NE(Node lhs, Node rhs);
