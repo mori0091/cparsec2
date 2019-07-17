@@ -200,25 +200,64 @@ static Node term_fn(void* arg, Source src, Ctx* ex) {
   }
   TRY(&ctx) {
     const char* name = parse(ident, src, &ctx);
+    if (!strcmp(name, "return")) {
+      cthrow(ex, error("expected identifier or '('"));
+    }
     LVar lvar = findLVar(name);
     return nd_lvar(lvar.offset, lvar.size);
   }
   return nd_number(parse(number, src, ex));
 }
 
+static Node stmt_fn(void* arg, Source src, Ctx* ex) {
+  PARSER(Node) p = arg;
+  return nd_stmt(parse(p, src, ex));
+}
+
+static Node return_fn(void* arg, Source src, Ctx* ex) {
+  PARSER(Node) p = arg;
+  return nd_return(parse(p, src, ex));
+}
+
 #define sepBy(sep, p) cons(p, many(skip1st(sep, p)))
+
+static const char* keyword_fn(void* arg, Source src, Ctx* ex) {
+  PARSER(String) p = arg;
+  const char* s = parse(p, src, ex);
+  Ctx ctx;
+  TRY(&ctx) {
+    char c = peek(src, &ctx);
+    if (c == '_' || is_alnum(c)) {
+      cthrow(ex, error("unexpected \"%s%c\"", s, (int)c));
+    }
+  }
+  else {
+    mem_free((void*)ctx.msg);
+  }
+  return s;
+}
+
+static PARSER(String) keyword(const char* word) {
+  return PARSER_GEN(String)(keyword_fn, token(string1(word)));
+}
 
 void setup(void) {
   term = token(PARSER_GEN(Node)(term_fn, NULL));
   unary = token(PARSER_GEN(Node)(unary_fn, NULL));
-  muldiv = token(PARSER_GEN(Node)(muldiv_fn, NULL));
-  addsub = token(PARSER_GEN(Node)(addsub_fn, NULL));
-  relation = token(PARSER_GEN(Node)(relation_fn, NULL));
-  equality = token(PARSER_GEN(Node)(equality_fn, NULL));
-  assign = token(
-      PARSER_GEN(Node)(assign_fn, sepBy(token(char1('=')), equality)));
+  muldiv = PARSER_GEN(Node)(muldiv_fn, NULL);
+  addsub = PARSER_GEN(Node)(addsub_fn, NULL);
+  relation = PARSER_GEN(Node)(relation_fn, NULL);
+  equality = PARSER_GEN(Node)(equality_fn, NULL);
+
+  PARSER(List(Node)) assign_expr = sepBy(token(char1('=')), equality);
+  assign = PARSER_GEN(Node)(assign_fn, assign_expr);
   expr = assign;
-  stmt = skip2nd(expr, token(char1(';')));
+
+  PARSER(Node) expr_stmt = skip2nd(expr, token(char1(';')));
+  PARSER(Node) return_stmt = skip1st(keyword("return"), expr_stmt);
+  stmt = either(tryp(PARSER_GEN(Node)(return_fn, return_stmt)),
+                PARSER_GEN(Node)(stmt_fn, expr_stmt));
+
   program = skip2nd(many(stmt), token(endOfFile));
 
   identStart = either(char1('_'), alpha);
@@ -287,8 +326,6 @@ int main(int argc, char** argv) {
         while (itr != end) {
           // generate code of the statement.
           codegen(*itr++, stdout);
-          // pop result of the last expression of the statement.
-          fprintf(stdout, "  pop rax\n");
         }
       }
       codegen_epilogue();

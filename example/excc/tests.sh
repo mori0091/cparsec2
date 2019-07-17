@@ -71,6 +71,13 @@ assert 10 = ${CMD} 'a = 10;'
 assert 20 = ${CMD} 'a = b = 10; a+b;'
 assert 30 = ${CMD} 'a = b = 10; b = b + 10; a + b;'
 assert 30 = ${CMD} 'abc1 = _bcd32 = 10; 2 * abc1 + _bcd32;'
+assert 15 = ${CMD} 'return 15;'
+assert 15 = ${CMD} 'a = 10; return a+5;'
+assert 15 = ${CMD} 'a = 10; return 15; a;'
+assert 15 = ${CMD} 'return+15;'
+assert "error:expects <eof> but was 'r'" = ${CMD} 'return;'
+assert 15 = ${CMD} 'returnx=15;'
+assert "error:expects <eof> but was 'r'" = ${CMD} 'return=15;'
 
 echo
 echo "$((pass + fail)) tests, $pass passed, $fail failed"
