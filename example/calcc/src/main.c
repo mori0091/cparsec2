@@ -103,21 +103,6 @@ static void codegen_footer(void) {
   fprintf(stdout, "  ret\n");
 }
 
-static void codegen_prologue(void) {
-  // - prologue
-  //   allocate 26 local variables 'a'-'z'
-  fprintf(stdout, "  push rbp\n");
-  fprintf(stdout, "  mov rbp, rsp\n");
-  fprintf(stdout, "  sub rsp, 208\n"); // 208 bytes = 8 bytes * 26
-}
-
-static void codegen_epilogue(void) {
-  // - epilogue
-  //   deallocate 26 local variables 'a'-'z'
-  fprintf(stdout, "  mov rsp, rbp\n");
-  fprintf(stdout, "  pop rbp\n");
-}
-
 int main(int argc, char** argv) {
   if (argc < 2) {
     fprintf(stderr, "Usage: calcc <expr>\n");
@@ -136,14 +121,10 @@ int main(int argc, char** argv) {
     // [generate assembly code]
     codegen_header();
     {
-      codegen_prologue();
-      {
-        // generate code of the statement.
-        codegen(ast, stdout);
-        // pop result of the last expression of the statement.
-        fprintf(stdout, "  pop rax\n");
-      }
-      codegen_epilogue();
+      // generate code of the statement.
+      codegen(ast, stdout);
+      // pop result of the last expression of the statement.
+      fprintf(stdout, "  pop rax\n");
     }
     codegen_footer();
 
