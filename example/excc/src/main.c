@@ -14,9 +14,17 @@ typedef struct {
 TYPEDEF_LList(LVar, LVar);
 DECLARE_LList(LVar);
 DEFINE_LList(LVar);
-#define llist_cons(x, xs) (GENERIC((xs), LList, LList_CONS, LVar)(x, xs))
-#define llist_head(xs) (GENERIC((xs), LList, LList_HEAD, LVar)(xs))
-#define llist_tail(xs) (GENERIC((xs), LList, LList_TAIL, LVar)(xs))
+
+TYPEDEF_LList(String, const char*);
+DECLARE_LList(String);
+DEFINE_LList(String);
+
+#define llist_cons(x, xs)                                                \
+  (GENERIC((xs), LList, LList_CONS, LVar, String)(x, xs))
+#define llist_head(xs)                                                   \
+  (GENERIC((xs), LList, LList_HEAD, LVar, String)(xs))
+#define llist_tail(xs)                                                   \
+  (GENERIC((xs), LList, LList_TAIL, LVar, String)(xs))
 
 // linked-list of local variables
 LList(LVar) locals = NULL;
@@ -45,6 +53,23 @@ LVar findLVar(const char* name) {
                   .size = 8};
   locals = llist_cons(x, locals);
   return x;
+}
+
+LList(String) keywords = NULL;
+
+bool is_keyword(const char* s) {
+  for (LList(String) xs = keywords; xs; xs = llist_tail(xs)) {
+    if (!strcmp(llist_head(xs), s)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void add_keyword(const char* s) {
+  if (!is_keyword(s)) {
+    keywords = llist_cons(s, keywords);
+  }
 }
 
 // program  = {stmt} endOfFile
@@ -200,7 +225,7 @@ static Node term_fn(void* arg, Source src, Ctx* ex) {
   }
   TRY(&ctx) {
     const char* name = parse(ident, src, &ctx);
-    if (!strcmp(name, "return")) {
+    if (is_keyword(name)) {
       cthrow(ex, error("expected identifier or '('"));
     }
     LVar lvar = findLVar(name);
@@ -238,6 +263,7 @@ static const char* keyword_fn(void* arg, Source src, Ctx* ex) {
 }
 
 static PARSER(String) keyword(const char* word) {
+  add_keyword(word);
   return PARSER_GEN(String)(keyword_fn, token(string1(word)));
 }
 
