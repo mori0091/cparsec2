@@ -80,7 +80,19 @@ assert "error:expected identifier or '(' but was 'return'" \
 assert 15 = ${CMD} 'returnx=15;'
 assert "error:expected identifier or '(' but was 'return'" \
        = ${CMD} 'return=15;'
-assert 45 = ${CMD} 'sum = 0; for (i=0; i<10; i=i+1) sum = sum + i; sum;'
+assert 45 = ${CMD} '
+  sum = 0;
+  for (i=0; i<10; i=i+1)
+    sum = sum + i;
+  sum;
+'
+assert 220 = ${CMD} '
+  sum = 0;
+  for (i=0; i<4; i=i+1)
+    for (j=1; j<=10; j=j+1)
+      sum = sum + j;
+  return sum;
+'
 
 echo
 echo "$((pass + fail)) tests, $pass passed, $fail failed"
