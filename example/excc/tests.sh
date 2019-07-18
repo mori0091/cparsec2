@@ -75,9 +75,12 @@ assert 15 = ${CMD} 'return 15;'
 assert 15 = ${CMD} 'a = 10; return a+5;'
 assert 15 = ${CMD} 'a = 10; return 15; a;'
 assert 15 = ${CMD} 'return+15;'
-assert "error:expects <eof> but was 'r'" = ${CMD} 'return;'
+assert "error:expected identifier or '(' but was 'return'" \
+       = ${CMD} 'return;'
 assert 15 = ${CMD} 'returnx=15;'
-assert "error:expects <eof> but was 'r'" = ${CMD} 'return=15;'
+assert "error:expected identifier or '(' but was 'return'" \
+       = ${CMD} 'return=15;'
+assert 45 = ${CMD} 'sum = 0; for (i=0; i<10; i=i+1) sum = sum + i; sum;'
 
 echo
 echo "$((pass + fail)) tests, $pass passed, $fail failed"

@@ -10,7 +10,10 @@ Node Node_new(NodeFn f, void* arg) {
 }
 
 void codegen(Node node, FILE* out) {
-  node->run(node->arg, out);
+  assert(out);
+  if (node) {
+    node->run(node->arg, out);
+  }
 }
 
 static void run_nd_number(void* arg, FILE* out) {
@@ -55,7 +58,7 @@ Node nd_stmt(Node expr) {
 }
 
 static void run_nd_return(void* arg, FILE* out) {
-  run_nd_stmt(arg, out);
+  codegen((Node)arg, out);
   // - epilogue
   //   deallocate local variables
   fprintf(out, "  mov rsp, rbp\n");
@@ -68,6 +71,27 @@ static void run_nd_return(void* arg, FILE* out) {
 
 Node nd_return(Node expr) {
   return Node_new(run_nd_return, expr);
+}
+
+static int counter = 0;
+
+static void run_nd_c_for(void* arg, FILE* out) {
+  Node* node = arg;
+  int label = ++counter;
+  codegen(node[0], out); // init (expr ";")
+  fprintf(out, ".Lbegin%d:\n", label);
+  codegen(node[1], out); // cond (expr ";")
+  fprintf(out, "  cmp rax, 0\n");
+  fprintf(out, "  je  .Lend%d\n", label);
+  codegen(node[3], out); // body (stmt)
+  codegen(node[2], out); // next (expr)
+  fprintf(out, "  pop rax\n");
+  fprintf(out, "  jmp .Lbegin%d\n", label);
+  fprintf(out, ".Lend%d:\n", label);
+}
+
+Node nd_c_for(Node* xs) {
+  return Node_new(run_nd_c_for, xs);
 }
 
 static void run_nd_assign(void* arg, FILE* out) {
