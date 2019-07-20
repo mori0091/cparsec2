@@ -93,6 +93,12 @@ assert 220 = ${CMD} '
       sum = sum + j;
   return sum;
 '
+assert 64 = ${CMD} '
+  x = 1;
+  while (x < 64)
+    x = x * 2;
+  x;
+'
 
 echo
 echo "$((pass + fail)) tests, $pass passed, $fail failed"

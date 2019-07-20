@@ -271,6 +271,19 @@ static PARSER(String) keyword(const char* word) {
   return PARSER_GEN(String)(keyword_fn, token(string1(word)));
 }
 
+static Node c_while_fn(void* arg, Source src, Ctx* ex) {
+  // p = "while (cond)" -> cond
+  PARSER(Node) p = arg;
+  Node cond = parse(p, src, ex);
+  Node body = parse(stmt, src, ex);
+  Buff(Node) b = {0};
+  buff_push(&b, NULL); // init
+  buff_push(&b, cond);
+  buff_push(&b, NULL); // next
+  buff_push(&b, body);
+  return nd_c_for(list_begin(buff_finish(&b)));
+}
+
 static Node c_for_fn(void* arg, Source src, Ctx* ex) {
   // ps = "for (init; cond; next)" -> [init, cond, next]
   PARSER(List(Node)) ps = arg;
@@ -315,7 +328,12 @@ void setup(void) {
       c_for_fn,
       skip1st(keyword("for"), parens(seq(expr_stmt, expr_stmt, expr))));
 
-  stmt = FOLDL(either, tryp(return_stmt), tryp(c_for_stmt), expr_stmt);
+  PARSER(Node)
+  c_while_stmt = PARSER_GEN(Node)(
+      c_while_fn, skip1st(keyword("while"), parens(expr)));
+
+  stmt = FOLDL(either, tryp(return_stmt), tryp(c_for_stmt),
+               tryp(c_while_stmt), expr_stmt);
 
   program = skip2nd(many1(stmt), token(endOfFile));
 }
