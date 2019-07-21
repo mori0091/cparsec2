@@ -64,6 +64,9 @@ $ ./tmp
   - ~expr ;~
   - ~return expr ;~
   - ~for (expr ; expr ; expr) stmt~
+  - ~while (expr) stmt~
+  - ~if (expr) stmt~
+  - ~if (expr) stmt else stmt~
 
 * Language syntax
 
@@ -74,6 +77,8 @@ $ ./tmp
   stmt     = expr ";"
            | "return" expr ";"
            | "for" "(" expr ";" expr ";" expr ")" stmt
+           | "while" "(" expr ")" stmt
+           | "if" "(" expr ")" stmt ["else" stmt]
   expr     = assign
   assign   = equality {"=" assign}
   equality = relation {("==" | "!=") relation}
