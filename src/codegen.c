@@ -97,11 +97,12 @@ Node nd_c_for(Node* xs) {
 static void run_nd_c_if_else(void* arg, FILE* out) {
   Node* node = arg;
   int label = ++counter;
-  codegen(node[0], out); // cond (expr ";")
+  codegen(node[0], out); // cond (expr)
+  fprintf(out, "  pop rax\n");
   fprintf(out, "  cmp rax, 0\n");
   fprintf(out, "  je  .Lelse%d\n", label);
   codegen(node[1], out); // then (stmt)
-  fprintf(out, "  je  .Lend%d\n", label);
+  fprintf(out, "  jmp .Lend%d\n", label);
   fprintf(out, ".Lelse%d:\n", label);
   codegen(node[2], out); // else (stmt)
   fprintf(out, ".Lend%d:\n", label);
