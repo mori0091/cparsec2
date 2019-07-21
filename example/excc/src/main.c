@@ -14,9 +14,17 @@ typedef struct {
 TYPEDEF_LList(LVar, LVar);
 DECLARE_LList(LVar);
 DEFINE_LList(LVar);
-#define llist_cons(x, xs) (GENERIC((xs), LList, LList_CONS, LVar)(x, xs))
-#define llist_head(xs) (GENERIC((xs), LList, LList_HEAD, LVar)(xs))
-#define llist_tail(xs) (GENERIC((xs), LList, LList_TAIL, LVar)(xs))
+
+TYPEDEF_LList(String, const char*);
+DECLARE_LList(String);
+DEFINE_LList(String);
+
+#define llist_cons(x, xs)                                                \
+  (GENERIC((xs), LList, LList_CONS, LVar, String)(x, xs))
+#define llist_head(xs)                                                   \
+  (GENERIC((xs), LList, LList_HEAD, LVar, String)(xs))
+#define llist_tail(xs)                                                   \
+  (GENERIC((xs), LList, LList_TAIL, LVar, String)(xs))
 
 // linked-list of local variables
 LList(LVar) locals = NULL;
@@ -46,6 +54,25 @@ LVar findLVar(const char* name) {
   locals = llist_cons(x, locals);
   return x;
 }
+
+LList(String) keywords = NULL;
+
+bool is_keyword(const char* s) {
+  for (LList(String) xs = keywords; xs; xs = llist_tail(xs)) {
+    if (!strcmp(llist_head(xs), s)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void add_keyword(const char* s) {
+  if (!is_keyword(s)) {
+    keywords = llist_cons(s, keywords);
+  }
+}
+
+static PARSER(String) keyword(const char* word);
 
 // program  = {stmt} endOfFile
 // stmt     = expr ";" {expr ";"}
@@ -78,6 +105,49 @@ PARSER(Char) plus_minus;  // plus_minus = "+" | "-"
 PARSER(Char) star_slash;  // star_slash = "*" | "/"
 PARSER(Char) open_paren;  // open_paren = "("
 PARSER(Char) close_paren; // close_paren = ")"
+PARSER(Char) open_brace;  // open_brace = "{"
+PARSER(Char) close_brace; // close_brace = "}"
+
+#define sepBy(sep, p) cons(p, many(skip1st(sep, p)))
+#define between(open, close, p) skip1st(open, skip2nd(p, close))
+#define parens(p) between(open_paren, close_paren, p)
+#define braces(p) between(open_brace, close_brace, p)
+#define option(p, defaultValue) either(tryp(p), identity(defaultValue))
+
+static List(Node) concat_fn(void* arg, Source src, Ctx* ex) {
+  PARSER(List(Node))* ps = arg;
+  Buff(Node) b = {0};
+  buff_append(&b, parse(ps[0], src, ex));
+  buff_append(&b, parse(ps[1], src, ex));
+  return buff_finish(&b);
+}
+
+static PARSER(List(Node))
+    concat(PARSER(List(Node)) xs, PARSER(List(Node)) ys) {
+  PARSER(List(Node))* arg = mem_malloc(sizeof(List(Node)) * 2);
+  arg[0] = xs;
+  arg[1] = ys;
+  return PARSER_GEN(List(Node))(concat_fn, arg);
+}
+
+static Node identity_fn(void* arg, Source src, Ctx* ex) {
+  UNUSED(src);
+  UNUSED(ex);
+  return (Node)arg;
+}
+
+static PARSER(Node) identity(Node defalutValue) {
+  return PARSER_GEN(Node)(identity_fn, defalutValue);
+}
+
+static Node indirect_fn(void* arg, Source src, Ctx* ex) {
+  PARSER(Node)* p = arg;
+  return parse(*p, src, ex);
+}
+
+static PARSER(Node) indirect(PARSER(Node) * p) {
+  return PARSER_GEN(Node)(indirect_fn, p);
+}
 
 static Node assign_fn(void* arg, Source src, Ctx* ex) {
   PARSER(List(Node)) p = arg; /* equality {"=" equality} */
@@ -200,8 +270,8 @@ static Node term_fn(void* arg, Source src, Ctx* ex) {
   }
   TRY(&ctx) {
     const char* name = parse(ident, src, &ctx);
-    if (!strcmp(name, "return")) {
-      cthrow(ex, error("expected identifier or '('"));
+    if (is_keyword(name)) {
+      cthrow(ex, error("expected identifier or '(' but was '%s'", name));
     }
     LVar lvar = findLVar(name);
     return nd_lvar(lvar.offset, lvar.size);
@@ -218,8 +288,6 @@ static Node return_fn(void* arg, Source src, Ctx* ex) {
   PARSER(Node) p = arg;
   return nd_return(parse(p, src, ex));
 }
-
-#define sepBy(sep, p) cons(p, many(skip1st(sep, p)))
 
 static const char* keyword_fn(void* arg, Source src, Ctx* ex) {
   PARSER(String) p = arg;
@@ -238,28 +306,33 @@ static const char* keyword_fn(void* arg, Source src, Ctx* ex) {
 }
 
 static PARSER(String) keyword(const char* word) {
+  add_keyword(word);
   return PARSER_GEN(String)(keyword_fn, token(string1(word)));
+}
+
+static Node c_if_else_fn(void* arg, Source src, Ctx* ex) {
+  // p = "if (cond) stmt else stmt" -> [cond, stmt, stmt]
+  PARSER(List(Node)) ps = arg;
+  Node* itr = list_begin(parse(ps, src, ex));
+  return nd_c_if_else(itr[0], itr[1], itr[2]);
+}
+
+static Node c_while_fn(void* arg, Source src, Ctx* ex) {
+  // p = "while (cond) stmt" -> [cond, stmt]
+  PARSER(List(Node)) ps = arg;
+  Node* itr = list_begin(parse(ps, src, ex));
+  return nd_c_for(NULL, itr[0], NULL, itr[1]);
+}
+
+static Node c_for_fn(void* arg, Source src, Ctx* ex) {
+  // ps = "for (init; cond; next) stmt" -> [init, cond, next, stmt]
+  PARSER(List(Node)) ps = arg;
+  Node* itr = list_begin(parse(ps, src, ex));
+  return nd_c_for(itr[0], itr[1], itr[2], itr[3]);
 }
 
 void setup(void) {
   term = token(PARSER_GEN(Node)(term_fn, NULL));
-  unary = token(PARSER_GEN(Node)(unary_fn, NULL));
-  muldiv = PARSER_GEN(Node)(muldiv_fn, NULL);
-  addsub = PARSER_GEN(Node)(addsub_fn, NULL);
-  relation = PARSER_GEN(Node)(relation_fn, NULL);
-  equality = PARSER_GEN(Node)(equality_fn, NULL);
-
-  PARSER(List(Node)) assign_expr = sepBy(token(char1('=')), equality);
-  assign = PARSER_GEN(Node)(assign_fn, assign_expr);
-  expr = assign;
-
-  PARSER(Node) expr_stmt = skip2nd(expr, token(char1(';')));
-  PARSER(Node) return_stmt = skip1st(keyword("return"), expr_stmt);
-  stmt = either(tryp(PARSER_GEN(Node)(return_fn, return_stmt)),
-                PARSER_GEN(Node)(stmt_fn, expr_stmt));
-
-  program = skip2nd(many(stmt), token(endOfFile));
-
   identStart = either(char1('_'), alpha);
   identLetter = either(char1('_'), alnum);
   ident = cons(identStart, many(identLetter));
@@ -270,6 +343,56 @@ void setup(void) {
   star_slash = token(either((char)'*', (char)'/'));
   open_paren = token(char1('('));
   close_paren = token(char1(')'));
+  open_brace = token(char1('{'));
+  close_brace = token(char1('}'));
+
+  unary = token(PARSER_GEN(Node)(unary_fn, NULL));
+  muldiv = PARSER_GEN(Node)(muldiv_fn, NULL);
+  addsub = PARSER_GEN(Node)(addsub_fn, NULL);
+  relation = PARSER_GEN(Node)(relation_fn, NULL);
+  equality = PARSER_GEN(Node)(equality_fn, NULL);
+
+  PARSER(List(Node)) assign_expr = sepBy(token(char1('=')), equality);
+  assign = PARSER_GEN(Node)(assign_fn, assign_expr);
+  expr = assign;
+
+  PARSER(Node)
+  expr_stmt = PARSER_GEN(Node)(stmt_fn, skip2nd(expr, token(char1(';'))));
+
+  PARSER(Node)
+  return_stmt =
+      PARSER_GEN(Node)(return_fn, skip1st(keyword("return"), expr_stmt));
+
+  PARSER(Node) opt_expr = option(expr, NULL);
+  PARSER(Node) opt_expr_semicolon = skip2nd(opt_expr, token((char)';'));
+
+  PARSER(Node)
+  c_for_stmt = PARSER_GEN(Node)(
+      c_for_fn, concat(skip1st(keyword("for"),
+                               parens(seq(opt_expr_semicolon,
+                                          opt_expr_semicolon, opt_expr))),
+                       seq(indirect(&stmt))));
+
+  PARSER(Node)
+  c_while_stmt = PARSER_GEN(Node)(
+      c_while_fn,
+      seq(skip1st(keyword("while"), parens(expr)), indirect(&stmt)));
+
+  PARSER(Node)
+  c_if_else_stmt = PARSER_GEN(Node)(
+      c_if_else_fn,
+      seq(skip1st(keyword("if"), parens(expr)), indirect(&stmt),
+          option(skip1st(keyword("else"), indirect(&stmt)), NULL)));
+
+  stmt = FOLDL(either,
+               tryp(c_if_else_stmt),
+               tryp(c_for_stmt),
+               tryp(c_while_stmt),
+               tryp(return_stmt),
+               expr_stmt
+               );
+
+  program = skip2nd(many1(stmt), token(endOfFile));
 }
 
 static void codegen_header(void) {
@@ -303,7 +426,7 @@ static void codegen_epilogue(void) {
 
 int main(int argc, char** argv) {
   if (argc < 2) {
-    fprintf(stderr, "Usage: calcc <expr>\n");
+    fprintf(stderr, "Usage: excc <expr>\n");
     return 0;
   }
 

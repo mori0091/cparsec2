@@ -10,7 +10,10 @@ Node Node_new(NodeFn f, void* arg) {
 }
 
 void codegen(Node node, FILE* out) {
-  node->run(node->arg, out);
+  assert(out);
+  if (node) {
+    node->run(node->arg, out);
+  }
 }
 
 static void run_nd_number(void* arg, FILE* out) {
@@ -46,8 +49,10 @@ Node nd_lvar(int offset, int size) {
 
 static void run_nd_stmt(void* arg, FILE* out) {
   Node expr = arg;
-  codegen(expr, out);
-  fprintf(out, "  pop rax\n");
+  if (expr) {
+    codegen(expr, out);
+    fprintf(out, "  pop rax\n");
+  }
 }
 
 Node nd_stmt(Node expr) {
@@ -55,7 +60,7 @@ Node nd_stmt(Node expr) {
 }
 
 static void run_nd_return(void* arg, FILE* out) {
-  run_nd_stmt(arg, out);
+  codegen((Node)arg, out);
   // - epilogue
   //   deallocate local variables
   fprintf(out, "  mov rsp, rbp\n");
@@ -68,6 +73,62 @@ static void run_nd_return(void* arg, FILE* out) {
 
 Node nd_return(Node expr) {
   return Node_new(run_nd_return, expr);
+}
+
+static int counter = 0;
+
+static void run_nd_c_for(void* arg, FILE* out) {
+  Node* node = arg;
+  int label = ++counter;
+  if (node[0]) {
+    codegen(node[0], out); // init (expr)
+    fprintf(out, "  pop rax\n");
+  }
+  fprintf(out, ".Lbegin%d:\n", label);
+  if (node[1]) {
+    codegen(node[1], out); // cond (expr)
+    fprintf(out, "  pop rax\n");
+    fprintf(out, "  cmp rax, 0\n");
+    fprintf(out, "  je  .Lend%d\n", label);
+  }
+  codegen(node[3], out); // body (stmt)
+  if (node[2]) {
+    codegen(node[2], out); // next (expr)
+    fprintf(out, "  pop rax\n");
+  }
+  fprintf(out, "  jmp .Lbegin%d\n", label);
+  fprintf(out, ".Lend%d:\n", label);
+}
+
+Node nd_c_for(Node init, Node cond, Node next, Node body) {
+  Node* arg = mem_malloc(sizeof(Node) * 4);
+  arg[0] = init;
+  arg[1] = cond;
+  arg[2] = next;
+  arg[3] = body;
+  return Node_new(run_nd_c_for, arg);
+}
+
+static void run_nd_c_if_else(void* arg, FILE* out) {
+  Node* node = arg;
+  int label = ++counter;
+  codegen(node[0], out); // cond (expr)
+  fprintf(out, "  pop rax\n");
+  fprintf(out, "  cmp rax, 0\n");
+  fprintf(out, "  je  .Lelse%d\n", label);
+  codegen(node[1], out); // then (stmt)
+  fprintf(out, "  jmp .Lend%d\n", label);
+  fprintf(out, ".Lelse%d:\n", label);
+  codegen(node[2], out); // else (stmt)
+  fprintf(out, ".Lend%d:\n", label);
+}
+
+Node nd_c_if_else(Node cond, Node then_body, Node else_body) {
+  Node* arg = mem_malloc(sizeof(Node) * 3);
+  arg[0] = cond;
+  arg[1] = then_body;
+  arg[2] = else_body;
+  return Node_new(run_nd_c_if_else, arg);
 }
 
 static void run_nd_assign(void* arg, FILE* out) {

@@ -75,9 +75,76 @@ assert 15 = ${CMD} 'return 15;'
 assert 15 = ${CMD} 'a = 10; return a+5;'
 assert 15 = ${CMD} 'a = 10; return 15; a;'
 assert 15 = ${CMD} 'return+15;'
-assert "error:expects <eof> but was 'r'" = ${CMD} 'return;'
+assert "error:expected identifier or '(' but was 'return'" \
+       = ${CMD} 'return;'
 assert 15 = ${CMD} 'returnx=15;'
-assert "error:expects <eof> but was 'r'" = ${CMD} 'return=15;'
+assert "error:expected identifier or '(' but was 'return'" \
+       = ${CMD} 'return=15;'
+assert 45 = ${CMD} '
+  sum = 0;
+  for (i=0; i<10; i=i+1)
+    sum = sum + i;
+  sum;
+'
+assert 220 = ${CMD} '
+  sum = 0;
+  for (i=0; i<4; i=i+1)
+    for (j=1; j<=10; j=j+1)
+      sum = sum + j;
+  return sum;
+'
+assert 64 = ${CMD} '
+  x = 1;
+  while (x < 64)
+    x = x * 2;
+  x;
+'
+assert 10 = ${CMD} '
+  x = 0;
+  if (x < 10)
+    x = 10;
+  x;
+'
+assert 20 = ${CMD} '
+  x = 0;
+  if (x > 10)
+    x = 10;
+  else
+    x = 20;
+  x;
+'
+assert 10 = ${CMD} '
+  x = 0;
+  if (x < 10)
+    x = 10;
+  else
+    x = 20;
+  x;
+'
+assert 10 = ${CMD} '
+  x = 0;
+  while (1)
+    if (x < 10)
+      x = x + 1;
+    else
+      return x;
+'
+assert 10 = ${CMD} '
+  x = 0;
+  for (;;)
+    if (x < 10)
+      x = x + 1;
+    else
+      return x;
+'
+assert 10 = ${CMD} '
+  x = 0;
+  for (;;)
+    if (10 <= x)
+      return x;
+    else
+      x = x + 1;
+'
 
 echo
 echo "$((pass + fail)) tests, $pass passed, $fail failed"

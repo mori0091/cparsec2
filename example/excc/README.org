@@ -63,26 +63,35 @@ $ ./tmp
 - statements ::
   - ~expr ;~
   - ~return expr ;~
+  - ~for (expr ; expr ; expr) stmt~
+  - ~while (expr) stmt~
+  - ~if (expr) stmt~
+  - ~if (expr) stmt else stmt~
 
 * Language syntax
 
-EBNF:
+- *Note* : the below is not a strict EBNF since ~comma(,)~, ~semi-colon(;)~, and
+  ~white space~ are omitted for ease to read.
 #+begin_src c
-// program  = {stmt} endOfFile
-// stmt     = expr ";"
-//          | "return" expr ";"
-// expr     = assign
-// assign   = equality {"=" assign}
-// equality = relation {("==" | "!=") relation}
-// relation = addsub {("<" | "<=" | ">" | ">=") addsub}
-// addsub   = muldiv {("+" | "-") muldiv}
-// muldiv   = unary {("*" | "/") unary}
-// unary    = ["+" | "-"] term
-// term     = number | ident | "(" expr ")"
-// 
-// ident    = ("_" | alpha){("_" | alnum)}
-// alnum    = alpha | digit
-// alpha    = "a" | "b" | ... | "z" | "A" | "B" | ... | "Z"
-// digit    = "0" | "1" | ... "9"
-// number   = digit {digit}
+  program  = stmt {stmt} endOfFile
+  stmt     = expr ";"
+           | "return" expr ";"
+           | "for" "(" [expr] ";" [expr] ";" [expr] ")" stmt
+           | "while" "(" expr ")" stmt
+           | "if" "(" expr ")" stmt ["else" stmt]
+  expr     = assign
+  assign   = equality {"=" assign}
+  equality = relation {("==" | "!=") relation}
+  relation = addsub {("<" | "<=" | ">" | ">=") addsub}
+  addsub   = muldiv {("+" | "-") muldiv}
+  muldiv   = unary {("*" | "/") unary}
+  unary    = ["+" | "-"] term
+  term     = "(" expr ")"
+           | ident
+           | number
+  ident    = ("_" | alpha){"_" | alnum}
+  alnum    = alpha | digit
+  alpha    = "a" | "b" | ... | "z" | "A" | "B" | ... | "Z"
+  digit    = "0" | "1" | ... "9"
+  number   = digit{digit}
 #+end_src
