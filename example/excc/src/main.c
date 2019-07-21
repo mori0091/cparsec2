@@ -72,10 +72,6 @@ void add_keyword(const char* s) {
   }
 }
 
-#define sepBy(sep, p) cons(p, many(skip1st(sep, p)))
-#define between(open, close, p) skip1st(open, skip2nd(p, close))
-#define parens(p) between(open_paren, close_paren, p)
-
 static PARSER(String) keyword(const char* word);
 
 // program  = {stmt} endOfFile
@@ -109,6 +105,33 @@ PARSER(Char) plus_minus;  // plus_minus = "+" | "-"
 PARSER(Char) star_slash;  // star_slash = "*" | "/"
 PARSER(Char) open_paren;  // open_paren = "("
 PARSER(Char) close_paren; // close_paren = ")"
+PARSER(Char) open_brace;  // open_brace = "{"
+PARSER(Char) close_brace; // close_brace = "}"
+
+#define sepBy(sep, p) cons(p, many(skip1st(sep, p)))
+#define between(open, close, p) skip1st(open, skip2nd(p, close))
+#define parens(p) between(open_paren, close_paren, p)
+#define braces(p) between(open_brace, close_brace, p)
+#define option(p, defaultValue) either(tryp(p), identity(defaultValue))
+
+static Node identity_fn(void* arg, Source src, Ctx* ex) {
+  UNUSED(src);
+  UNUSED(ex);
+  return (Node)arg;
+}
+
+static PARSER(Node) identity(Node defalutValue) {
+  return PARSER_GEN(Node)(identity_fn, defalutValue);
+}
+
+static Node indirect_fn(void* arg, Source src, Ctx* ex) {
+  PARSER(Node)* p = arg;
+  return parse(*p, src, ex);
+}
+
+static PARSER(Node) indirect(PARSER(Node) * p) {
+  return PARSER_GEN(Node)(indirect_fn, p);
+}
 
 static Node assign_fn(void* arg, Source src, Ctx* ex) {
   PARSER(List(Node)) p = arg; /* equality {"=" equality} */
@@ -271,6 +294,13 @@ static PARSER(String) keyword(const char* word) {
   return PARSER_GEN(String)(keyword_fn, token(string1(word)));
 }
 
+static Node c_if_else_fn(void* arg, Source src, Ctx* ex) {
+  // p = "if (cond) stmt else stmt" -> [cond, stmt, stmt]
+  PARSER(List(Node)) ps = arg;
+  List(Node) xs = parse(ps, src, ex);
+  return nd_c_if_else(list_begin(xs));
+}
+
 static Node c_while_fn(void* arg, Source src, Ctx* ex) {
   // p = "while (cond)" -> cond
   PARSER(Node) p = arg;
@@ -305,6 +335,8 @@ void setup(void) {
   star_slash = token(either((char)'*', (char)'/'));
   open_paren = token(char1('('));
   close_paren = token(char1(')'));
+  open_brace = token(char1('{'));
+  close_brace = token(char1('}'));
 
   unary = token(PARSER_GEN(Node)(unary_fn, NULL));
   muldiv = PARSER_GEN(Node)(muldiv_fn, NULL);
@@ -332,8 +364,14 @@ void setup(void) {
   c_while_stmt = PARSER_GEN(Node)(
       c_while_fn, skip1st(keyword("while"), parens(expr)));
 
+  PARSER(Node)
+  c_if_else_stmt = PARSER_GEN(Node)(
+      c_if_else_fn,
+      seq(skip1st(keyword("if"), parens(expr)), indirect(&stmt),
+          option(skip1st(keyword("else"), indirect(&stmt)), NULL)));
+
   stmt = FOLDL(either, tryp(return_stmt), tryp(c_for_stmt),
-               tryp(c_while_stmt), expr_stmt);
+               tryp(c_while_stmt), tryp(c_if_else_stmt), expr_stmt);
 
   program = skip2nd(many1(stmt), token(endOfFile));
 }

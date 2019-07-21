@@ -99,6 +99,20 @@ assert 64 = ${CMD} '
     x = x * 2;
   x;
 '
+assert 10 = ${CMD} '
+  x = 0;
+  if (x < 10)
+    x = 10;
+  x;
+'
+assert 20 = ${CMD} '
+  x = 0;
+  if (x > 10)
+    x = 10;
+  else
+    x = 20;
+  x;
+'
 
 echo
 echo "$((pass + fail)) tests, $pass passed, $fail failed"
