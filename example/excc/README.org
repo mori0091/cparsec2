@@ -76,7 +76,7 @@ $ ./tmp
   program  = stmt {stmt} endOfFile
   stmt     = expr ";"
            | "return" expr ";"
-           | "for" "(" expr ";" expr ";" expr ")" stmt
+           | "for" "(" [expr] ";" [expr] ";" [expr] ")" stmt
            | "while" "(" expr ")" stmt
            | "if" "(" expr ")" stmt ["else" stmt]
   expr     = assign
