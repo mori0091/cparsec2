@@ -113,6 +113,38 @@ assert 20 = ${CMD} '
     x = 20;
   x;
 '
+assert 10 = ${CMD} '
+  x = 0;
+  if (x < 10)
+    x = 10;
+  else
+    x = 20;
+  x;
+'
+assert 10 = ${CMD} '
+  x = 0;
+  while (1)
+    if (x < 10)
+      x = x + 1;
+    else
+      return x;
+'
+assert 10 = ${CMD} '
+  x = 0;
+  for (;;)
+    if (x < 10)
+      x = x + 1;
+    else
+      return x;
+'
+assert 10 = ${CMD} '
+  x = 0;
+  for (;;)
+    if (10 <= x)
+      return x;
+    else
+      x = x + 1;
+'
 
 echo
 echo "$((pass + fail)) tests, $pass passed, $fail failed"

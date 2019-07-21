@@ -114,6 +114,22 @@ PARSER(Char) close_brace; // close_brace = "}"
 #define braces(p) between(open_brace, close_brace, p)
 #define option(p, defaultValue) either(tryp(p), identity(defaultValue))
 
+static List(Node) concat_fn(void* arg, Source src, Ctx* ex) {
+  PARSER(List(Node))* ps = arg;
+  Buff(Node) b = {0};
+  buff_append(&b, parse(ps[0], src, ex));
+  buff_append(&b, parse(ps[1], src, ex));
+  return buff_finish(&b);
+}
+
+static PARSER(List(Node))
+    concat(PARSER(List(Node)) xs, PARSER(List(Node)) ys) {
+  PARSER(List(Node))* arg = mem_malloc(sizeof(List(Node)) * 2);
+  arg[0] = xs;
+  arg[1] = ys;
+  return PARSER_GEN(List(Node))(concat_fn, arg);
+}
+
 static Node identity_fn(void* arg, Source src, Ctx* ex) {
   UNUSED(src);
   UNUSED(ex);
@@ -297,30 +313,22 @@ static PARSER(String) keyword(const char* word) {
 static Node c_if_else_fn(void* arg, Source src, Ctx* ex) {
   // p = "if (cond) stmt else stmt" -> [cond, stmt, stmt]
   PARSER(List(Node)) ps = arg;
-  List(Node) xs = parse(ps, src, ex);
-  return nd_c_if_else(list_begin(xs));
+  Node* itr = list_begin(parse(ps, src, ex));
+  return nd_c_if_else(itr[0], itr[1], itr[2]);
 }
 
 static Node c_while_fn(void* arg, Source src, Ctx* ex) {
-  // p = "while (cond)" -> cond
-  PARSER(Node) p = arg;
-  Node cond = parse(p, src, ex);
-  Node body = parse(stmt, src, ex);
-  Buff(Node) b = {0};
-  buff_push(&b, NULL); // init
-  buff_push(&b, cond);
-  buff_push(&b, NULL); // next
-  buff_push(&b, body);
-  return nd_c_for(list_begin(buff_finish(&b)));
+  // p = "while (cond) stmt" -> [cond, stmt]
+  PARSER(List(Node)) ps = arg;
+  Node* itr = list_begin(parse(ps, src, ex));
+  return nd_c_for(NULL, itr[0], NULL, itr[1]);
 }
 
 static Node c_for_fn(void* arg, Source src, Ctx* ex) {
-  // ps = "for (init; cond; next)" -> [init, cond, next]
+  // ps = "for (init; cond; next) stmt" -> [init, cond, next, stmt]
   PARSER(List(Node)) ps = arg;
-  Buff(Node) b = {0};
-  buff_append(&b, parse(ps, src, ex)); // [init, cond, next]
-  buff_push(&b, parse(stmt, src, ex)); // [init, cond, next, body]
-  return nd_c_for(list_begin(buff_finish(&b)));
+  Node* itr = list_begin(parse(ps, src, ex));
+  return nd_c_for(itr[0], itr[1], itr[2], itr[3]);
 }
 
 void setup(void) {
@@ -355,14 +363,20 @@ void setup(void) {
   return_stmt =
       PARSER_GEN(Node)(return_fn, skip1st(keyword("return"), expr_stmt));
 
+  PARSER(Node) opt_expr = option(expr, NULL);
+  PARSER(Node) opt_expr_semicolon = skip2nd(opt_expr, token((char)';'));
+
   PARSER(Node)
   c_for_stmt = PARSER_GEN(Node)(
-      c_for_fn,
-      skip1st(keyword("for"), parens(seq(expr_stmt, expr_stmt, expr))));
+      c_for_fn, concat(skip1st(keyword("for"),
+                               parens(seq(opt_expr_semicolon,
+                                          opt_expr_semicolon, opt_expr))),
+                       seq(indirect(&stmt))));
 
   PARSER(Node)
   c_while_stmt = PARSER_GEN(Node)(
-      c_while_fn, skip1st(keyword("while"), parens(expr)));
+      c_while_fn,
+      seq(skip1st(keyword("while"), parens(expr)), indirect(&stmt)));
 
   PARSER(Node)
   c_if_else_stmt = PARSER_GEN(Node)(
@@ -370,8 +384,13 @@ void setup(void) {
       seq(skip1st(keyword("if"), parens(expr)), indirect(&stmt),
           option(skip1st(keyword("else"), indirect(&stmt)), NULL)));
 
-  stmt = FOLDL(either, tryp(return_stmt), tryp(c_for_stmt),
-               tryp(c_while_stmt), tryp(c_if_else_stmt), expr_stmt);
+  stmt = FOLDL(either,
+               tryp(c_if_else_stmt),
+               tryp(c_for_stmt),
+               tryp(c_while_stmt),
+               tryp(return_stmt),
+               expr_stmt
+               );
 
   program = skip2nd(many1(stmt), token(endOfFile));
 }
