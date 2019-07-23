@@ -67,6 +67,7 @@ $ ./tmp
   - ~while (expr) stmt~
   - ~if (expr) stmt~
   - ~if (expr) stmt else stmt~
+  - ~{ stmt... }~
 
 * Language syntax
 
@@ -75,6 +76,7 @@ $ ./tmp
 #+begin_src c
   program  = stmt {stmt} endOfFile
   stmt     = expr ";"
+           | "{" {stmt} "}"
            | "return" expr ";"
            | "for" "(" [expr] ";" [expr] ";" [expr] ")" stmt
            | "while" "(" expr ")" stmt
