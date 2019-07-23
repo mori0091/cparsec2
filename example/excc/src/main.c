@@ -395,7 +395,7 @@ void setup(void) {
   c_compound_stmt =
       PARSER_GEN(Node)(c_compound_stmt_fn, braces(many(indirect(&stmt))));
 
-  stmt = FOLDL(either,
+  stmt = FOLDL(EITHER(Node),
                tryp(c_compound_stmt),
                tryp(c_if_else_stmt),
                tryp(c_for_stmt),
