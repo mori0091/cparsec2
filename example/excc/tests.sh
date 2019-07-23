@@ -145,6 +145,22 @@ assert 10 = ${CMD} '
     else
       x = x + 1;
 '
+assert 30 = ${CMD} '
+  {
+    10;
+    20;
+    30;
+  }
+'
+assert 55 = ${CMD} '
+  sum = 0;
+  for (i = 0; ; i = i + 1 ) {
+    sum = sum + i;
+    if (10 <= i) {
+      return sum;
+    }
+  }
+'
 
 echo
 echo "$((pass + fail)) tests, $pass passed, $fail failed"

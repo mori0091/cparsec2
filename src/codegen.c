@@ -131,6 +131,22 @@ Node nd_c_if_else(Node cond, Node then_body, Node else_body) {
   return Node_new(run_nd_c_if_else, arg);
 }
 
+static void run_nd_c_compound_stmt(void* arg, FILE* out) {
+  Node** xs = arg;
+  Node* itr = xs[0];
+  Node* end = xs[1];
+  while (itr != end) {
+    codegen(*itr++, out);
+  }
+}
+
+Node nd_c_compound_stmt(int n, Node* block) {
+  Node** arg = mem_malloc(sizeof(Node*)*2);
+  arg[0] = block;
+  arg[1] = block + n;
+  return Node_new(run_nd_c_compound_stmt, arg);
+}
+
 static void run_nd_assign(void* arg, FILE* out) {
   Node* node = (Node*)arg;
   if (node[0]->run != run_nd_lvar) {

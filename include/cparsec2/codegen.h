@@ -24,6 +24,7 @@ Node nd_stmt(Node expr);
 Node nd_return(Node expr);
 Node nd_c_for(Node init, Node cond, Node next, Node body);
 Node nd_c_if_else(Node cond, Node then_body, Node else_body);
+Node nd_c_compound_stmt(int n, Node* block);
 Node nd_assign(Node lhs, Node rhs);
 Node nd_EQ(Node lhs, Node rhs);
 Node nd_NE(Node lhs, Node rhs);
