@@ -310,6 +310,13 @@ static PARSER(String) keyword(const char* word) {
   return PARSER_GEN(String)(keyword_fn, token(string1(word)));
 }
 
+static Node c_compound_stmt_fn(void* arg, Source src, Ctx* ex) {
+  // p = "{ stmt... }" -> [stmt, ...]
+  PARSER(List(Node)) ps = arg;
+  List(Node) xs = parse(ps, src, ex);
+  return nd_c_compound_stmt(list_length(xs), list_begin(xs));
+}
+
 static Node c_if_else_fn(void* arg, Source src, Ctx* ex) {
   // p = "if (cond) stmt else stmt" -> [cond, stmt, stmt]
   PARSER(List(Node)) ps = arg;
@@ -384,13 +391,17 @@ void setup(void) {
       seq(skip1st(keyword("if"), parens(expr)), indirect(&stmt),
           option(skip1st(keyword("else"), indirect(&stmt)), NULL)));
 
+  PARSER(Node)
+  c_compound_stmt =
+      PARSER_GEN(Node)(c_compound_stmt_fn, braces(many(indirect(&stmt))));
+
   stmt = FOLDL(either,
+               tryp(c_compound_stmt),
                tryp(c_if_else_stmt),
                tryp(c_for_stmt),
                tryp(c_while_stmt),
                tryp(return_stmt),
-               expr_stmt
-               );
+               expr_stmt);
 
   program = skip2nd(many1(stmt), token(endOfFile));
 }
