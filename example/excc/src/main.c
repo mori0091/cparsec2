@@ -75,15 +75,18 @@ void add_keyword(const char* s) {
 static PARSER(String) keyword(const char* word);
 
 // program  = {stmt} endOfFile
-// stmt     = expr ";" {expr ";"}
+// stmt     = expr ";"
+//          | "for" "(" [expr] ";" [expr] ";" [expr] ")" stmt
+//          | "while" "(" expr ")" stmt
+//          | "if" "(" expr ")" stmt ["else" stmt]
 // expr     = assign
-// assign   = equality {"=" assign}
+// assign   = equality {"=" equality}
 // equality = relation {("==" | "!=") relation}
 // relation = addsub {("<" | "<=" | ">" | ">=") addsub}
 // addsub   = muldiv { ("+" | "-") muldiv }
 // muldiv   = unary { ("*" | "/") unary }
 // unary    = ["+" | "-"] term
-// term     = number | "(" expr ")"
+// term     = number | "(" expr ")" | ident
 PARSER(List(Node)) program;
 PARSER(Node) stmt;
 PARSER(Node) expr;
