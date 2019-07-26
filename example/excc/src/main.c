@@ -102,10 +102,6 @@ PARSER(Char) identStart;
 PARSER(Char) identLetter;
 PARSER(String) ident;
 
-PARSER(String) eq_neq;    // eq_neq = "==" | "!="
-PARSER(Char) lt_gt;       // lt_gt = "<" | ">"
-PARSER(Char) plus_minus;  // plus_minus = "+" | "-"
-PARSER(Char) star_slash;  // star_slash = "*" | "/"
 PARSER(Char) open_paren;  // open_paren = "("
 PARSER(Char) close_paren; // close_paren = ")"
 PARSER(Char) open_brace;  // open_brace = "{"
@@ -152,6 +148,58 @@ static PARSER(Node) indirect(PARSER(Node) * p) {
   return PARSER_GEN(Node)(indirect_fn, p);
 }
 
+typedef struct {
+  const char* op;
+  Node (*f)(Node lhs, Node rhs);
+} Infix;
+
+typedef struct InfixParserArgSt {
+  PARSER(Node) p; /* operand parser */
+  int n;          /* the number of operators */
+  PARSER(List(Node)) * ps;
+  Node (**fs)(Node lhs, Node rhs);
+} * InfixParserArg;
+
+static Node infixl_fn(void* arg, Source src, Ctx* ex) {
+  InfixParserArg tbl = arg;
+  Node x = parse(tbl->p, src, ex);
+  bool repeat;
+  do {
+    repeat = false;
+    for (int i = 0; i < tbl->n; ++i) {
+      Ctx ctx;
+      TRY(&ctx) {
+        // ex. tbl->ps[i] == tryp(many1(skip1st(token("*"), tbl->p)))
+        List(Node) xs = parse(tbl->ps[i], src, &ctx);
+        Node* itr = list_begin(xs);
+        Node* end = list_end(xs);
+        while (itr != end) {
+          x = tbl->fs[i](x, *itr++);
+        }
+        repeat = true;
+      }
+      else {
+        mem_free((void*)ctx.msg);
+      }
+    }
+  } while (repeat);
+  return x;
+}
+
+static PARSER(Node) infixl(PARSER(Node) p, int n, Infix tbl[n]) {
+  InfixParserArg arg = mem_malloc(sizeof(struct InfixParserArgSt));
+  arg->ps = mem_malloc(sizeof(PARSER(List(Node))) * n);
+  arg->fs = mem_malloc(sizeof(Node(*)(Node, Node)) * n);
+  arg->n = n;
+  arg->p = p;
+  for (int i = 0; i < n; ++i) {
+    arg->ps[i] = tryp(many1(skip1st(token(string1(tbl[i].op)), p)));
+    arg->fs[i] = tbl[i].f;
+  }
+  return PARSER_GEN(Node)(infixl_fn, arg);
+}
+
+// assign = foldr(nd_assign, sepBy((char)'=', equality))
 static Node assign_fn(void* arg, Source src, Ctx* ex) {
   PARSER(List(Node)) p = arg; /* equality {"=" equality} */
   List(Node) xs = parse(p, src, ex);
@@ -163,88 +211,6 @@ static Node assign_fn(void* arg, Source src, Ctx* ex) {
   Node x = *itr--;
   while (itr != end) {
     x = nd_assign(*itr--, x);
-  }
-  return x;
-}
-
-static Node equality_fn(void* arg, Source src, Ctx* ex) {
-  UNUSED(arg);
-  Node x = parse(relation, src, ex);
-  Ctx ctx;
-  TRY(&ctx) {
-    for (;;) {
-      const char* op = parse(eq_neq, src, &ctx);
-      Node y = parse(relation, src, ex);
-      if (op[0] == '=') {
-        x = nd_EQ(x, y);
-      } else {
-        x = nd_NE(x, y);
-      }
-    }
-  }
-  return x;
-}
-
-static Node relation_fn(void* arg, Source src, Ctx* ex) {
-  UNUSED(arg);
-  Node x = parse(addsub, src, ex);
-  Ctx ctx;
-  TRY(&ctx) {
-    for (;;) {
-      char c = parse(lt_gt, src, &ctx);
-      if (peek(src, ex) == '=') {
-        consume(src);
-        Node y = parse(addsub, src, ex);
-        if (c == '<') {
-          x = nd_LE(x, y);
-        } else {
-          x = nd_LE(y, x);
-        }
-      } else {
-        Node y = parse(addsub, src, ex);
-        if (c == '<') {
-          x = nd_LT(x, y);
-        } else {
-          x = nd_LT(y, x);
-        }
-      }
-    }
-  }
-  return x;
-}
-
-static Node addsub_fn(void* arg, Source src, Ctx* ex) {
-  UNUSED(arg);
-  Node x = parse(muldiv, src, ex);
-  Ctx ctx;
-  TRY(&ctx) {
-    while (peek(src, &ctx)) {
-      char op = parse(plus_minus, src, &ctx);
-      Node y = parse(muldiv, src, ex);
-      if (op == '+') {
-        x = nd_add(x, y);
-      } else {
-        x = nd_sub(x, y);
-      }
-    }
-  }
-  return x;
-}
-
-static Node muldiv_fn(void* arg, Source src, Ctx* ex) {
-  UNUSED(arg);
-  Node x = parse(unary, src, ex);
-  Ctx ctx;
-  TRY(&ctx) {
-    while (peek(src, &ctx)) {
-      char op = parse(star_slash, src, &ctx);
-      Node y = parse(unary, src, ex);
-      if (op == '*') {
-        x = nd_mul(x, y);
-      } else {
-        x = nd_div(x, y);
-      }
-    }
   }
   return x;
 }
@@ -347,20 +313,17 @@ void setup(void) {
   identLetter = either(char1('_'), alnum);
   ident = cons(identStart, many(identLetter));
 
-  eq_neq = token(tryp(either("!=", "==")));
-  lt_gt = token(either((char)'<', (char)'>'));
-  plus_minus = token(either((char)'+', (char)'-'));
-  star_slash = token(either((char)'*', (char)'/'));
   open_paren = token(char1('('));
   close_paren = token(char1(')'));
   open_brace = token(char1('{'));
   close_brace = token(char1('}'));
 
   unary = token(PARSER_GEN(Node)(unary_fn, NULL));
-  muldiv = PARSER_GEN(Node)(muldiv_fn, NULL);
-  addsub = PARSER_GEN(Node)(addsub_fn, NULL);
-  relation = PARSER_GEN(Node)(relation_fn, NULL);
-  equality = PARSER_GEN(Node)(equality_fn, NULL);
+  muldiv = infixl(unary, 2, (Infix[]){{"*", nd_mul}, {"/", nd_div}});
+  addsub = infixl(muldiv, 2, (Infix[]){{"+", nd_add}, {"-", nd_sub}});
+  relation = infixl(addsub, 4, (Infix[]){{"<=", nd_LE}, {">=", nd_GE},
+                                         {"<", nd_LT}, {">", nd_GT}});
+  equality = infixl(relation, 2, (Infix[]){{"==", nd_EQ}, {"!=", nd_NE}});
 
   PARSER(List(Node)) assign_expr = sepBy(token(char1('=')), equality);
   assign = PARSER_GEN(Node)(assign_fn, assign_expr);
