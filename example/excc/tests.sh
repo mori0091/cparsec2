@@ -70,6 +70,11 @@ assert 0 = ${CMD} ' 99 >= 100;'
 assert 10 = ${CMD} 'a = 10;'
 assert 20 = ${CMD} 'a = b = 10; a+b;'
 assert 30 = ${CMD} 'a = b = 10; b = b + 10; a + b;'
+assert "error:lvalue of assignment is not a variable" \
+       = ${CMD} '1 + 9 = 10;'
+assert "error:lvalue of assignment is not a variable" \
+       = ${CMD} '1 + a = 9 == 10;'
+assert 1 = ${CMD} '1 + (a = 9) == 10;'
 assert 30 = ${CMD} 'abc1 = _bcd32 = 10; 2 * abc1 + _bcd32;'
 assert 15 = ${CMD} 'return 15;'
 assert 15 = ${CMD} 'a = 10; return a+5;'
