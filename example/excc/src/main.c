@@ -199,20 +199,38 @@ static PARSER(Node) infixl(PARSER(Node) p, int n, Infix tbl[n]) {
   return PARSER_GEN(Node)(infixl_fn, arg);
 }
 
-// assign = foldr(nd_assign, sepBy((char)'=', equality))
-static Node assign_fn(void* arg, Source src, Ctx* ex) {
-  PARSER(List(Node)) p = arg; /* equality {"=" equality} */
-  List(Node) xs = parse(p, src, ex);
-  Node* itr = list_end(xs) - 1;
-  Node* end = list_begin(xs) - 1;
-  if (itr == end) {
-    cthrow(ex, error("no expression"));
+static Node infixr_fn(void* arg, Source src, Ctx* ex) {
+  InfixParserArg tbl = arg;
+  for (int i = 0; i < tbl->n; ++i) {
+    Ctx ctx;
+    TRY(&ctx) {
+      List(Node) xs = parse(tbl->ps[i], src, &ctx);
+      Node x = infixr_fn(tbl, src, ex);
+      Node* itr = list_end(xs) - 1;
+      Node* end = list_begin(xs) - 1;
+      while (itr != end) {
+        x = tbl->fs[i](*itr--, x);
+      }
+      return x;
+    }
+    else {
+      mem_free((void*)ctx.msg);
+    }
   }
-  Node x = *itr--;
-  while (itr != end) {
-    x = nd_assign(*itr--, x);
+  return parse(tbl->p, src, ex);
+}
+
+static PARSER(Node) infixr(PARSER(Node) p, int n, Infix tbl[n]) {
+  InfixParserArg arg = mem_malloc(sizeof(struct InfixParserArgSt));
+  arg->ps = mem_malloc(sizeof(PARSER(List(Node))) * n);
+  arg->fs = mem_malloc(sizeof(Node(*)(Node, Node)) * n);
+  arg->n = n;
+  arg->p = p;
+  for (int i = 0; i < n; ++i) {
+    arg->ps[i] = tryp(many1(skip2nd(p, token(string1(tbl[i].op)))));
+    arg->fs[i] = tbl[i].f;
   }
-  return x;
+  return PARSER_GEN(Node)(infixr_fn, arg);
 }
 
 static Node unary_fn(void* arg, Source src, Ctx* ex) {
@@ -324,9 +342,7 @@ void setup(void) {
   relation = infixl(addsub, 4, (Infix[]){{"<=", nd_LE}, {">=", nd_GE},
                                          {"<", nd_LT}, {">", nd_GT}});
   equality = infixl(relation, 2, (Infix[]){{"==", nd_EQ}, {"!=", nd_NE}});
-
-  PARSER(List(Node)) assign_expr = sepBy(token(char1('=')), equality);
-  assign = PARSER_GEN(Node)(assign_fn, assign_expr);
+  assign = infixr(equality, 1, (Infix[]){{"=", nd_assign}});
   expr = assign;
 
   PARSER(Node)
