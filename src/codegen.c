@@ -150,7 +150,7 @@ Node nd_c_compound_stmt(int n, Node* block) {
 static void run_nd_assign(void* arg, FILE* out) {
   Node* node = (Node*)arg;
   if (node[0]->run != run_nd_lvar) {
-    fprintf(stderr, "lvalue of assignment is not a variable");
+    fprintf(stderr, "error:lvalue of assignment is not a variable");
     exit(1);
   }
   int* lvar = node[0]->arg;
