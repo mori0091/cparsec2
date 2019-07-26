@@ -30,6 +30,8 @@ Node nd_EQ(Node lhs, Node rhs);
 Node nd_NE(Node lhs, Node rhs);
 Node nd_LT(Node lhs, Node rhs);
 Node nd_LE(Node lhs, Node rhs);
+Node nd_GT(Node lhs, Node rhs);
+Node nd_GE(Node lhs, Node rhs);
 Node nd_add(Node lhs, Node rhs);
 Node nd_sub(Node lhs, Node rhs);
 Node nd_mul(Node lhs, Node rhs);
