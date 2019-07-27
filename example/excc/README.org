@@ -16,19 +16,81 @@ make
 
 * Usage
 
-- Usage :: excc <expression>
+** NAME
+excc - an experimental C compiler subset
+
+** SYNOPSIS
+*excc* '_source code_'
+
+** DESCRIPTION
+Compiles a source code into assembly code of x86_64.
+
+the ~excc~ command
+ - takes one argument as the input (a source code),
+ - compiles the input into asssembly code, and
+ - sends its output (asssembly code) to standard output.
+
+** EXIT STATUS
+If ~excc~ succeeds, it will exit with 0. Otherwise, if an error occurs, it will
+exit with a non-zero value.
+
+** EXAMPLE
 
 #+begin_src shell
-$ ./bin/excc '10 + 2 * 3' > tmp.s
-$ gcc -o tmp tmp.s
-$ ./tmp
-16
+$ ./bin/excc '10 + 2 * 3;'
+#+end_src
 
-$ ./bin/excc '(10 + 2) * 3' > tmp.s
+The above command produces the following assembly code:
+#+begin_src asm
+.intel_syntax noprefix
+.global main
+main:
+  push rbp
+  mov rbp, rsp
+  sub rsp, 0
+  push 10
+  push 2
+  push 3
+  pop rdi
+  pop rax
+  mul rdi
+  push rax
+  pop rdi
+  pop rax
+  add rax, rdi
+  push rax
+  pop rax
+  mov rsp, rbp
+  pop rbp
+  ret
+#+end_src
+
+So, to make an executable, redirect ~excc~'s output to a file such as ~tmp.s~
+and assemble the file by using existence assembler/compiler such as GCC.
+
+Example 1.
+#+begin_src shell
+$ ./bin/excc '10 + 2 * 3;' > tmp.s
 $ gcc -o tmp tmp.s
 $ ./tmp
+$ echo $?
+16
+#+end_src
+
+Example 2.
+#+begin_src shell
+$ ./bin/excc '(10 + 2) * 3;' > tmp.s
+$ gcc -o tmp tmp.s
+$ ./tmp
+$ echo $?
 36
 #+end_src
+
+Note that the executable returns the result as its exit status.
+- NOTE : ~echo $?~ prints the exit status of the last executed command
+- NOTE : Formally, the exit status should be in range of 0 .. 255.
+- NOTE : if the executable returned a result out of range, ~echo $?~ cannot
+  print correct value. It's not a bug. Don't warry about it.
 
 * Feature
 - types ::
