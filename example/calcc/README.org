@@ -22,10 +22,12 @@ make
 $ ./bin/calcc '10 + 2 * 3' > tmp.s
 $ gcc -o tmp tmp.s
 $ ./tmp
+$ echo $?
 16
 
 $ ./bin/calcc '(10 + 2) * 3' > tmp.s
 $ gcc -o tmp tmp.s
 $ ./tmp
+$ echo $?
 36
 #+end_src
