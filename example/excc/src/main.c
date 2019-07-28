@@ -87,7 +87,7 @@ static PARSER(String) keyword(const char* word);
 // muldiv   = unary { ("*" | "/") unary }
 // unary    = ["+" | "-"] term
 // term     = number | "(" expr ")" | ident
-PARSER(List(Node)) program;
+PARSER(Node) program;
 PARSER(Node) stmt;
 PARSER(Node) expr;
 PARSER(Node) assign;
@@ -385,36 +385,40 @@ void setup(void) {
                tryp(return_stmt),
                expr_stmt);
 
-  program = skip2nd(many1(stmt), token(endOfFile));
+  program = PARSER_GEN(Node)(c_compound_stmt_fn,
+                             skip2nd(many1(stmt), token(endOfFile)));
 }
 
-static void codegen_header(void) {
+static void codegen_header(FILE* out) {
   // - header
-  fprintf(stdout, ".intel_syntax noprefix\n");
-  fprintf(stdout, ".global main\n");
-  fprintf(stdout, "main:\n");
+  fprintf(out, ".intel_syntax noprefix\n");
 }
 
-static void codegen_footer(void) {
-  // - footer
+static void codegen_glabel(const char* label, FILE* out) {
+  fprintf(out, ".global %s\n", label);
+  fprintf(out, "%s:\n", label);
+}
+
+static void codegen_ret(FILE* out) {
+  // - return to caller
   //   note: 'rax' has already the result of the last expression,
   //   and the value of 'rax' shall be the return value.
-  fprintf(stdout, "  ret\n");
+  fprintf(out, "  ret\n");
 }
 
-static void codegen_prologue(void) {
+static void codegen_prologue(FILE* out) {
   // - prologue
   //   allocate local variables
-  fprintf(stdout, "  push rbp\n");
-  fprintf(stdout, "  mov rbp, rsp\n");
-  fprintf(stdout, "  sub rsp, %d\n", getLVarOffsetMax());
+  fprintf(out, "  push rbp\n");
+  fprintf(out, "  mov rbp, rsp\n");
+  fprintf(out, "  sub rsp, %d\n", getLVarOffsetMax());
 }
 
-static void codegen_epilogue(void) {
+static void codegen_epilogue(FILE* out) {
   // - epilogue
   //   deallocate local variables
-  fprintf(stdout, "  mov rsp, rbp\n");
-  fprintf(stdout, "  pop rbp\n");
+  fprintf(out, "  mov rsp, rbp\n");
+  fprintf(out, "  pop rbp\n");
 }
 
 int main(int argc, char** argv) {
@@ -429,25 +433,19 @@ int main(int argc, char** argv) {
 
   Ctx ctx;
   TRY(&ctx) {
+    FILE* out = stdout;
     Source src = Source_new(argv[1]);
-    List(Node) ast = parse(program, src, &ctx);
+    Node ast = parse(program, src, &ctx);
 
     // [generate assembly code]
-    codegen_header();
+    codegen_header(out);
+    codegen_glabel("main", out);
     {
-      codegen_prologue();
-      {
-        Node* itr = list_begin(ast);
-        Node* end = list_end(ast);
-        while (itr != end) {
-          // generate code of the statement.
-          codegen(*itr++, stdout);
-        }
-      }
-      codegen_epilogue();
+      codegen_prologue(out);
+      codegen(ast, out);
+      codegen_epilogue(out);
+      codegen_ret(out);
     }
-    codegen_footer();
-
     return 0;
   }
   else {
