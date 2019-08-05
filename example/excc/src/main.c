@@ -86,7 +86,11 @@ static PARSER(String) keyword(const char* word);
 // addsub   = muldiv { ("+" | "-") muldiv }
 // muldiv   = unary { ("*" | "/") unary }
 // unary    = ["+" | "-"] term
-// term     = number | "(" expr ")" | ident
+// term     = "(" expr ")"
+//          | number
+//          | ident
+//          | ident "(" [arg-list] ")"
+// arg-list = expr {"," expr}
 PARSER(Node) program;
 PARSER(Node) stmt;
 PARSER(Node) expr;
@@ -246,24 +250,32 @@ static Node unary_fn(void* arg, Source src, Ctx* ex) {
   return parse(term, src, ex);
 }
 
-static Node term_fn(void* arg, Source src, Ctx* ex) {
+static Node literal_fn(void* arg, Source src, Ctx* ex) {
   UNUSED(arg);
+  return nd_number(parse(number, src, ex));
+}
+
+static Node ident_fn(void* arg, Source src, Ctx* ex) {
+  UNUSED(arg);
+  const char* name = parse(ident, src, ex);
+  if (is_keyword(name)) {
+    cthrow(ex, error("expected identifier or '(' but was '%s'", name));
+  }
   Ctx ctx;
   TRY(&ctx) {
     parse(open_paren, src, &ctx);
-    Node x = parse(expr, src, ex);
-    parse(close_paren, src, ex);
-    return x;
-  }
-  TRY(&ctx) {
-    const char* name = parse(ident, src, &ctx);
-    if (is_keyword(name)) {
-      cthrow(ex, error("expected identifier or '(' but was '%s'", name));
+    parse(spaces, src, &ctx);
+    List(Node) args = {0};
+    if (')' != peek(src, ex)) {
+      args = parse(sepBy(char1(','), expr), src, ex);
     }
-    LVar lvar = findLVar(name);
-    return nd_lvar(lvar.offset, lvar.size);
+    parse(close_paren, src, ex);
+    return nd_c_call(name, list_length(args), list_begin(args));
+  } else {
+    mem_free((void*)ctx.msg);
   }
-  return nd_number(parse(number, src, ex));
+  LVar lvar = findLVar(name);
+  return nd_lvar(lvar.offset, lvar.size);
 }
 
 static Node stmt_fn(void* arg, Source src, Ctx* ex) {
@@ -326,7 +338,6 @@ static Node c_for_fn(void* arg, Source src, Ctx* ex) {
 }
 
 void setup(void) {
-  term = token(PARSER_GEN(Node)(term_fn, NULL));
   identStart = either(char1('_'), alpha);
   identLetter = either(char1('_'), alnum);
   ident = cons(identStart, many(identLetter));
@@ -336,6 +347,10 @@ void setup(void) {
   open_brace = token(char1('{'));
   close_brace = token(char1('}'));
 
+  term = token(FOLDL(EITHER(Node),
+                     parens(indirect(&expr)),
+                     PARSER_GEN(Node)(literal_fn, NULL),
+                     PARSER_GEN(Node)(ident_fn, NULL)));
   unary = token(PARSER_GEN(Node)(unary_fn, NULL));
   muldiv = infixl(unary, 2, (Infix[]){{"*", nd_mul}, {"/", nd_div}});
   addsub = infixl(muldiv, 2, (Infix[]){{"+", nd_add}, {"-", nd_sub}});

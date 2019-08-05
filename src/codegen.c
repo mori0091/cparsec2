@@ -47,6 +47,44 @@ Node nd_lvar(int offset, int size) {
   return Node_new(run_nd_lvar, (void*)lvar);
 }
 
+struct nd_c_call_arg {
+  const char* name;
+  int argc;
+  Node* argv;
+};
+
+static const char* c_call_registers[] = {
+    "rax", // return value
+    "rdi", // argument #1
+    "rsi", // argument #2
+    "rdx", // argument #3
+    "rcx", // argument #4
+    "r8" , // argument #5
+    "r9" , // argument #6
+};
+
+static void run_nd_c_call(void* arg, FILE* out) {
+  struct nd_c_call_arg* p = arg;
+  assert(p && p->name && 0 <= p->argc);
+  for (int i = p->argc; 0 < i; --i) {
+    codegen(p->argv[i-1], out);
+  }
+  int n = (p->argc > 6) ? 6 : p->argc;
+  for (int i = 1; i <= n; ++i) {
+    fprintf(out, "  pop %s\n", c_call_registers[i]);
+  }
+  fprintf(out, "  call %s\n", p->name);
+  fprintf(out, "  push rax\n");
+}
+
+Node nd_c_call(const char* name, int argc, Node* argv) {
+  struct nd_c_call_arg* p = mem_malloc(sizeof(struct nd_c_call_arg));
+  p->name = name;
+  p->argc = argc;
+  p->argv = argv;
+  return Node_new(run_nd_c_call, p);
+}
+
 static void run_nd_stmt(void* arg, FILE* out) {
   Node expr = arg;
   if (expr) {
