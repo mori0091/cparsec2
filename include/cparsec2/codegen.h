@@ -20,6 +20,7 @@ void codegen(Node node, FILE* out);
 
 Node nd_number(int val);
 Node nd_lvar(int offset, int size);
+Node nd_c_call(const char* name, int argc, Node* argv);
 Node nd_stmt(Node expr);
 Node nd_return(Node expr);
 Node nd_c_for(Node init, Node cond, Node next, Node body);

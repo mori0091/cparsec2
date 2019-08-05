@@ -100,8 +100,15 @@ Note that the executable returns the result as its exit status.
   - supports multi-character local variables (ex. ~a~, ~abc1~, ~_foobar~)
 - global variables ::
   - not supported yet.
-- functions ::
+- function declaration :: 
   - not supported yet.
+- function definition ::
+  - not supported yet.
+- function call ::
+  - type of return value must be ~int~
+  - type of any argument must be ~int~
+  - zeroth or more arguments are available.
+  - variadic arguments is not supported.
 - literal ::
   - decimal integer (ex. ~0~, ~1~, ~100~, ~123456~)
 - arithmetic expression ::
@@ -151,8 +158,10 @@ Note that the executable returns the result as its exit status.
   muldiv   = unary {("*" | "/") unary}
   unary    = ["+" | "-"] term
   term     = "(" expr ")"
-           | ident
            | number
+           | ident
+           | ident "(" [arg-list] ")"
+  arg-list = expr {"," expr}
   ident    = ("_" | alpha){"_" | alnum}
   alnum    = alpha | digit
   alpha    = "a" | "b" | ... | "z" | "A" | "B" | ... | "Z"

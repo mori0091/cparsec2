@@ -8,7 +8,7 @@ compile_and_run() {
         cat err.log
         return 127
     }
-    ${CC} ${CFLAGS} -o tmp tmp.s ${LDFLAGS} ${LDLIBS} || {
+    ${CC} ${CFLAGS} -o tmp tmp.s ${SRCS} ${LDFLAGS} ${LDLIBS} || {
         return 127
     }
     ./tmp
@@ -165,6 +165,18 @@ assert 55 = ${CMD} '
       return sum;
     }
   }
+'
+
+NEWLINE='
+'
+SRCS=test_func.c assert "OK${NEWLINE}0" = ${CMD} '
+  printOK();
+'
+SRCS=test_func.c assert "30${NEWLINE}0" = ${CMD} '
+  printSum(10, 20);
+'
+SRCS=test_func.c assert "12345678${NEWLINE}0" = ${CMD} '
+  print8(1,2,3,4,5,6,7,8);
 '
 
 echo
