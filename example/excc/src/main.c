@@ -2,77 +2,8 @@
 
 #include <cparsec2.h>
 
-#include "LList.h"
-
-typedef struct {
-  const char* name; // identifier
-  int length;       // length of the identifier
-  int offset;       // offset address of the local variable
-  int size;         // size of the local variable
-} LVar;
-
-TYPEDEF_LList(LVar, LVar);
-DECLARE_LList(LVar);
-DEFINE_LList(LVar);
-
-TYPEDEF_LList(String, const char*);
-DECLARE_LList(String);
-DEFINE_LList(String);
-
-#define llist_cons(x, xs)                                                \
-  (GENERIC((xs), LList, LList_CONS, LVar, String)(x, xs))
-#define llist_head(xs)                                                   \
-  (GENERIC((xs), LList, LList_HEAD, LVar, String)(xs))
-#define llist_tail(xs)                                                   \
-  (GENERIC((xs), LList, LList_TAIL, LVar, String)(xs))
-
-// linked-list of local variables
-LList(LVar) locals = NULL;
-
-int getLVarOffsetMax(void) {
-  if (!locals) {
-    return 0;
-  } else {
-    LVar x = llist_head(locals);
-    return x.offset + x.size;
-  }
-}
-
-// find local variable or register if not found
-LVar findLVar(const char* name) {
-  int length = list_length(name);
-  for (LList(LVar) xs = locals; xs; xs = llist_tail(xs)) {
-    LVar x = llist_head(xs);
-    if (length == x.length && strncmp(name, x.name, length) == 0) {
-      return x;
-    }
-  }
-  LVar x = (LVar){.name = name,
-                  .length = length,
-                  .offset = getLVarOffsetMax(),
-                  .size = 8};
-  locals = llist_cons(x, locals);
-  return x;
-}
-
-LList(String) keywords = NULL;
-
-bool is_keyword(const char* s) {
-  for (LList(String) xs = keywords; xs; xs = llist_tail(xs)) {
-    if (!strcmp(llist_head(xs), s)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-void add_keyword(const char* s) {
-  if (!is_keyword(s)) {
-    keywords = llist_cons(s, keywords);
-  }
-}
-
-static PARSER(String) keyword(const char* word);
+#include "LVar.h"
+#include "keyword.h"
 
 // program  = {stmt} endOfFile
 // stmt     = expr ";"
@@ -271,7 +202,8 @@ static Node ident_fn(void* arg, Source src, Ctx* ex) {
     }
     parse(close_paren, src, ex);
     return nd_c_call(name, list_length(args), list_begin(args));
-  } else {
+  }
+  else {
     mem_free((void*)ctx.msg);
   }
   LVar lvar = findLVar(name);
@@ -347,15 +279,16 @@ void setup(void) {
   open_brace = token(char1('{'));
   close_brace = token(char1('}'));
 
-  term = token(FOLDL(EITHER(Node),
-                     parens(indirect(&expr)),
+  term = token(FOLDL(EITHER(Node), parens(indirect(&expr)),
                      PARSER_GEN(Node)(literal_fn, NULL),
                      PARSER_GEN(Node)(ident_fn, NULL)));
   unary = token(PARSER_GEN(Node)(unary_fn, NULL));
   muldiv = infixl(unary, 2, (Infix[]){{"*", nd_mul}, {"/", nd_div}});
   addsub = infixl(muldiv, 2, (Infix[]){{"+", nd_add}, {"-", nd_sub}});
-  relation = infixl(addsub, 4, (Infix[]){{"<=", nd_LE}, {">=", nd_GE},
-                                         {"<", nd_LT}, {">", nd_GT}});
+  relation = infixl(
+      addsub, 4,
+      (Infix[]){
+          {"<=", nd_LE}, {">=", nd_GE}, {"<", nd_LT}, {">", nd_GT}});
   equality = infixl(relation, 2, (Infix[]){{"==", nd_EQ}, {"!=", nd_NE}});
   assign = infixr(equality, 1, (Infix[]){{"=", nd_assign}});
   expr = assign;
@@ -392,12 +325,8 @@ void setup(void) {
   c_compound_stmt =
       PARSER_GEN(Node)(c_compound_stmt_fn, braces(many(indirect(&stmt))));
 
-  stmt = FOLDL(EITHER(Node),
-               tryp(c_compound_stmt),
-               tryp(c_if_else_stmt),
-               tryp(c_for_stmt),
-               tryp(c_while_stmt),
-               tryp(return_stmt),
+  stmt = FOLDL(EITHER(Node), tryp(c_compound_stmt), tryp(c_if_else_stmt),
+               tryp(c_for_stmt), tryp(c_while_stmt), tryp(return_stmt),
                expr_stmt);
 
   program = PARSER_GEN(Node)(c_compound_stmt_fn,
