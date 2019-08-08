@@ -186,22 +186,35 @@ static Node literal_fn(void* arg, Source src, Ctx* ex) {
   return nd_number(parse(number, src, ex));
 }
 
-static Node ident_fn(void* arg, Source src, Ctx* ex) {
-  UNUSED(arg);
-  const char* name = parse(ident, src, ex);
+static const char* ident_fn(void* arg, Source src, Ctx* ex) {
+  PARSER(String) identString = arg;
+  const char* name = parse(identString, src, ex);
   if (is_keyword(name)) {
     cthrow(ex, error("expected identifier or '(' but was '%s'", name));
   }
+  return name;
+}
+
+static Node functionCall_fn(void* arg, Source src, Ctx* ex) {
+  UNUSED(arg);
+  const char* name = parse(ident, src, ex);
+  parse(open_paren, src, ex);
+  parse(spaces, src, ex);
+  List(Node) args = {0};
+  if (')' != peek(src, ex)) {
+    args = parse(sepBy(char1(','), expr), src, ex);
+  }
+  parse(close_paren, src, ex);
+  return nd_c_call(name, list_length(args), list_begin(args));
+}
+
+static Node localVariable_fn(void* arg, Source src, Ctx* ex) {
+  UNUSED(arg);
+  const char* name = parse(ident, src, ex);
   Ctx ctx;
   TRY(&ctx) {
     parse(open_paren, src, &ctx);
-    parse(spaces, src, &ctx);
-    List(Node) args = {0};
-    if (')' != peek(src, ex)) {
-      args = parse(sepBy(char1(','), expr), src, ex);
-    }
-    parse(close_paren, src, ex);
-    return nd_c_call(name, list_length(args), list_begin(args));
+    cthrow(ex, error("unexpected '('"));
   }
   else {
     mem_free((void*)ctx.msg);
@@ -272,7 +285,8 @@ static Node c_for_fn(void* arg, Source src, Ctx* ex) {
 void setup(void) {
   identStart = either(char1('_'), alpha);
   identLetter = either(char1('_'), alnum);
-  ident = cons(identStart, many(identLetter));
+  ident =
+      PARSER_GEN(String)(ident_fn, cons(identStart, many(identLetter)));
 
   open_paren = token(char1('('));
   close_paren = token(char1(')'));
@@ -281,7 +295,9 @@ void setup(void) {
 
   term = token(FOLDL(EITHER(Node), parens(indirect(&expr)),
                      PARSER_GEN(Node)(literal_fn, NULL),
-                     PARSER_GEN(Node)(ident_fn, NULL)));
+                     tryp(PARSER_GEN(Node)(functionCall_fn, NULL)),
+                     tryp(PARSER_GEN(Node)(localVariable_fn, NULL))));
+
   unary = token(PARSER_GEN(Node)(unary_fn, NULL));
   muldiv = infixl(unary, 2, (Infix[]){{"*", nd_mul}, {"/", nd_div}});
   addsub = infixl(muldiv, 2, (Infix[]){{"+", nd_add}, {"-", nd_sub}});
