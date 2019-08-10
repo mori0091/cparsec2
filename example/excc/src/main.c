@@ -23,6 +23,7 @@
 //          | ident "(" [arg-list] ")"
 // arg-list = expr {"," expr}
 PARSER(Node) program;
+PARSER(Node) c_compound_stmt;
 PARSER(Node) stmt;
 PARSER(Node) expr;
 PARSER(Node) assign;
@@ -198,9 +199,9 @@ static const char* ident_fn(void* arg, Source src, Ctx* ex) {
 static Node functionCall_fn(void* arg, Source src, Ctx* ex) {
   UNUSED(arg);
   const char* name = parse(ident, src, ex);
+  List(Node) args = {0};
   parse(open_paren, src, ex);
   parse(spaces, src, ex);
-  List(Node) args = {0};
   if (')' != peek(src, ex)) {
     args = parse(sepBy(char1(','), expr), src, ex);
   }
@@ -282,11 +283,44 @@ static Node c_for_fn(void* arg, Source src, Ctx* ex) {
   return nd_c_for(itr[0], itr[1], itr[2], itr[3]);
 }
 
+static Node c_functionDefinition_fn(void* arg, Source src, Ctx* ex) {
+  UNUSED(arg);
+  clearLVars();
+  const char* name = parse(ident, src, ex);
+  List(String) params = {0};
+  parse(open_paren, src, ex);
+  parse(spaces, src, ex);
+  if (')' != peek(src, ex)) {
+    params = parse(sepBy(char1(','), ident), src, ex);
+  }
+  parse(close_paren, src, ex);
+  const char** itr = list_begin(params);
+  const char** end = list_end(params);
+  if (itr != end) {
+    addLVar(*itr++);
+    for (; itr != end; ++itr) {
+      Ctx ctx;
+      TRY(&ctx) {
+        getLVar(*itr, &ctx);
+        mem_free((void*)ctx.msg);
+        cthrow(ex, error("duplicated parameter %s", *itr));
+      }
+      else {
+        mem_free((void*)ctx.msg);
+      }
+      addLVar(*itr);
+    }
+  }
+  Node body = parse(c_compound_stmt, src, ex);
+  return nd_c_function_def(name, list_length(params), body,
+                           getLVarOffsetMax());
+}
+
 void setup(void) {
   identStart = either(char1('_'), alpha);
   identLetter = either(char1('_'), alnum);
-  ident =
-      PARSER_GEN(String)(ident_fn, cons(identStart, many(identLetter)));
+  ident = token(
+      PARSER_GEN(String)(ident_fn, cons(identStart, many(identLetter))));
 
   open_paren = token(char1('('));
   close_paren = token(char1(')'));
@@ -337,7 +371,6 @@ void setup(void) {
       seq(skip1st(keyword("if"), parens(expr)), indirect(&stmt),
           option(skip1st(keyword("else"), indirect(&stmt)), NULL)));
 
-  PARSER(Node)
   c_compound_stmt =
       PARSER_GEN(Node)(c_compound_stmt_fn, braces(many(indirect(&stmt))));
 
@@ -345,40 +378,18 @@ void setup(void) {
                tryp(c_for_stmt), tryp(c_while_stmt), tryp(return_stmt),
                expr_stmt);
 
+  PARSER(Node)
+  c_functionDefinition = PARSER_GEN(Node)(c_functionDefinition_fn, NULL);
+
+  PARSER(Node) toplevel = c_functionDefinition;
+
   program = PARSER_GEN(Node)(c_compound_stmt_fn,
-                             skip2nd(many1(stmt), token(endOfFile)));
+                             skip2nd(many1(toplevel), token(endOfFile)));
 }
 
 static void codegen_header(FILE* out) {
   // - header
   fprintf(out, ".intel_syntax noprefix\n");
-}
-
-static void codegen_glabel(const char* label, FILE* out) {
-  fprintf(out, ".global %s\n", label);
-  fprintf(out, "%s:\n", label);
-}
-
-static void codegen_ret(FILE* out) {
-  // - return to caller
-  //   note: 'rax' has already the result of the last expression,
-  //   and the value of 'rax' shall be the return value.
-  fprintf(out, "  ret\n");
-}
-
-static void codegen_prologue(FILE* out) {
-  // - prologue
-  //   allocate local variables
-  fprintf(out, "  push rbp\n");
-  fprintf(out, "  mov rbp, rsp\n");
-  fprintf(out, "  sub rsp, %d\n", getLVarOffsetMax());
-}
-
-static void codegen_epilogue(FILE* out) {
-  // - epilogue
-  //   deallocate local variables
-  fprintf(out, "  mov rsp, rbp\n");
-  fprintf(out, "  pop rbp\n");
 }
 
 int main(int argc, char** argv) {
@@ -399,13 +410,7 @@ int main(int argc, char** argv) {
 
     // [generate assembly code]
     codegen_header(out);
-    codegen_glabel("main", out);
-    {
-      codegen_prologue(out);
-      codegen(ast, out);
-      codegen_epilogue(out);
-      codegen_ret(out);
-    }
+    codegen(ast, out);
     return 0;
   }
   else {
