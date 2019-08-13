@@ -47,33 +47,109 @@ Node nd_lvar(int offset, int size) {
   return Node_new(run_nd_lvar, (void*)lvar);
 }
 
-struct nd_c_call_arg {
-  const char* name;
-  int argc;
-  Node* argv;
-};
-
 static const char* c_call_registers[] = {
     "rax", // return value
     "rdi", // argument #1
     "rsi", // argument #2
     "rdx", // argument #3
     "rcx", // argument #4
-    "r8" , // argument #5
-    "r9" , // argument #6
+    "r8",  // argument #5
+    "r9",  // argument #6
+};
+
+struct nd_c_function_def_arg {
+  const char* name;
+  int argc;
+  Node body;
+  int frameSize;
+};
+
+static void codegen_glabel(const char* label, FILE* out) {
+  fprintf(out, ".global %s\n", label);
+  fprintf(out, "%s:\n", label);
+}
+
+static void codegen_prologue(int frameSize, FILE* out) {
+  // - prologue
+  //   allocate local variables
+  frameSize += 15;
+  frameSize &= ~15;
+  fprintf(out, "  push rbp\n");
+  fprintf(out, "  mov rbp, rsp\n");
+  fprintf(out, "  sub rsp, %d\n", frameSize);
+}
+
+static void codegen_arguments(int argc, FILE* out) {
+  for (int i = 1; i <= 6 && i <= argc; ++i) {
+    fprintf(out, "  mov rax, rbp\n");
+    fprintf(out, "  sub rax, %d\n", i * 8);
+    fprintf(out, "  mov [rax], %s\n", c_call_registers[i]);
+  }
+  for (int i = 7; i <= argc; ++i) {
+    fprintf(out, "  mov rax, rbp\n");
+    fprintf(out, "  add rax, %d\n", 16 + (i - 7) * 8);
+    fprintf(out, "  mov r11, [rax]\n");
+    fprintf(out, "  mov rax, rbp\n");
+    fprintf(out, "  sub rax, %d\n", i * 8);
+    fprintf(out, "  mov [rax], r11\n");
+  }
+}
+
+static void codegen_epilogue(FILE* out) {
+  // - epilogue
+  //   deallocate local variables
+  fprintf(out, "  mov rsp, rbp\n");
+  fprintf(out, "  pop rbp\n");
+}
+
+static void codegen_ret(FILE* out) {
+  // - return to caller
+  //   note: 'rax' has already the result of the last expression,
+  //   and the value of 'rax' shall be the return value.
+  fprintf(out, "  ret\n");
+}
+
+static void run_nd_c_function_def(void* arg, FILE* out) {
+  struct nd_c_function_def_arg* p = arg;
+  codegen_glabel(p->name, out);
+  codegen_prologue(p->frameSize, out);
+  codegen_arguments(p->argc, out);
+  codegen(p->body, out);
+  codegen_epilogue(out);
+  codegen_ret(out);
+}
+
+Node nd_c_function_def(const char* name, int argc, Node body,
+                       int frameSize) {
+  struct nd_c_function_def_arg* p;
+  p = mem_malloc(sizeof(p[0]));
+  p->name = name;
+  p->argc = argc;
+  p->body = body;
+  p->frameSize = frameSize;
+  return Node_new(run_nd_c_function_def, (void*)p);
+}
+
+struct nd_c_call_arg {
+  const char* name;
+  int argc;
+  Node* argv;
 };
 
 static void run_nd_c_call(void* arg, FILE* out) {
   struct nd_c_call_arg* p = arg;
   assert(p && p->name && 0 <= p->argc);
   for (int i = p->argc; 0 < i; --i) {
-    codegen(p->argv[i-1], out);
+    codegen(p->argv[i - 1], out);
   }
   int n = (p->argc > 6) ? 6 : p->argc;
   for (int i = 1; i <= n; ++i) {
     fprintf(out, "  pop %s\n", c_call_registers[i]);
   }
   fprintf(out, "  call %s\n", p->name);
+  if (p->argc > 6) {
+    fprintf(out, "  add rsp, %d\n", 8 * (p->argc - 6));
+  }
   fprintf(out, "  push rax\n");
 }
 
@@ -179,7 +255,7 @@ static void run_nd_c_compound_stmt(void* arg, FILE* out) {
 }
 
 Node nd_c_compound_stmt(int n, Node* block) {
-  Node** arg = mem_malloc(sizeof(Node*)*2);
+  Node** arg = mem_malloc(sizeof(Node*) * 2);
   arg[0] = block;
   arg[1] = block + n;
   return Node_new(run_nd_c_compound_stmt, arg);

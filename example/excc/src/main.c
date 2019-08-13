@@ -2,77 +2,8 @@
 
 #include <cparsec2.h>
 
-#include "LList.h"
-
-typedef struct {
-  const char* name; // identifier
-  int length;       // length of the identifier
-  int offset;       // offset address of the local variable
-  int size;         // size of the local variable
-} LVar;
-
-TYPEDEF_LList(LVar, LVar);
-DECLARE_LList(LVar);
-DEFINE_LList(LVar);
-
-TYPEDEF_LList(String, const char*);
-DECLARE_LList(String);
-DEFINE_LList(String);
-
-#define llist_cons(x, xs)                                                \
-  (GENERIC((xs), LList, LList_CONS, LVar, String)(x, xs))
-#define llist_head(xs)                                                   \
-  (GENERIC((xs), LList, LList_HEAD, LVar, String)(xs))
-#define llist_tail(xs)                                                   \
-  (GENERIC((xs), LList, LList_TAIL, LVar, String)(xs))
-
-// linked-list of local variables
-LList(LVar) locals = NULL;
-
-int getLVarOffsetMax(void) {
-  if (!locals) {
-    return 0;
-  } else {
-    LVar x = llist_head(locals);
-    return x.offset + x.size;
-  }
-}
-
-// find local variable or register if not found
-LVar findLVar(const char* name) {
-  int length = list_length(name);
-  for (LList(LVar) xs = locals; xs; xs = llist_tail(xs)) {
-    LVar x = llist_head(xs);
-    if (length == x.length && strncmp(name, x.name, length) == 0) {
-      return x;
-    }
-  }
-  LVar x = (LVar){.name = name,
-                  .length = length,
-                  .offset = getLVarOffsetMax(),
-                  .size = 8};
-  locals = llist_cons(x, locals);
-  return x;
-}
-
-LList(String) keywords = NULL;
-
-bool is_keyword(const char* s) {
-  for (LList(String) xs = keywords; xs; xs = llist_tail(xs)) {
-    if (!strcmp(llist_head(xs), s)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-void add_keyword(const char* s) {
-  if (!is_keyword(s)) {
-    keywords = llist_cons(s, keywords);
-  }
-}
-
-static PARSER(String) keyword(const char* word);
+#include "LVar.h"
+#include "keyword.h"
 
 // program  = {stmt} endOfFile
 // stmt     = expr ";"
@@ -92,6 +23,7 @@ static PARSER(String) keyword(const char* word);
 //          | ident "(" [arg-list] ")"
 // arg-list = expr {"," expr}
 PARSER(Node) program;
+PARSER(Node) c_compound_stmt;
 PARSER(Node) stmt;
 PARSER(Node) expr;
 PARSER(Node) assign;
@@ -255,23 +187,37 @@ static Node literal_fn(void* arg, Source src, Ctx* ex) {
   return nd_number(parse(number, src, ex));
 }
 
-static Node ident_fn(void* arg, Source src, Ctx* ex) {
-  UNUSED(arg);
-  const char* name = parse(ident, src, ex);
+static const char* ident_fn(void* arg, Source src, Ctx* ex) {
+  PARSER(String) identString = arg;
+  const char* name = parse(identString, src, ex);
   if (is_keyword(name)) {
     cthrow(ex, error("expected identifier or '(' but was '%s'", name));
   }
+  return name;
+}
+
+static Node functionCall_fn(void* arg, Source src, Ctx* ex) {
+  UNUSED(arg);
+  const char* name = parse(ident, src, ex);
+  List(Node) args = {0};
+  parse(open_paren, src, ex);
+  parse(spaces, src, ex);
+  if (')' != peek(src, ex)) {
+    args = parse(sepBy(char1(','), expr), src, ex);
+  }
+  parse(close_paren, src, ex);
+  return nd_c_call(name, list_length(args), list_begin(args));
+}
+
+static Node localVariable_fn(void* arg, Source src, Ctx* ex) {
+  UNUSED(arg);
+  const char* name = parse(ident, src, ex);
   Ctx ctx;
   TRY(&ctx) {
     parse(open_paren, src, &ctx);
-    parse(spaces, src, &ctx);
-    List(Node) args = {0};
-    if (')' != peek(src, ex)) {
-      args = parse(sepBy(char1(','), expr), src, ex);
-    }
-    parse(close_paren, src, ex);
-    return nd_c_call(name, list_length(args), list_begin(args));
-  } else {
+    cthrow(ex, error("unexpected '('"));
+  }
+  else {
     mem_free((void*)ctx.msg);
   }
   LVar lvar = findLVar(name);
@@ -337,25 +283,62 @@ static Node c_for_fn(void* arg, Source src, Ctx* ex) {
   return nd_c_for(itr[0], itr[1], itr[2], itr[3]);
 }
 
+static Node c_functionDefinition_fn(void* arg, Source src, Ctx* ex) {
+  UNUSED(arg);
+  clearLVars();
+  const char* name = parse(ident, src, ex);
+  List(String) params = {0};
+  parse(open_paren, src, ex);
+  parse(spaces, src, ex);
+  if (')' != peek(src, ex)) {
+    params = parse(sepBy(char1(','), ident), src, ex);
+  }
+  parse(close_paren, src, ex);
+  const char** itr = list_begin(params);
+  const char** end = list_end(params);
+  if (itr != end) {
+    addLVar(*itr++);
+    for (; itr != end; ++itr) {
+      Ctx ctx;
+      TRY(&ctx) {
+        getLVar(*itr, &ctx);
+        mem_free((void*)ctx.msg);
+        cthrow(ex, error("duplicated parameter %s", *itr));
+      }
+      else {
+        mem_free((void*)ctx.msg);
+      }
+      addLVar(*itr);
+    }
+  }
+  Node body = parse(c_compound_stmt, src, ex);
+  return nd_c_function_def(name, list_length(params), body,
+                           getLVarOffsetMax());
+}
+
 void setup(void) {
   identStart = either(char1('_'), alpha);
   identLetter = either(char1('_'), alnum);
-  ident = cons(identStart, many(identLetter));
+  ident = token(
+      PARSER_GEN(String)(ident_fn, cons(identStart, many(identLetter))));
 
   open_paren = token(char1('('));
   close_paren = token(char1(')'));
   open_brace = token(char1('{'));
   close_brace = token(char1('}'));
 
-  term = token(FOLDL(EITHER(Node),
-                     parens(indirect(&expr)),
+  term = token(FOLDL(EITHER(Node), parens(indirect(&expr)),
                      PARSER_GEN(Node)(literal_fn, NULL),
-                     PARSER_GEN(Node)(ident_fn, NULL)));
+                     tryp(PARSER_GEN(Node)(functionCall_fn, NULL)),
+                     tryp(PARSER_GEN(Node)(localVariable_fn, NULL))));
+
   unary = token(PARSER_GEN(Node)(unary_fn, NULL));
   muldiv = infixl(unary, 2, (Infix[]){{"*", nd_mul}, {"/", nd_div}});
   addsub = infixl(muldiv, 2, (Infix[]){{"+", nd_add}, {"-", nd_sub}});
-  relation = infixl(addsub, 4, (Infix[]){{"<=", nd_LE}, {">=", nd_GE},
-                                         {"<", nd_LT}, {">", nd_GT}});
+  relation = infixl(
+      addsub, 4,
+      (Infix[]){
+          {"<=", nd_LE}, {">=", nd_GE}, {"<", nd_LT}, {">", nd_GT}});
   equality = infixl(relation, 2, (Infix[]){{"==", nd_EQ}, {"!=", nd_NE}});
   assign = infixr(equality, 1, (Infix[]){{"=", nd_assign}});
   expr = assign;
@@ -388,52 +371,25 @@ void setup(void) {
       seq(skip1st(keyword("if"), parens(expr)), indirect(&stmt),
           option(skip1st(keyword("else"), indirect(&stmt)), NULL)));
 
-  PARSER(Node)
   c_compound_stmt =
       PARSER_GEN(Node)(c_compound_stmt_fn, braces(many(indirect(&stmt))));
 
-  stmt = FOLDL(EITHER(Node),
-               tryp(c_compound_stmt),
-               tryp(c_if_else_stmt),
-               tryp(c_for_stmt),
-               tryp(c_while_stmt),
-               tryp(return_stmt),
+  stmt = FOLDL(EITHER(Node), tryp(c_compound_stmt), tryp(c_if_else_stmt),
+               tryp(c_for_stmt), tryp(c_while_stmt), tryp(return_stmt),
                expr_stmt);
 
+  PARSER(Node)
+  c_functionDefinition = PARSER_GEN(Node)(c_functionDefinition_fn, NULL);
+
+  PARSER(Node) toplevel = c_functionDefinition;
+
   program = PARSER_GEN(Node)(c_compound_stmt_fn,
-                             skip2nd(many1(stmt), token(endOfFile)));
+                             skip2nd(many1(toplevel), token(endOfFile)));
 }
 
 static void codegen_header(FILE* out) {
   // - header
   fprintf(out, ".intel_syntax noprefix\n");
-}
-
-static void codegen_glabel(const char* label, FILE* out) {
-  fprintf(out, ".global %s\n", label);
-  fprintf(out, "%s:\n", label);
-}
-
-static void codegen_ret(FILE* out) {
-  // - return to caller
-  //   note: 'rax' has already the result of the last expression,
-  //   and the value of 'rax' shall be the return value.
-  fprintf(out, "  ret\n");
-}
-
-static void codegen_prologue(FILE* out) {
-  // - prologue
-  //   allocate local variables
-  fprintf(out, "  push rbp\n");
-  fprintf(out, "  mov rbp, rsp\n");
-  fprintf(out, "  sub rsp, %d\n", getLVarOffsetMax());
-}
-
-static void codegen_epilogue(FILE* out) {
-  // - epilogue
-  //   deallocate local variables
-  fprintf(out, "  mov rsp, rbp\n");
-  fprintf(out, "  pop rbp\n");
 }
 
 int main(int argc, char** argv) {
@@ -454,13 +410,7 @@ int main(int argc, char** argv) {
 
     // [generate assembly code]
     codegen_header(out);
-    codegen_glabel("main", out);
-    {
-      codegen_prologue(out);
-      codegen(ast, out);
-      codegen_epilogue(out);
-      codegen_ret(out);
-    }
+    codegen(ast, out);
     return 0;
   }
   else {

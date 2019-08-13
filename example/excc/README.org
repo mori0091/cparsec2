@@ -37,7 +37,7 @@ exit with a non-zero value.
 ** EXAMPLE
 
 #+begin_src shell
-$ ./bin/excc '10 + 2 * 3;'
+$ ./bin/excc 'main() { return 10 + 2 * 3; }'
 #+end_src
 
 The above command produces the following assembly code:
@@ -63,6 +63,9 @@ main:
   mov rsp, rbp
   pop rbp
   ret
+  mov rsp, rbp
+  pop rbp
+  ret
 #+end_src
 
 So, to make an executable, redirect ~excc~'s output to a file such as ~tmp.s~
@@ -70,7 +73,7 @@ and assemble the file by using existence assembler/compiler such as GCC.
 
 Example 1.
 #+begin_src shell
-$ ./bin/excc '10 + 2 * 3;' > tmp.s
+$ ./bin/excc 'main() { return 10 + 2 * 3; }' > tmp.s
 $ gcc -o tmp tmp.s
 $ ./tmp
 $ echo $?
@@ -79,7 +82,7 @@ $ echo $?
 
 Example 2.
 #+begin_src shell
-$ ./bin/excc '(10 + 2) * 3;' > tmp.s
+$ ./bin/excc 'main() { (10 + 2) * 3; }' > tmp.s
 $ gcc -o tmp tmp.s
 $ ./tmp
 $ echo $?
@@ -103,7 +106,12 @@ Note that the executable returns the result as its exit status.
 - function declaration :: 
   - not supported yet.
 - function definition ::
-  - not supported yet.
+  - type of return value must be ~int~
+  - type of any argument must be ~int~
+  - zeroth or more arguments are available.
+  - variadic arguments is not supported.
+  - no type declaration for return value and parmeters
+  - e.g. ~foo(x, y) {...}~
 - function call ::
   - type of return value must be ~int~
   - type of any argument must be ~int~
@@ -143,7 +151,11 @@ Note that the executable returns the result as its exit status.
 - *Note* : the below is not a strict EBNF since ~comma(,)~, ~semi-colon(;)~, and
   ~white space~ are omitted for ease to read.
 #+begin_src c
-  program  = stmt {stmt} endOfFile
+  program  = toplevel {toplevel} endOfFile
+  toplevel = functionDefinition
+  functionDefinition
+           = ident "(" [arg-list] ")" "{" {stmt} "}"
+  arg-list = ident { "," ident }
   stmt     = expr ";"
            | "{" {stmt} "}"
            | "return" expr ";"
