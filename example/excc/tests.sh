@@ -80,10 +80,10 @@ assert 15 = ${CMD} 'main() { return 15; }'
 assert 15 = ${CMD} 'main() { a = 10; return a+5; }'
 assert 15 = ${CMD} 'main() { a = 10; return 15; a; }'
 assert 15 = ${CMD} 'main() { return+15; }'
-assert "error:expected identifier or '(' but was 'return'" \
+assert "error:expects '}' but was 'r'" \
        = ${CMD} 'main() { return; }'
 assert 15 = ${CMD} 'main() { returnx=15; }'
-assert "error:expected identifier or '(' but was 'return'" \
+assert "error:expects '}' but was 'r'" \
        = ${CMD} 'main() { return=15; }'
 assert 45 = ${CMD} '
 main() {
