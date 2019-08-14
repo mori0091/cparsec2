@@ -82,7 +82,7 @@ $ echo $?
 
 Example 2.
 #+begin_src shell
-$ ./bin/excc 'main() { (10 + 2) * 3; }' > tmp.s
+$ ./bin/excc 'main() { return (10 + 2) * 3; }' > tmp.s
 $ gcc -o tmp tmp.s
 $ ./tmp
 $ echo $?
@@ -117,6 +117,7 @@ Note that the executable returns the result as its exit status.
   - type of any argument must be ~int~
   - zeroth or more arguments are available.
   - variadic arguments is not supported.
+  - e.g. ~foo(x, y)~
 - literal ::
   - decimal integer (ex. ~0~, ~1~, ~100~, ~123456~)
 - arithmetic expression ::
@@ -152,28 +153,36 @@ Note that the executable returns the result as its exit status.
   ~white space~ are omitted for ease to read.
 #+begin_src c
   program  = toplevel {toplevel} endOfFile
-  toplevel = functionDefinition
-  functionDefinition
-           = ident "(" [arg-list] ")" "{" {stmt} "}"
-  arg-list = ident { "," ident }
+  toplevel = functionDef
+
+  functionDef = ident "(" [par-list] ")" "{" {stmt} "}"
+     par-list = ident {"," ident}
+
   stmt     = expr ";"
-           | "{" {stmt} "}"
            | "return" expr ";"
            | "for" "(" [expr] ";" [expr] ";" [expr] ")" stmt
            | "while" "(" expr ")" stmt
            | "if" "(" expr ")" stmt ["else" stmt]
+           | "{" {stmt} "}"
   expr     = assign
-  assign   = equality {"=" assign}
+  assign   = equality {"=" equality}
   equality = relation {("==" | "!=") relation}
   relation = addsub {("<" | "<=" | ">" | ">=") addsub}
   addsub   = muldiv {("+" | "-") muldiv}
   muldiv   = unary {("*" | "/") unary}
   unary    = ["+" | "-"] term
   term     = "(" expr ")"
-           | number
-           | ident
-           | ident "(" [arg-list] ")"
-  arg-list = expr {"," expr}
+           | literal
+           | localVariable
+           | functionCall
+
+  literal  = number
+
+  localVariable = ident
+
+  functionCall = ident "(" [arg-list] ")"
+      arg-list = expr {"," expr}
+
   ident    = ("_" | alpha){"_" | alnum}
   alnum    = alpha | digit
   alpha    = "a" | "b" | ... | "z" | "A" | "B" | ... | "Z"

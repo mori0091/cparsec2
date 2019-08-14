@@ -5,11 +5,19 @@
 #include "LVar.h"
 #include "keyword.h"
 
-// program  = {stmt} endOfFile
+// program  = toplevel {toplevel} endOfFile
+// toplevel = functionDef
+//
+// functionDef  = ident "(" [par-list] ")" "{" {stmt} "}"
+//     par-list = ident {"," ident}
+//
 // stmt     = expr ";"
+//          | "return" expr ";"
 //          | "for" "(" [expr] ";" [expr] ";" [expr] ")" stmt
 //          | "while" "(" expr ")" stmt
 //          | "if" "(" expr ")" stmt ["else" stmt]
+//          | "{" {stmt} "}"
+//
 // expr     = assign
 // assign   = equality {"=" equality}
 // equality = relation {("==" | "!=") relation}
@@ -18,10 +26,23 @@
 // muldiv   = unary { ("*" | "/") unary }
 // unary    = ["+" | "-"] term
 // term     = "(" expr ")"
-//          | number
-//          | ident
-//          | ident "(" [arg-list] ")"
-// arg-list = expr {"," expr}
+//          | literal
+//          | localVariable
+//          | functionCall
+//
+// literal  = number
+//
+// localVariable = ident
+//
+// functionCall = ident "(" [arg-list] ")"
+//     arg-list = expr {"," expr}
+//
+// ident    = ("_" | alpha){"_" | alnum}
+// alnum    = alpha | digit
+// alpha    = "a" | "b" | ... | "z" | "A" | "B" | ... | "Z"
+// digit    = "0" | "1" | ... "9"
+// number   = digit{digit}
+
 PARSER(Node) program;
 PARSER(Node) c_compound_stmt;
 PARSER(Node) stmt;
