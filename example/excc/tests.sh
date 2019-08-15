@@ -9,7 +9,7 @@ replace_newline_with_linefeed () {
 
 compile_and_run() {
     "$@" > tmp.s 2> err.log || {
-        cat err.log | replace_newline_with_linefeed
+        replace_newline_with_linefeed < err.log
         return 127
     }
     ${CC} ${CFLAGS} -o tmp tmp.s ${SRCS} ${LDFLAGS} ${LDLIBS} || {
