@@ -3,9 +3,13 @@
 CMD=./bin/excc
 CC=${CC:-gcc}
 
+replace_newline_with_linefeed () {
+    sed -E -e 's/(\r|\r\n|\n)/\n/g'
+}
+
 compile_and_run() {
     "$@" > tmp.s 2> err.log || {
-        cat err.log
+        replace_newline_with_linefeed < err.log
         return 127
     }
     ${CC} ${CFLAGS} -o tmp tmp.s ${SRCS} ${LDFLAGS} ${LDLIBS} || {
@@ -22,7 +26,7 @@ assert() {
     expect=$1
     op=$2
     shift 2
-    actual=$(compile_and_run "$@")
+    actual=$(compile_and_run "$@" | replace_newline_with_linefeed)
     rm -f tmp tmp.s err.log
     test "$expect" "$op" "$actual" || {
         echo "[FAIL] $expect $op $@"
