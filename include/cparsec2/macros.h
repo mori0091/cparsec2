@@ -9,6 +9,8 @@
 #define END_OF_STATEMENTS _Static_assert(1, "end of statement")
 #endif
 
+#define UNUSED(v) ((void)v)
+
 #define ELEMENT_TYPESET TYPESET(0), Ptr
 #define TYPESET(n) Char, CAT(TYPESET_, n)()
 #define TYPESET_0() String, Int, Node

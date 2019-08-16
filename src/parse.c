@@ -174,9 +174,6 @@ const char* mem_printf(const char* fmt, ...) {
   return buf;
 }
 
-// ---- variadic buffer ----
-// -- (see 'collection.c')
-
 // ---- error and exception handling ----
 
 _Noreturn void cthrow(Ctx* ctx, const char* msg) {
@@ -318,9 +315,6 @@ DEFINE_PARSER(List(Node), x) {
     printf("]\n");
   }
 }
-
-// ---- predicates ----
-// -- (see 'predicate.c')
 
 // ---- built-in parsers ----
 
