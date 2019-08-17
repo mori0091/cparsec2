@@ -1,6 +1,7 @@
 /* -*- coding:utf-8-unix -*- */
 #pragma once
 
+#include "alloc.h"
 #include "codegen.h"
 #include "macros.h"
 

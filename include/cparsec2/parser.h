@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 // ---- resource management ----
 #include "alloc.h"

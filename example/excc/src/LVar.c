@@ -1,8 +1,9 @@
 /* -*- coding: utf-8-unix -*- */
 
-#include "LVar.h"
+#include <string.h>
 
 #include "LList.h"
+#include "LVar.h"
 
 TYPEDEF_LList(LVar, LVar);
 DECLARE_LList(LVar);
@@ -57,7 +58,8 @@ LVar findLVar(const char* name) {
   Ctx ctx;
   TRY(&ctx) {
     return getLVar(name, &ctx);
-  } else {
+  }
+  else {
     mem_free((void*)ctx.msg);
     return addLVar(name);
   }

@@ -1,6 +1,8 @@
 /* -*- coding:utf-8-unix -*- */
 
-#include "cparsec2.h"
+#include <string.h>
+
+#include <cparsec2.h>
 
 static char expects_fn(void* arg, Source src, Ctx* ex) {
   void** ps = (void**)arg;

@@ -1,9 +1,9 @@
 /* -*- coding:utf-8-unix -*- */
 
-#include "cparsec2.h"
+#include <cparsec2/predicate.h>
 
 bool is_anyChar(char c) {
-  UNUSED(c);
+  (void)(c);
   return true;
 }
 bool is_digit(char c) {

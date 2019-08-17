@@ -1,7 +1,9 @@
 /* -*- coding: utf-8-unix */
 
 #include <assert.h>
-#include <cparsec2.h>
+#include <string.h>
+
+#include <cparsec2/list.h>
 
 // ---- List ----
 

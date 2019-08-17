@@ -1,6 +1,8 @@
 /* -*- coding:utf-8-unix -*- */
 
-#include <cparsec2.h>
+#include <cparsec2/source.h>
+
+#include <cparsec2/alloc.h>
 #include <cparsec2/stream.h>
 
 // ---- source of input character sequence ----

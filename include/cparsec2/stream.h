@@ -1,7 +1,11 @@
 /* -*- coding:utf-8-unix -*- */
 #pragma once
 
-#include <cparsec2.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+
+#include <cparsec2/exception.h>
 
 #ifdef __cplusplus
 extern "C" {

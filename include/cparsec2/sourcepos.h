@@ -1,6 +1,7 @@
 /* -*- coding:utf-8-unix -*- */
 #pragma once
 
+#include <stdbool.h>
 #include <sys/types.h>
 
 #ifdef __cplusplus

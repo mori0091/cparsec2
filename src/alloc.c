@@ -1,6 +1,11 @@
 /* -*- coding:utf-8-unix -*- */
 
-#include <cparsec2.h>
+#include <errno.h>
+#include <stdarg.h>
+#include <string.h>
+
+#include <cparsec2/alloc.h>
+#include <cparsec2/list.h>
 
 // ---- resource management ----
 
