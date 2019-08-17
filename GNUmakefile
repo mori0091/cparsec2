@@ -47,7 +47,8 @@ test: $(TARGET)
 clean:
 	@rm -f $(TARGET) $(TARGET).exe $(LIBTARGET) $(OBJS) $(DEPS) $(COVS) *~
 	@rm -f *.gcov $(OBJDIR)/*.gcov
-	@rm -df obj bin lib
+	@rm -rf $(OBJDIR)
+	@rm -df bin lib
 
 # `make cov`: build and test for coverage test
 # To make coverage report:

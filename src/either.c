@@ -12,12 +12,11 @@
     TRY(&ctx) {                                                          \
       return parse(p[0], src, &ctx);                                     \
     }                                                                    \
-    else if (isSourcePosEqual(pos, getSourcePos(src))) {                 \
-      return parse(p[1], src, ex);                                       \
-    }                                                                    \
-    else {                                                               \
+    if (!isSourcePosEqual(pos, getSourcePos(src))) {                     \
       cthrow(ex, ctx.msg);                                               \
     }                                                                    \
+    mem_free((void*)ctx.msg);                                            \
+    return parse(p[1], src, ex);                                         \
   }                                                                      \
   PARSER(T) EITHER(T)(PARSER(T) p1, PARSER(T) p2) {                      \
     PARSER(T)* arg = mem_malloc(sizeof(PARSER(T)[2]));                   \

@@ -1,5 +1,7 @@
 /* -*- coding: utf-8-unix -*- */
 
+#include <string.h>
+
 #include "LList.h"
 
 TYPEDEF_LList(String, const char*);

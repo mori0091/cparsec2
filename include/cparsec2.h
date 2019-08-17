@@ -1,204 +1,33 @@
 /* -*- coding:utf-8-unix -*- */
 #pragma once
 
-#include <assert.h>
-#include <ctype.h>
-#include <errno.h>
-#include <setjmp.h>
-#include <stdarg.h>
-#include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
 
-#include "cparsec2/codegen.h"
-#include "cparsec2/list.h"
+// ---- resource management ----
+#include "cparsec2/alloc.h"
+// ---- error and exception handling ----
+#include "cparsec2/exception.h"
+// ---- source of input character sequence ----
+#include "cparsec2/source.h"
+
+// ---- common macros ----
 #include "cparsec2/macros.h"
+// ---- code generators as abstract syntax tree ----
+#include "cparsec2/codegen.h"
+// ---- type generic list class ----
+#include "cparsec2/list.h"
 
-#ifdef __cplusplus
-#define NORETURN [[noreturn]]
-#else
-#define NORETURN _Noreturn
-#endif
+// ---- type generic parser class ----
+#include "cparsec2/parser.h"
+// ---- type generic parser invocation ----
+#include "cparsec2/tgparse.h"
+
+// ---- predicates ----
+#include "cparsec2/predicate.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define UNUSED(v) ((void)v)
-
-// ---- resource management ----
-
-// initialize cparsec2
-void cparsec2_init(void);
-// clean up cparsec2 (free all allocated memory)
-void cparsec2_end(void);
-
-void* mem_malloc(size_t s);
-void* mem_realloc(void* p, size_t s);
-void mem_free(void* p);
-
-/** Construct a formated string */
-const char* mem_printf(const char* fmt, ...);
-
-// ---- error and exception handling ----
-
-// context object for exception handling
-typedef struct {
-  const char* msg;
-  jmp_buf e;
-} Ctx;
-
-// TRY(Ctx *ctx) {statement...} else {exception-handler...}
-#define TRY(ctx) if (!setjmp((ctx)->e))
-
-// throw exception
-NORETURN void cthrow(Ctx* ctx, const char* msg);
-
-/** Construct an error message */
-#define error(...) mem_printf(__VA_ARGS__)
-
-// ---- source of input character sequence ----
-
-typedef struct stSource* Source;
-
-typedef struct {
-  off_t offset;
-} SourcePos;
-
-// Construct new Source object from a string or from a FILE pointer
-// clang-format off
-#define Source_new(x)                                                    \
-  _Generic((x)                                                           \
-           , char*       : newStringSource                               \
-           , const char* : newStringSource                               \
-           , FILE*       : newFileSource                                 \
-           )(x)
-// clang-format on
-
-// Construct new Source object from a string.
-Source newStringSource(const char* text);
-// Construct new Source object from a FILE pointer.
-Source newFileSource(FILE* fp);
-// peek head char
-char peek(Source src, Ctx* ctx);
-// drop head char
-void consume(Source src);
-// get current source position (backup state of the source)
-SourcePos getSourcePos(Source src);
-// set current souce position (revert state of the source)
-void setSourcePos(Source src, SourcePos pos);
-// tests if two SourcePos are same or not
-bool isSourcePosEqual(SourcePos p1, SourcePos p2);
-
-// ---- building-block for making parser ----
-
-#define RETURN_TYPE(T) CAT(T, _return_type)
-
-#define PARSER(T) CAT(T, Parser)
-#define PARSER_ST(T) CAT(PARSER(T), St)
-#define PARSER_FN(T) CAT(PARSER(T), Fn)
-#define PARSER_GEN(T) CAT(PARSER(T), _gen)
-#define PARSE(T) CAT(PARSER(T), _parse)
-#define PARSETEST(T) CAT(PARSER(T), _parseTest)
-#define PARSER_ID_FN(T) CAT(PARSER(T), _identity)
-#define SHOW(T) CAT(T, _show)
-
-#define TYPEDEF_PARSER(T, R)                                             \
-  typedef struct PARSER_ST(T) * PARSER(T);                               \
-  typedef R RETURN_TYPE(PARSER(T));                                      \
-  typedef R (*PARSER_FN(T))(void* arg, Source src, Ctx* ex)
-
-#define DECLARE_PARSER(T)                                                \
-  PARSER(T) PARSER_GEN(T)(PARSER_FN(T) f, void* arg);                    \
-  RETURN_TYPE(PARSER(T)) PARSE(T)(PARSER(T) p, Source src, Ctx * ctx);   \
-  bool PARSETEST(T)(const char* msg, PARSER(T) p, const char* input);    \
-  PARSER(T) PARSER_ID_FN(T)(PARSER(T) p);                                \
-  void SHOW(T)(RETURN_TYPE(PARSER(T)) val)
-
-#define DEFINE_PARSER(T, RET)                                            \
-  struct PARSER_ST(T) {                                                  \
-    PARSER_FN(T) run;                                                    \
-    void* arg;                                                           \
-  };                                                                     \
-  PARSER(T) PARSER_GEN(T)(PARSER_FN(T) f, void* arg) {                   \
-    PARSER(T) p = mem_malloc(sizeof(struct PARSER_ST(T)));               \
-    p->run = f;                                                          \
-    p->arg = arg;                                                        \
-    return p;                                                            \
-  }                                                                      \
-  RETURN_TYPE(PARSER(T)) PARSE(T)(PARSER(T) p, Source src, Ctx * ctx) {  \
-    assert(ctx);                                                         \
-    return p->run(p->arg, src, ctx);                                     \
-  }                                                                      \
-  bool PARSETEST(T)(const char* msg, PARSER(T) p, const char* input) {   \
-    printf("%s", msg);                                                   \
-    Source src = Source_new(input);                                      \
-    Ctx ctx;                                                             \
-    TRY(&ctx) {                                                          \
-      SHOW(T)(PARSE(T)(p, src, &ctx));                                   \
-      return true;                                                       \
-    }                                                                    \
-    else {                                                               \
-      printf("error:%s\n", ctx.msg);                                     \
-      mem_free((void*)ctx.msg);                                          \
-      return false;                                                      \
-    }                                                                    \
-  }                                                                      \
-  PARSER(T) PARSER_ID_FN(T)(PARSER(T) p) {                               \
-    return p;                                                            \
-  }                                                                      \
-  void SHOW(T)(RETURN_TYPE(PARSER(T)) RET)
-
-// ---- CharParser ----
-TYPEDEF_PARSER(Char, char);
-// ---- StringParser ----
-TYPEDEF_PARSER(String, const char*);
-// ---- IntParser ----
-TYPEDEF_PARSER(Int, int);
-// ---- StringListParser ----
-TYPEDEF_PARSER(List(String), List(String));
-// ---- IntListParser ----
-TYPEDEF_PARSER(List(Int), List(Int));
-// ---- NodeParser ----
-TYPEDEF_PARSER(Node, Node);
-// ---- NodeListParser ----
-TYPEDEF_PARSER(List(Node), List(Node));
-
-FOREACH(DECLARE_PARSER, TYPESET(1));
-
-// ---- parser invocation ----
-
-// T parse(Parser<T> p, Souce src, Ctx *ctx)
-#define parse(p, src, ctx) GENERIC_P(p, PARSE, TYPESET(1))(p, src, ctx)
-
-// ---- parser invocation (for debug purpose) ----
-
-// bool parseTest(Parser<T> p, const char *input);
-#define parseTest(p, input) PARSE_TEST_I("", p, input)
-
-#define PARSE_TEST(p, input)                                             \
-  PARSE_TEST_I(mem_printf("%s \"%s\" => ", #p, input), p, input)
-
-// #define PARSE_TEST_I(msg, p, input) (p->test(msg, p, input))
-#define PARSE_TEST_I(msg, p, input)                                      \
-  GENERIC_P(p, PARSETEST, TYPESET(1))(msg, p, input)
-
-// ---- predicates ----
-
-typedef bool (*Predicate)(char c);
-bool is_anyChar(char c);
-bool is_digit(char c);
-bool is_hexDigit(char c);
-bool is_octDigit(char c);
-bool is_lower(char c);
-bool is_upper(char c);
-bool is_alpha(char c);
-bool is_alnum(char c);
-bool is_letter(char c);
-bool is_space(char c);
 
 // ---- built-in parsers, parser generators ----
 
