@@ -42,7 +42,7 @@ static int number_fn(void* arg, Source src, Ctx* ex) {
 }
 
 static void cparsec2_init__stage1(void) {
-  anyChar = satisfy(is_anyChar);
+  anyChar = expects("a character", satisfy(is_anyChar));
   digit = expects("a decimal digit", satisfy(is_digit));
   hexDigit = expects("a hexa-decimal digit", satisfy(is_hexDigit));
   octDigit = expects("an octal digit", satisfy(is_octDigit));
@@ -55,13 +55,15 @@ static void cparsec2_init__stage1(void) {
 }
 
 static void cparsec2_init__stage2(void) {
-  spaces = many(space);
+  spaces = expects("zero or more white-spaces", many(space));
   newline = expects("<LF>", char1('\n'));
   crlf = expects("<CR><LF>", skip1st(char1('\r'), newline));
   endOfLine = expects("<endOfLine>", either(newline, crlf));
-  endOfFile = expects("<endOfFile>", PARSER_GEN(Char)(endOfFile_fn, NULL));
+  endOfFile =
+      expects("<endOfFile>", PARSER_GEN(Char)(endOfFile_fn, NULL));
   tab = expects("a TAB", char1('\t'));
-  number = PARSER_GEN(Int)(number_fn, token(many1(digit)));
+  number = expects("a number",
+                   PARSER_GEN(Int)(number_fn, token(many1(digit))));
 }
 
 static void cparsec2_init__stage3(void) {
@@ -75,8 +77,9 @@ static void cparsec2_init__stage3(void) {
   PARSER(String) u4a = seq(char1((char)0xF0), range(0x90, 0xBF), t, t);
   PARSER(String) u4b = seq(range(0xF1, 0xF3), t, t, t);
   PARSER(String) u4c = seq(char1((char)0xF4), range(0x80, 0xBF), t, t);
-  anyUtf8 = TREE_FOLDL(EITHER(String), u1, u2, u3a, u3b, u3c, u3d, u4a,
-                       u4b, u4c);
+  anyUtf8 = expects("a UTF-8 character",
+                    TREE_FOLDL(EITHER(String), u1, u2, u3a, u3b, u3c, u3d,
+                               u4a, u4b, u4c));
 }
 
 void cparsec2_create_builtin_parsers(void) {
