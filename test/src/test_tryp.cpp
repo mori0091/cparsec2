@@ -42,15 +42,15 @@ SCENARIO("tryp(p)", "[cparsec2][parser][tryp]") {
     WHEN("an input was \"ac\"") {
       Source src = Source_new("ac");
       THEN("applied 'p' causes an exception "
-           "\"expects 'b' but was 'a'\"") {
-        REQUIRE_THROWS_WITH(parse(p, src), "expects 'b' but was 'a'");
+           "\"expects \"bc\" but was 'a'\"") {
+        REQUIRE_THROWS_WITH(parse(p, src), "expects \"bc\" but was 'a'");
       }
     }
     WHEN("an input was \"bd\"") {
       Source src = Source_new("bd");
       THEN("applied 'p' causes an exception "
-           "\"expects 'c' but was 'd'\"") {
-        REQUIRE_THROWS_WITH(parse(p, src), "expects 'c' but was 'd'");
+           "\"expects \"bc\" but was 'd'\"") {
+        REQUIRE_THROWS_WITH(parse(p, src), "expects \"bc\" but was 'd'");
       }
     }
     WHEN("an input was \"b\"") {

@@ -21,10 +21,10 @@ SCENARIO("skip1st", "[cparsec2][parser][skip1st]") {
       }
     }
     WHEN("apply skip1st(char1('a'), string1(\"XY\"))") {
-      THEN("cause exception(\"expects 'X' but was 'b'\")") {
+      THEN("cause exception(\"expects \"XY\" but was 'b'\")") {
         REQUIRE_THROWS_WITH(
             parse(skip1st(char1('a'), string1("XY")), src),
-            "expects 'X' but was 'b'");
+            "expects \"XY\" but was 'b'");
       }
     }
     WHEN("apply skip1st(string1(\"ab\"), char1('c'))") {
@@ -33,10 +33,10 @@ SCENARIO("skip1st", "[cparsec2][parser][skip1st]") {
       }
     }
     WHEN("apply skip1st(string1(\"aX\"), char1('c'))") {
-      THEN("cause exception(\"expects 'X' but was 'b'\")") {
+      THEN("cause exception(\"expects \"aX\" but was 'b'\")") {
         REQUIRE_THROWS_WITH(
             parse(skip1st(string1("aX"), char1('c')), src),
-            "expects 'X' but was 'b'");
+            "expects \"aX\" but was 'b'");
       }
     }
     WHEN("apply skip1st(string1(\"ab\"), char1('X'))") {

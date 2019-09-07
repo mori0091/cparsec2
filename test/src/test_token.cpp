@@ -91,9 +91,9 @@ SCENARIO("token(\"foo\")", "[cparsec2][parser][token]") {
               THEN("results \"foo\"") {
                 REQUIRE(std::string("foo") == parse(foo, src));
                 AND_WHEN("apply foo") {
-                  THEN("cause exception(\"expects 'f' but was 'b'\")") {
+                  THEN("cause exception(\"expects \"foo\" but was 'b'\")") {
                     REQUIRE_THROWS_WITH(parse(foo, src),
-                                        "expects 'f' but was 'b'");
+                                        "expects \"foo\" but was 'b'");
                   }
                 }
               }
