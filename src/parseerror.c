@@ -78,13 +78,13 @@ static const char* format_msgs(const char* prefix, List(String) msgs) {
     if (itr != end) {
       buff_append(&b, *itr++);
     }
-    for (; itr < end - 1; ++itr) {
+    while (itr < end - 1) {
       buff_append(&b, ", ");
-      buff_append(&b, *itr);
+      buff_append(&b, *itr++);
     }
     if (itr != end) {
       buff_append(&b, ", or ");
-      buff_append(&b, *itr);
+      buff_append(&b, *itr++);
     }
     buff_append(&b, "\n");
   }

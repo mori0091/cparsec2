@@ -8,16 +8,18 @@ SCENARIO("crlf", "[cparsec2][parser][crlf]") {
   GIVEN("an input: \" \" (i.e. SPC)") {
     Source src = Source_new(" ");
     WHEN("apply crlf") {
-      THEN("cause exception(\"expects '\\r' but was ' '\")") {
-        REQUIRE_THROWS_WITH(parse(crlf, src), "expects '\r' but was ' '");
+      THEN("cause exception(\"expects <CR><LF> but was ' '\")") {
+        REQUIRE_THROWS_WITH(parse(crlf, src),
+                            "expects <CR><LF> but was ' '");
       }
     }
   }
   GIVEN("an input: \"\\t\" (i.e. TAB)") {
     Source src = Source_new("\t");
     WHEN("apply crlf") {
-      THEN("cause exception(\"expects '\\r' but was '\\t'\")") {
-        REQUIRE_THROWS_WITH(parse(crlf, src), "expects '\r' but was '\t'");
+      THEN("cause exception(\"expects <CR><LF> but was '\\t'\")") {
+        REQUIRE_THROWS_WITH(parse(crlf, src),
+                            "expects <CR><LF> but was '\\t'");
       }
     }
   }
@@ -32,8 +34,9 @@ SCENARIO("crlf", "[cparsec2][parser][crlf]") {
   GIVEN("an input: \"\\n\" (i.e. LF)") {
     Source src = Source_new("\n");
     WHEN("apply crlf") {
-      THEN("cause exception(\"expects '\\r' but was '\\n'\")") {
-        REQUIRE_THROWS_WITH(parse(crlf, src), "expects '\r' but was '\n'");
+      THEN("cause exception(\"expects <CR><LF> but was '\\n'\")") {
+        REQUIRE_THROWS_WITH(parse(crlf, src),
+                            "expects <CR><LF> but was '\\n'");
       }
     }
   }
@@ -48,8 +51,9 @@ SCENARIO("crlf", "[cparsec2][parser][crlf]") {
   GIVEN("an input: \"a\"") {
     Source src = Source_new("a");
     WHEN("apply crlf") {
-      THEN("cause exception(\"expects '\\r' but was 'a'\")") {
-        REQUIRE_THROWS_WITH(parse(crlf, src), "expects '\r' but was 'a'");
+      THEN("cause exception(\"expects <CR><LF> but was 'a'\")") {
+        REQUIRE_THROWS_WITH(parse(crlf, src),
+                            "expects <CR><LF> but was 'a'");
       }
     }
   }

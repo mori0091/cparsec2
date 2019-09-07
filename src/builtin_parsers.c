@@ -43,24 +43,24 @@ static int number_fn(void* arg, Source src, Ctx* ex) {
 
 static void cparsec2_init__stage1(void) {
   anyChar = satisfy(is_anyChar);
-  digit = satisfy(is_digit);
-  hexDigit = satisfy(is_hexDigit);
-  octDigit = satisfy(is_octDigit);
-  lower = satisfy(is_lower);
-  upper = satisfy(is_upper);
-  alpha = satisfy(is_alpha);
-  alnum = satisfy(is_alnum);
-  letter = satisfy(is_letter);
-  space = satisfy(is_space);
+  digit = expects("a decimal digit", satisfy(is_digit));
+  hexDigit = expects("a hexa-decimal digit", satisfy(is_hexDigit));
+  octDigit = expects("an octal digit", satisfy(is_octDigit));
+  lower = expects("a lower-case character", satisfy(is_lower));
+  upper = expects("a upper-case character", satisfy(is_upper));
+  alpha = expects("an alphabet", satisfy(is_alpha));
+  alnum = expects("an alphabet or a decimal digit", satisfy(is_alnum));
+  letter = expects("a letter", satisfy(is_letter));
+  space = expects("one of a white-space", satisfy(is_space));
 }
 
 static void cparsec2_init__stage2(void) {
   spaces = many(space);
-  newline = char1('\n');
-  crlf = skip1st(char1('\r'), newline);
+  newline = expects("<LF>", char1('\n'));
+  crlf = expects("<CR><LF>", skip1st(char1('\r'), newline));
   endOfLine = expects("<endOfLine>", either(newline, crlf));
-  endOfFile = PARSER_GEN(Char)(endOfFile_fn, NULL);
-  tab = char1('\t');
+  endOfFile = expects("<endOfFile>", PARSER_GEN(Char)(endOfFile_fn, NULL));
+  tab = expects("a TAB", char1('\t'));
   number = PARSER_GEN(Int)(number_fn, token(many1(digit)));
 }
 

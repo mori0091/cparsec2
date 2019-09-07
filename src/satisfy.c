@@ -15,6 +15,8 @@ static char run_satisfy(void* arg, Source src, Ctx* ex) {
       consume(src);
       return c;
     }
+    ErrMsg m = {Unexpect, mem_printf("'%c'", c)};
+    parseError(src, m);
     cthrow(&ctx, error("not satisfy"));
   }
   else {

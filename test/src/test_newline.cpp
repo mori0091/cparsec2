@@ -8,27 +8,27 @@ SCENARIO("newline", "[cparsec2][parser][newline]") {
   GIVEN("an input: \" \" (i.e. SPC)") {
     Source src = Source_new(" ");
     WHEN("apply newline") {
-      THEN("cause exception(\"expects '\\n' but was ' '\")") {
+      THEN("cause exception(\"expects <LF> but was ' '\")") {
         REQUIRE_THROWS_WITH(parse(newline, src),
-                            "expects '\n' but was ' '");
+                            "expects <LF> but was ' '");
       }
     }
   }
   GIVEN("an input: \"\\t\" (i.e. TAB)") {
     Source src = Source_new("\t");
     WHEN("apply newline") {
-      THEN("cause exception(\"expects '\\n' but was '\\t'\")") {
+      THEN("cause exception(\"expects <LF> but was '\\t'\")") {
         REQUIRE_THROWS_WITH(parse(newline, src),
-                            "expects '\n' but was '\t'");
+                            "expects <LF> but was '\\t'");
       }
     }
   }
   GIVEN("an input: \"\\r\" (i.e. CR)") {
     Source src = Source_new("\r");
     WHEN("apply newline") {
-      THEN("cause exception(\"expects '\\n' but was '\\r'\")") {
+      THEN("cause exception(\"expects <LF> but was '\\r'\")") {
         REQUIRE_THROWS_WITH(parse(newline, src),
-                            "expects '\n' but was '\r'");
+                            "expects <LF> but was '\\r'");
       }
     }
   }
@@ -43,9 +43,9 @@ SCENARIO("newline", "[cparsec2][parser][newline]") {
   GIVEN("an input: \"a\"") {
     Source src = Source_new("a");
     WHEN("apply newline") {
-      THEN("cause exception(\"expects '\\n' but was 'a'\")") {
+      THEN("cause exception(\"expects <LF> but was 'a'\")") {
         REQUIRE_THROWS_WITH(parse(newline, src),
-                            "expects '\n' but was 'a'");
+                            "expects <LF> but was 'a'");
       }
     }
   }

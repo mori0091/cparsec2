@@ -14,6 +14,8 @@ static const char* run_string1(void* arg, Source src, Ctx* ex) {
     return expected;
   }
   else {
+    ErrMsg m = {Expect, mem_printf("\"%s\"", expected)};
+    parseError(src, m);
     cthrow(ex, ctx.msg);
   }
 }

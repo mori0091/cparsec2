@@ -13,6 +13,8 @@ static char expects_fn(void* arg, Source src, Ctx* ex) {
     return parse(p, src, &ctx);
   }
   else {
+    ErrMsg m = {Expect, desc};
+    parseError(src, m);
     const char* bw = strstr(ctx.msg, "but was");
     if (bw) {
       cthrow(ex, error("expects %s %s", desc, bw));
