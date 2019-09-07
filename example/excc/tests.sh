@@ -53,7 +53,11 @@ assert 17 = ${CMD} 'main() { 10 / 2 + 4 * 3; }'
 assert  5 = ${CMD} 'main() { -1+2*3; }'
 assert  9 = ${CMD} 'main() { -(1+2)*-3; }'
 assert  9 = ${CMD} 'main() { (-1 + -2) * -3; }'
-assert "error:expects <eof> but was '$'" = ${CMD} 'main() { 1+2; } $'
+assert "error:expects <endOfFile> but was '$'
+Parse error:16
+  unexpected '$'
+  expecting <endOfFile>" \
+       = ${CMD} 'main() { 1+2; } $'
 assert 13 = ${CMD} 'main() { 14; 2+11; }'
 assert 1 = ${CMD} 'main() { 100 == 100; }'
 assert 0 = ${CMD} 'main() { 101 == 100; }'
@@ -84,10 +88,16 @@ assert 15 = ${CMD} 'main() { return 15; }'
 assert 15 = ${CMD} 'main() { a = 10; return a+5; }'
 assert 15 = ${CMD} 'main() { a = 10; return 15; a; }'
 assert 15 = ${CMD} 'main() { return+15; }'
-assert "error:expects '}' but was 'r'" \
+assert "error:expects '}' but was 'r'
+Parse error:9
+  unexpected 'r'
+  expecting '}'" \
        = ${CMD} 'main() { return; }'
 assert 15 = ${CMD} 'main() { returnx=15; }'
-assert "error:expects '}' but was 'r'" \
+assert "error:expects '}' but was 'r'
+Parse error:9
+  unexpected 'r'
+  expecting '}'" \
        = ${CMD} 'main() { return=15; }'
 assert 45 = ${CMD} '
 main() {

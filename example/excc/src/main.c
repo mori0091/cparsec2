@@ -423,10 +423,10 @@ int main(int argc, char** argv) {
 
   setup();
 
+  Source src = Source_new(argv[1]);
   Ctx ctx;
   TRY(&ctx) {
     FILE* out = stdout;
-    Source src = Source_new(argv[1]);
     Node ast = parse(program, src, &ctx);
 
     // [generate assembly code]
@@ -436,6 +436,7 @@ int main(int argc, char** argv) {
   }
   else {
     fprintf(stderr, "error:%s\n", ctx.msg);
+    fprintf(stderr, "%s\n", getParseErrorAsString(src));
     return 1;
   }
 }
