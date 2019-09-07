@@ -8,8 +8,8 @@ SCENARIO("tab", "[cparsec2][parser][tab]") {
   GIVEN("an input: \" \" (i.e. SPC)") {
     Source src = Source_new(" ");
     WHEN("apply tab") {
-      THEN("cause exception(\"expects '\\t' but was ' '\")") {
-        REQUIRE_THROWS_WITH(parse(tab, src), "expects '\t' but was ' '");
+      THEN("cause exception(\"expects a TAB but was ' '\")") {
+        REQUIRE_THROWS_WITH(parse(tab, src), "expects a TAB but was ' '");
       }
     }
   }
@@ -24,24 +24,24 @@ SCENARIO("tab", "[cparsec2][parser][tab]") {
   GIVEN("an input: \"\\r\" (i.e. CR)") {
     Source src = Source_new("\r");
     WHEN("apply tab") {
-      THEN("cause exception(\"expects '\\t' but was '\\r'\")") {
-        REQUIRE_THROWS_WITH(parse(tab, src), "expects '\t' but was '\r'");
+      THEN("cause exception(\"expects a TAB but was '\\r'\")") {
+        REQUIRE_THROWS_WITH(parse(tab, src), "expects a TAB but was '\\r'");
       }
     }
   }
   GIVEN("an input: \"\\n\" (i.e. LF)") {
     Source src = Source_new("\n");
     WHEN("apply tab") {
-      THEN("cause exception(\"expects '\\t' but was '\\n'\")") {
-        REQUIRE_THROWS_WITH(parse(tab, src), "expects '\t' but was '\n'");
+      THEN("cause exception(\"expects a TAB but was '\\n'\")") {
+        REQUIRE_THROWS_WITH(parse(tab, src), "expects a TAB but was '\\n'");
       }
     }
   }
   GIVEN("an input: \"a\"") {
     Source src = Source_new("a");
     WHEN("apply tab") {
-      THEN("cause exception(\"expects '\\t' but was 'a'\")") {
-        REQUIRE_THROWS_WITH(parse(tab, src), "expects '\t' but was 'a'");
+      THEN("cause exception(\"expects a TAB but was 'a'\")") {
+        REQUIRE_THROWS_WITH(parse(tab, src), "expects a TAB but was 'a'");
       }
     }
   }

@@ -2,8 +2,8 @@
 #pragma once
 
 #include <assert.h>
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 // ---- resource management ----
 #include "alloc.h"
@@ -68,6 +68,7 @@
     else {                                                               \
       printf("error:%s\n", ctx.msg);                                     \
       mem_free((void*)ctx.msg);                                          \
+      printf("%s\n", getParseErrorAsString(src));                        \
       return false;                                                      \
     }                                                                    \
   }                                                                      \

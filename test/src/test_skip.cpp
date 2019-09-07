@@ -34,9 +34,9 @@ SCENARIO("skip", "[cparsec2][parser][skip]") {
       }
     }
     WHEN("apply skip(string1(\"bc\"))") {
-      THEN("cause exception(\"expects 'b' but was 'a'\")") {
+      THEN("cause exception(\"expects \"bc\" but was 'a'\")") {
         REQUIRE_THROWS_WITH(parse(skip(string1("bc")), src),
-                            "expects 'b' but was 'a'");
+                            "expects \"bc\" but was 'a'");
       }
     }
   }

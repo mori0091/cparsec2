@@ -119,9 +119,9 @@ SCENARIO("many1(p)", "[cparsec2][parser][many1]") {
             parse(many1(skip1st(char1(','), number)), src),
             "not satisfy");
         AND_WHEN("apply string1(\",abc\")") {
-          THEN("cause exception(\"expects ',' but was 'a'\")") {
+          THEN("cause exception(\"expects \",abc\" but was 'a'\")") {
             REQUIRE_THROWS_WITH(parse(string1(",abc"), src),
-                                "expects ',' but was 'a'");
+                                "expects \",abc\" but was 'a'");
           }
         }
       }
@@ -132,9 +132,9 @@ SCENARIO("many1(p)", "[cparsec2][parser][many1]") {
             parse(many1(skip1st(char1(','), many1(digit))), src),
             "not satisfy");
         AND_WHEN("apply string1(\",abc\")") {
-          THEN("cause exception(\"expects ',' but was 'a'\")") {
+          THEN("cause exception(\"expects \",abc\" but was 'a'\")") {
             REQUIRE_THROWS_WITH(parse(string1(",abc"), src),
-                                "expects ',' but was 'a'");
+                                "expects \",abc\" but was 'a'");
           }
         }
       }

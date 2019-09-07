@@ -55,6 +55,17 @@ FOREACH(DEFINE_CXX_PARSE, TYPESET(1));
 FOREACH(DEFINE_CXX_PARSETEST, TYPESET(1));
 #endif
 
+#ifdef expects
+#undef expects
+#define expects(desc, p) cxx_expects((desc), parser_cast(p))
+#define DEFINE_CXX_EXPECTS(T)                                            \
+  inline auto cxx_expects(const char* desc, PARSER(T) p) {               \
+    return EXPECTS(T)(desc, p);                                          \
+  }                                                                      \
+  END_OF_STATEMENTS
+FOREACH(DEFINE_CXX_EXPECTS, TYPESET(1));
+#endif
+
 #ifdef many
 #undef many
 #define many(p) cxx_many(parser_cast(p))

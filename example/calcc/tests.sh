@@ -3,6 +3,10 @@
 CMD=./bin/calcc
 CC=${CC:-gcc}
 
+replace_newline_with_linefeed () {
+    sed -E -e 's/(\r|\r\n|\n)/\n/g'
+}
+
 compile_and_run() {
     "$@" > tmp.s 2> err.log || {
         cat err.log
@@ -20,7 +24,7 @@ assert() {
     expect=$1
     op=$2
     shift 2
-    actual=$(compile_and_run "$@")
+    actual=$(compile_and_run "$@" | replace_newline_with_linefeed)
     rm -f tmp tmp.s err.log
     test "$expect" "$op" "$actual" || {
         echo "[FAIL] $expect $op $@"
@@ -47,7 +51,10 @@ assert 17 = ${CMD} '10 / 2 + 4 * 3'
 assert  5 = ${CMD} '-1+2*3'
 assert  9 = ${CMD} '-(1+2)*-3'
 assert  9 = ${CMD} '(-1 + -2) * -3'
-assert "error:expects <eof> but was ';'" = ${CMD} '1+2;'
+assert "error:expects <endOfFile> but was ';'
+Parse error:3
+  unexpected ';'
+  expecting <endOfFile>" = ${CMD} '1+2;'
 
 echo
 echo "$((pass + fail)) tests, $pass passed, $fail failed"

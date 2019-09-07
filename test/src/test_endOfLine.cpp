@@ -19,7 +19,7 @@ SCENARIO("endOfLine", "[cparsec2][parser][endOfLine]") {
     WHEN("apply endOfLine") {
       THEN("cause exception(\"expects <endOfLine> but was '\\t'\")") {
         REQUIRE_THROWS_WITH(parse(endOfLine, src),
-                            "expects <endOfLine> but was '\t'");
+                            "expects <endOfLine> but was '\\t'");
       }
     }
   }

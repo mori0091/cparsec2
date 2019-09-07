@@ -4,20 +4,15 @@
 
 static const char* run_string1(void* arg, Source src, Ctx* ex) {
   const char* expected = (const char*)arg;
-  Ctx ctx;
-  TRY(&ctx) {
-    const char* p = expected;
-    while (*p) {
-      parse(char1(*p), src, &ctx);
-      p++;
-    }
-    return expected;
+  const char* p = expected;
+  while (*p) {
+    parse(char1(*p), src, ex);
+    p++;
   }
-  else {
-    cthrow(ex, ctx.msg);
-  }
+  return expected;
 }
 
 PARSER(String) string1(const char* s) {
-  return PARSER_GEN(String)(run_string1, (void*)s);
+  return expects(mem_printf("\"%s\"", s),
+                 PARSER_GEN(String)(run_string1, (void*)s));
 }

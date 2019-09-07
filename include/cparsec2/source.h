@@ -5,6 +5,7 @@
 #include <sys/types.h>
 
 #include "exception.h"
+#include "parseerror.h"
 #include "sourcepos.h"
 
 #ifdef __cplusplus
@@ -35,6 +36,12 @@ void consume(Source src);
 SourcePos getSourcePos(Source src);
 // set current souce position (revert state of the source)
 void setSourcePos(Source src, SourcePos pos);
+
+const char* getParseErrorAsString(Source src);
+ParseError getParseError(Source src);
+void setParseError(Source src, ParseError err);
+
+void parseError(Source src, ErrMsg msg);
 
 #ifdef __cplusplus
 }

@@ -16,7 +16,13 @@
       cthrow(ex, ctx.msg);                                               \
     }                                                                    \
     mem_free((void*)ctx.msg);                                            \
-    return parse(p[1], src, ex);                                         \
+    ParseError err1 = getParseError(src);                                \
+    TRY(&ctx) {                                                          \
+      return parse(p[1], src, &ctx);                                     \
+    }                                                                    \
+    ParseError err2 = getParseError(src);                                \
+    setParseError(src, ParseError_merge(err1, err2));                    \
+    cthrow(ex, ctx.msg);                                                 \
   }                                                                      \
   PARSER(T) EITHER(T)(PARSER(T) p1, PARSER(T) p2) {                      \
     PARSER(T)* arg = mem_malloc(sizeof(PARSER(T)[2]));                   \

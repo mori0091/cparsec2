@@ -9,26 +9,54 @@
 
 struct stSource {
   Stream s;
+  ParseError e;
 };
+
+const char* getParseErrorAsString(Source src) {
+  return ParseError_toString(getParseError(src));
+}
+
+ParseError getParseError(Source src) {
+  return src->e;
+}
+void setParseError(Source src, ParseError err) {
+  src->e = err;
+}
+
+void parseError(Source src, ErrMsg msg) {
+  SourcePos pos = getSourcePos(src);
+  ParseError err = getParseError(src);
+  err = ParseError_setMessage(msg, err);
+  err = ParseError_setPos(pos, err);
+  setParseError(src, err);
+}
 
 Source newStringSource(const char* text) {
   Source src = mem_malloc(sizeof(struct stSource));
   src->s = Stream_new(text);
+  src->e = ParseError_new(getSourcePos(src));
   return src;
 }
 
 Source newFileSource(FILE* fp) {
   Source src = mem_malloc(sizeof(struct stSource));
   src->s = Stream_new(fp);
+  src->e = ParseError_new(getSourcePos(src));
   return src;
 }
 
-char peek(Source src, Ctx* ctx) {
+static char readChar(Source src, Ctx* ctx) {
   char c;
-  off_t pos = Stream_getpos(src->s, ctx);
   if (!Stream_read((void*)&c, 1, src->s, ctx)) {
+    parseError(src, (ErrMsg){Unexpect, "end of input"});
     cthrow(ctx, mem_printf("too short"));
   }
+  return c;
+}
+
+char peek(Source src, Ctx* ctx) {
+  off_t pos = Stream_getpos(src->s, ctx);
+  char c = readChar(src, ctx);
   Stream_setpos(pos, src->s, ctx);
   return c;
 }
@@ -36,10 +64,7 @@ char peek(Source src, Ctx* ctx) {
 void consume(Source src) {
   Ctx ctx;
   TRY(&ctx) {
-    char c;
-    if (!Stream_read((void*)&c, 1, src->s, &ctx)) {
-      cthrow(&ctx, mem_printf("too short"));
-    }
+    readChar(src, &ctx);
   }
   else {
     fprintf(stderr, "%s\n", ctx.msg);

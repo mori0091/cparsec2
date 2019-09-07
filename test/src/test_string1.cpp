@@ -32,9 +32,9 @@ SCENARIO("string1(str)", "[cparsec2][parser][string1]") {
   GIVEN("an input: \"a123bc\"") {
     Source src = Source_new("a123bc");
     WHEN("apply string1(\"a1234\")") {
-      THEN("cause exception(\"expects '4' but was 'b'\")") {
+      THEN("cause exception(\"expects \"a1234\" but was 'b'\")") {
         REQUIRE_THROWS_WITH(parse(string1("a1234"), src),
-                            "expects '4' but was 'b'");
+                            "expects \"a1234\" but was 'b'");
       }
     }
   }

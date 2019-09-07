@@ -61,7 +61,13 @@ PARSER(String) utf8(const char* s);
 // ---- parser combinators ----
 
 // Parser<T> expects(const char* desc, Parser<T> p);
-PARSER(Char) expects(const char* desc, PARSER(Char) p); // TODO test
+// TODO test
+#define EXPECTS(T) CAT(expects_, T)
+#define DECLARE_EXPECTS(T)                                               \
+  PARSER(T) EXPECTS(T)(const char* desc, PARSER(T) p)
+FOREACH(DECLARE_EXPECTS, TYPESET(1));
+#define expects(desc, p)                                                 \
+  (GENERIC_P(PARSER_CAST(p), EXPECTS, TYPESET(1))((desc), PARSER_CAST(p)))
 
 // Parser<T[]> many(Parser<T> p);
 #define MANY(T) CAT(many_, T)

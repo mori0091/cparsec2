@@ -4,27 +4,36 @@
 
 #include <cparsec2.h>
 
-static char expects_fn(void* arg, Source src, Ctx* ex) {
-  void** ps = (void**)arg;
-  const char* desc = ps[0];
-  CharParser p = ps[1];
-  Ctx ctx;
-  TRY(&ctx) {
-    return parse(p, src, &ctx);
-  }
-  else {
-    const char* bw = strstr(ctx.msg, "but was");
-    if (bw) {
-      cthrow(ex, error("expects %s %s", desc, bw));
-    } else {
-      cthrow(ex, ctx.msg);
-    }
-  }
-}
+#define EXPECTS_FN(T) CAT(run_expects, T)
+#define DEFINE_EXPECTS(T)                                                \
+  static RETURN_TYPE(PARSER(T))                                          \
+      EXPECTS_FN(T)(void* arg, Source src, Ctx* ex) {                    \
+    void** ps = (void**)arg;                                             \
+    const char* desc = ps[0];                                            \
+    PARSER(T) p = ps[1];                                                 \
+    Ctx ctx;                                                             \
+    TRY(&ctx) {                                                          \
+      return parse(p, src, &ctx);                                        \
+    }                                                                    \
+    else {                                                               \
+      ErrMsg m = {Expect, desc};                                         \
+      parseError(src, m);                                                \
+      const char* bw = strstr(ctx.msg, "but was");                       \
+      if (bw) {                                                          \
+        const char* msg = error("expects %s %s", desc, bw);              \
+        mem_free((void*)ctx.msg);                                        \
+        cthrow(ex, msg);                                                 \
+      } else {                                                           \
+        cthrow(ex, ctx.msg);                                             \
+      }                                                                  \
+    }                                                                    \
+  }                                                                      \
+  PARSER(T) EXPECTS(T)(const char* desc, PARSER(T) p) {                  \
+    void** ps = mem_malloc(sizeof(void*) * 2);                           \
+    ps[0] = (void*)desc;                                                 \
+    ps[1] = (void*)p;                                                    \
+    return PARSER_GEN(T)(EXPECTS_FN(T), ps);                             \
+  }                                                                      \
+  END_OF_STATEMENTS
 
-CharParser expects(const char* desc, CharParser p) {
-  void** ps = mem_malloc(sizeof(void*) * 2);
-  ps[0] = (void*)desc;
-  ps[1] = (void*)p;
-  return PARSER_GEN(Char)(expects_fn, ps);
-}
+FOREACH(DEFINE_EXPECTS, TYPESET(1));
