@@ -2,6 +2,8 @@
 
 #include "cparsec2.h"
 
+#include <ctype.h>
+
 struct char1_cache {
   PARSER(Char) parser[256];
   const char* str[256];
@@ -15,18 +17,33 @@ void cparsec2_clear_char1_cache(void) {
 
 static const char* c2s(uint8_t c) {
   switch (c) {
-  case '\n':
-    return "'\\n'";
-  case '\r':
-    return "'\\r'";
-  case '\t':
+  case '\0':                    /* Null */
+    return "'\\0'";
+  case '\a':                    /* Bell */
+    return "'\\a'";
+  case '\b':                    /* Backspace */
+    return "'\\b'";
+  case '\t':                    /* Horizontal Tab */
     return "'\\t'";
-  case ' ':
-    return "' '";
+  case '\n':                    /* Line Feed */
+    return "'\\n'";
+  case '\v':                    /* Vertical Tab */
+    return "'\\v'";
+  case '\f':                    /* Form Feed */
+    return "'\\f'";
+  case '\r':                    /* Carriage Return */
+    return "'\\r'";
+  case '\\':                    /* Backslash */
+    return "'\\\\'";
   default:;
     const char** p = &(char1_cache.str[c]);
     if (!*p) {
-      *p = mem_printf("'%c'", c);
+      if (isprint(c)) {
+        *p = mem_printf("'%c'", c);
+      }
+      else {
+        *p = mem_printf("'\\%03o'", (unsigned int)c);
+      }
     }
     return *p;
   }
