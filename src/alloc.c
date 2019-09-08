@@ -48,6 +48,8 @@ static void* cparsec2_push(void* p) {
 
 // see 'builtin_parsers.c'
 void cparsec2_create_builtin_parsers(void);
+// see 'char1.c'
+void cparsec2_clear_char1_cache(void);
 
 void cparsec2_init(void) {
   cparsec2_ensure0();
@@ -55,6 +57,7 @@ void cparsec2_init(void) {
 }
 
 void cparsec2_end(void) {
+  cparsec2_clear_char1_cache();
   Buff(Ptr)* b = &cparsec2_objects;
   for (int i = 0; i < b->len; ++i) {
     free(b->data[i]);
