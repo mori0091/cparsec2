@@ -38,7 +38,7 @@ if [ -t 1 ] ; then
 fi
 
 if [ -x /usr/bin/tput ] ; then
-    colors=$(/usr/bin/tput colors)
+    colors=$(/usr/bin/tput colors || echo 0)
 else
     colors=0
 fi
