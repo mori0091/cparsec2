@@ -64,11 +64,11 @@ PARSER(Char) close_paren; // close_paren = ")"
 PARSER(Char) open_brace;  // open_brace = "{"
 PARSER(Char) close_brace; // close_brace = "}"
 
-#define sepBy(sep, p) cons(p, many(skip1st(sep, p)))
+#define sepBy(sep, p) cons(p, many(tryp(skip1st(sep, p))))
 #define between(open, close, p) skip1st(open, skip2nd(p, close))
 #define parens(p) between(open_paren, close_paren, p)
 #define braces(p) between(open_brace, close_brace, p)
-#define option(p, defaultValue) either(tryp(p), identity(defaultValue))
+#define option(p, defaultValue) either((p), identity(defaultValue))
 
 static List(Node) concat_fn(void* arg, Source src, Ctx* ex) {
   PARSER(List(Node))* ps = arg;
@@ -126,7 +126,6 @@ static Node infixl_fn(void* arg, Source src, Ctx* ex) {
     for (int i = 0; i < tbl->n; ++i) {
       Ctx ctx;
       TRY(&ctx) {
-        // ex. tbl->ps[i] == tryp(many1(skip1st(token("*"), tbl->p)))
         List(Node) xs = parse(tbl->ps[i], src, &ctx);
         Node* itr = list_begin(xs);
         Node* end = list_end(xs);
@@ -150,7 +149,7 @@ static PARSER(Node) infixl(PARSER(Node) p, int n, Infix tbl[n]) {
   arg->n = n;
   arg->p = p;
   for (int i = 0; i < n; ++i) {
-    arg->ps[i] = tryp(many1(skip1st(token(string1(tbl[i].op)), p)));
+    arg->ps[i] = many1(tryp(skip1st(token(string1(tbl[i].op)), p)));
     arg->fs[i] = tbl[i].f;
   }
   return PARSER_GEN(Node)(infixl_fn, arg);
@@ -184,7 +183,7 @@ static PARSER(Node) infixr(PARSER(Node) p, int n, Infix tbl[n]) {
   arg->n = n;
   arg->p = p;
   for (int i = 0; i < n; ++i) {
-    arg->ps[i] = tryp(many1(skip2nd(p, token(string1(tbl[i].op)))));
+    arg->ps[i] = many1(tryp(skip2nd(p, token(string1(tbl[i].op)))));
     arg->fs[i] = tbl[i].f;
   }
   return PARSER_GEN(Node)(infixr_fn, arg);
@@ -224,7 +223,7 @@ static Node functionCall_fn(void* arg, Source src, Ctx* ex) {
   parse(open_paren, src, ex);
   parse(spaces, src, ex);
   if (')' != peek(src, ex)) {
-    args = parse(sepBy(char1(','), expr), src, ex);
+    args = parse(sepBy(token(char1(',')), expr), src, ex);
   }
   parse(close_paren, src, ex);
   return nd_c_call(name, list_length(args), list_begin(args));
@@ -273,7 +272,7 @@ static const char* keyword_fn(void* arg, Source src, Ctx* ex) {
 
 static PARSER(String) keyword(const char* word) {
   add_keyword(word);
-  return PARSER_GEN(String)(keyword_fn, token(string1(word)));
+  return token(tryp(PARSER_GEN(String)(keyword_fn, string1(word))));
 }
 
 static Node c_compound_stmt_fn(void* arg, Source src, Ctx* ex) {
@@ -312,7 +311,7 @@ static Node c_functionDefinition_fn(void* arg, Source src, Ctx* ex) {
   parse(open_paren, src, ex);
   parse(spaces, src, ex);
   if (')' != peek(src, ex)) {
-    params = parse(sepBy(char1(','), ident), src, ex);
+    params = parse(sepBy(token(char1(',')), ident), src, ex);
   }
   parse(close_paren, src, ex);
   const char** itr = list_begin(params);
@@ -348,10 +347,13 @@ void setup(void) {
   open_brace = token(char1('{'));
   close_brace = token(char1('}'));
 
-  term = token(FOLDL(EITHER(Node), parens(indirect(&expr)),
-                     PARSER_GEN(Node)(literal_fn, NULL),
-                     tryp(PARSER_GEN(Node)(functionCall_fn, NULL)),
-                     tryp(PARSER_GEN(Node)(localVariable_fn, NULL))));
+  term = token(
+      FOLDL(EITHER(Node), parens(indirect(&expr)),
+            expects("literal", PARSER_GEN(Node)(literal_fn, NULL)),
+            expects("function call",
+                    tryp(PARSER_GEN(Node)(functionCall_fn, NULL))),
+            expects("varialble",
+                    tryp(PARSER_GEN(Node)(localVariable_fn, NULL)))));
 
   unary = token(PARSER_GEN(Node)(unary_fn, NULL));
   muldiv = infixl(unary, 2, (Infix[]){{"*", nd_mul}, {"/", nd_div}});
@@ -363,6 +365,7 @@ void setup(void) {
   equality = infixl(relation, 2, (Infix[]){{"==", nd_EQ}, {"!=", nd_NE}});
   assign = infixr(equality, 1, (Infix[]){{"=", nd_assign}});
   expr = assign;
+  expr = expects("expression", expr);
 
   PARSER(Node)
   expr_stmt = PARSER_GEN(Node)(stmt_fn, skip2nd(expr, token(char1(';'))));
@@ -376,10 +379,10 @@ void setup(void) {
 
   PARSER(Node)
   c_for_stmt = PARSER_GEN(Node)(
-      c_for_fn, concat(skip1st(keyword("for"),
-                               parens(seq(opt_expr_semicolon,
-                                          opt_expr_semicolon, opt_expr))),
-                       seq(indirect(&stmt))));
+      c_for_fn, skip1st(keyword("for"),
+                        concat(parens(seq(opt_expr_semicolon,
+                                          opt_expr_semicolon, opt_expr)),
+                               seq(indirect(&stmt)))));
 
   PARSER(Node)
   c_while_stmt = PARSER_GEN(Node)(
@@ -395,17 +398,18 @@ void setup(void) {
   c_compound_stmt =
       PARSER_GEN(Node)(c_compound_stmt_fn, braces(many(indirect(&stmt))));
 
-  stmt = FOLDL(EITHER(Node), tryp(c_compound_stmt), tryp(c_if_else_stmt),
-               tryp(c_for_stmt), tryp(c_while_stmt), tryp(return_stmt),
-               expr_stmt);
+  stmt = token(FOLDL(EITHER(Node), expr_stmt, c_if_else_stmt, c_for_stmt,
+                     c_while_stmt, return_stmt, c_compound_stmt));
+  stmt = expects("statement", stmt);
 
   PARSER(Node)
   c_functionDefinition = PARSER_GEN(Node)(c_functionDefinition_fn, NULL);
 
-  PARSER(Node) toplevel = c_functionDefinition;
+  PARSER(Node) toplevel = token(c_functionDefinition);
 
-  program = PARSER_GEN(Node)(c_compound_stmt_fn,
-                             skip2nd(many1(toplevel), token(endOfFile)));
+  program = PARSER_GEN(Node)(
+      c_compound_stmt_fn,
+      skip1st(spaces, skip2nd(many1(toplevel), endOfFile)));
 }
 
 static void codegen_header(FILE* out) {

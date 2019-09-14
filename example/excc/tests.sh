@@ -55,6 +55,7 @@ assert  9 = ${CMD} 'main() { -(1+2)*-3; }'
 assert  9 = ${CMD} 'main() { (-1 + -2) * -3; }'
 assert "error:expects <endOfFile> but was '$'
 Parse error:16
+1:17
   unexpected '$'
   expecting <endOfFile>" \
        = ${CMD} 'main() { 1+2; } $'
@@ -88,16 +89,18 @@ assert 15 = ${CMD} 'main() { return 15; }'
 assert 15 = ${CMD} 'main() { a = 10; return a+5; }'
 assert 15 = ${CMD} 'main() { a = 10; return 15; a; }'
 assert 15 = ${CMD} 'main() { return+15; }'
-assert "error:expects '}' but was 'r'
-Parse error:9
-  unexpected 'r'
-  expecting '}'" \
+assert "error:not satisfy
+Parse error:15
+1:16
+  unexpected ';'
+  expecting expression" \
        = ${CMD} 'main() { return; }'
 assert 15 = ${CMD} 'main() { returnx=15; }'
-assert "error:expects '}' but was 'r'
-Parse error:9
-  unexpected 'r'
-  expecting '}'" \
+assert "error:not satisfy
+Parse error:15
+1:16
+  unexpected '='
+  expecting expression" \
        = ${CMD} 'main() { return=15; }'
 assert 45 = ${CMD} '
 main() {
