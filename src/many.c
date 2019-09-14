@@ -8,20 +8,22 @@
     UNUSED(ex);                                                          \
     PARSER(T) parser = (PARSER(T))arg;                                   \
     Buff(T) str = {0};                                                   \
+    off_t offset;                                                        \
     Ctx ctx;                                                             \
     TRY(&ctx) {                                                          \
       for (;;) {                                                         \
+        offset = getSourceOffset(src);                                   \
         buff_push(&str, parse(parser, src, &ctx));                       \
       }                                                                  \
     }                                                                    \
-    else {                                                               \
-      /* catch and discard exception */                                  \
-      mem_free((void*)ctx.msg);                                          \
+    if (offset != getSourceOffset(src)) {                                \
+      cthrow(ex, ctx.msg);                                               \
     }                                                                    \
+    mem_free((void*)ctx.msg);                                            \
     return buff_finish(&str);                                            \
   }                                                                      \
   PARSER(List(T)) MANY(T)(PARSER(T) p) {                                 \
-    return PARSER_GEN(List(T))(MANY_FN(T), tryp(p));                     \
+    return PARSER_GEN(List(T))(MANY_FN(T), p);                           \
   }                                                                      \
   END_OF_STATEMENTS
 

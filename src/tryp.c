@@ -7,12 +7,14 @@
   static RETURN_TYPE(PARSER(T))                                          \
       TRYP_FN(T)(void* arg, Source src, Ctx* ex) {                       \
     PARSER(T) p = (PARSER(T))arg;                                        \
+    off_t offset = getSourceOffset(src);                                 \
     SourcePos pos = getSourcePos(src);                                   \
     Ctx ctx;                                                             \
     TRY(&ctx) {                                                          \
       return parse(p, src, &ctx);                                        \
     }                                                                    \
     else {                                                               \
+      setSourceOffset(src, offset);                                      \
       setSourcePos(src, pos);                                            \
       cthrow(ex, ctx.msg);                                               \
     }                                                                    \

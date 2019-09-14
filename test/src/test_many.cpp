@@ -46,6 +46,33 @@ SCENARIO("many(p)", "[cparsec2][parser][many]") {
       }
     }
   }
+  GIVEN("an input \"abcabc\"") {
+    Source src = Source_new("abcabc");
+    WHEN("apply many(\"abc\")") {
+      List(String) xs = parse(many("abc"), src);
+      THEN("results [\"abc\", \"abc\"]") {
+        const char** itr = list_begin(xs);
+        REQUIRE(std::string("abc") == itr[0]);
+        REQUIRE(std::string("abc") == itr[1]);
+      }
+    }
+  }
+  GIVEN("an input \"abcabcab\"") {
+    Source src = Source_new("abcabcab");
+    WHEN("apply many(\"abc\")") {
+      List(String) xs = parse(many("abc"), src);
+      THEN("results [\"abc\", \"abc\"]") {
+        const char** itr = list_begin(xs);
+        REQUIRE(std::string("abc") == itr[0]);
+        REQUIRE(std::string("abc") == itr[1]);
+        AND_WHEN("apply string1(\"ab\")") {
+          THEN("results \"ab\"") {
+            REQUIRE(std::string("ab") == parse(string1("ab"), src));
+          }
+        }
+      }
+    }
+  }
   GIVEN("an input \"abc\"") {
     Source src = Source_new("abc");
     WHEN("apply many(number)") {
@@ -63,8 +90,8 @@ SCENARIO("many(p)", "[cparsec2][parser][many]") {
   }
   GIVEN("an input \",123,456,789\"") {
     Source src = Source_new(",123,456,789");
-    WHEN("apply many(skip1st(char1(','), number))") {
-      List(Int) xs = parse(many(skip1st(char1(','), number)), src);
+    WHEN("apply many(skip1st(',', number))") {
+      List(Int) xs = parse(many(skip1st(',', number)), src);
       THEN("results [123, 456, 789]") {
         int* itr = list_begin(xs);
         REQUIRE(123 == itr[0]);
@@ -72,9 +99,8 @@ SCENARIO("many(p)", "[cparsec2][parser][many]") {
         REQUIRE(789 == itr[2]);
       }
     }
-    WHEN("apply many(skip1st(char1(','), many1(digit)))") {
-      List(String) xs =
-          parse(many(skip1st(char1(','), many1(digit))), src);
+    WHEN("apply many(skip1st(',', many1(digit)))") {
+      List(String) xs = parse(many(skip1st(',', many1(digit))), src);
       THEN("results [\"123\", \"456\", \"789\"]") {
         const char** itr = list_begin(xs);
         REQUIRE(std::string("123") == itr[0]);
@@ -85,8 +111,17 @@ SCENARIO("many(p)", "[cparsec2][parser][many]") {
   }
   GIVEN("an input \",123,abc\"") {
     Source src = Source_new(",123,abc");
-    WHEN("apply many(skip1st(char1(','), number))") {
-      List(Int) xs = parse(many(skip1st(char1(','), number)), src);
+    WHEN("apply many(skip1st(','), number)") {
+      THEN("cause an exception") {
+        REQUIRE_THROWS(parse(many(skip1st(',', number)), src));
+        // std::cerr << getParseErrorAsString(src) << std::endl;
+        // | ...
+        // | unexpected 'a'
+        // | expecting a number
+      }
+    }
+    WHEN("apply many(tryp(skip1st(','), number))") {
+      List(Int) xs = parse(many(tryp(skip1st(',', number))), src);
       THEN("results [123]") {
         int* itr = list_begin(xs);
         REQUIRE(123 == itr[0]);
@@ -97,9 +132,9 @@ SCENARIO("many(p)", "[cparsec2][parser][many]") {
         }
       }
     }
-    WHEN("apply many(skip1st(char1(','), many1(digit)))") {
+    WHEN("apply many(tryp(skip1st(',', many1(digit))))") {
       List(String) xs =
-          parse(many(skip1st(char1(','), many1(digit))), src);
+          parse(many(tryp(skip1st(',', many1(digit)))), src);
       THEN("results [\"123\"]") {
         const char** itr = list_begin(xs);
         REQUIRE(std::string("123") == itr[0]);
@@ -113,8 +148,8 @@ SCENARIO("many(p)", "[cparsec2][parser][many]") {
   }
   GIVEN("an input \",abc\"") {
     Source src = Source_new(",abc");
-    WHEN("apply many(skip1st(char1(','), number))") {
-      List(Int) xs = parse(many(skip1st(char1(','), number)), src);
+    WHEN("apply many(tryp(skip1st(',', number)))") {
+      List(Int) xs = parse(many(tryp(skip1st(',', number))), src);
       THEN("results []") {
         REQUIRE(list_begin(xs) == list_end(xs));
         AND_WHEN("apply string1(\",abc\")") {
@@ -124,9 +159,9 @@ SCENARIO("many(p)", "[cparsec2][parser][many]") {
         }
       }
     }
-    WHEN("apply many(skip1st(char1(','), many1(digit)))") {
+    WHEN("apply many(tryp(skip1st(',', many1(digit))))") {
       List(String) xs =
-          parse(many(skip1st(char1(','), many1(digit))), src);
+          parse(many(tryp(skip1st(',', many1(digit)))), src);
       THEN("results []") {
         REQUIRE(list_begin(xs) == list_end(xs));
         AND_WHEN("apply string1(\",abc\")") {

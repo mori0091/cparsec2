@@ -9,6 +9,7 @@
 
 struct stSource {
   Stream s;
+  SourcePos pos;
   ParseError e;
 };
 
@@ -24,9 +25,11 @@ void setParseError(Source src, ParseError err) {
 }
 
 void parseError(Source src, ErrMsg msg) {
+  off_t offset = getSourceOffset(src);
   SourcePos pos = getSourcePos(src);
   ParseError err = getParseError(src);
   err = ParseError_setMessage(msg, err);
+  err = ParseError_setOffset(offset, err);
   err = ParseError_setPos(pos, err);
   setParseError(src, err);
 }
@@ -34,21 +37,23 @@ void parseError(Source src, ErrMsg msg) {
 Source newStringSource(const char* text) {
   Source src = mem_malloc(sizeof(struct stSource));
   src->s = Stream_new(text);
-  src->e = ParseError_new(getSourcePos(src));
+  src->pos = SourcePos_new("");
+  src->e = ParseError_new();
   return src;
 }
 
 Source newFileSource(FILE* fp) {
   Source src = mem_malloc(sizeof(struct stSource));
   src->s = Stream_new(fp);
-  src->e = ParseError_new(getSourcePos(src));
+  src->pos = SourcePos_new("");
+  src->e = ParseError_new();
   return src;
 }
 
 static char readChar(Source src, Ctx* ctx) {
   char c;
   if (!Stream_read((void*)&c, 1, src->s, ctx)) {
-    parseError(src, (ErrMsg){Unexpect, "end of input"});
+    parseError(src, (ErrMsg){SysUnexpect, "end of input"});
     cthrow(ctx, mem_printf("too short"));
   }
   return c;
@@ -64,7 +69,31 @@ char peek(Source src, Ctx* ctx) {
 void consume(Source src) {
   Ctx ctx;
   TRY(&ctx) {
-    readChar(src, &ctx);
+    char c = readChar(src, &ctx);
+    int tabWidth = 8;
+    setSourcePos(src, SourcePos_advance1(tabWidth, c, getSourcePos(src)));
+  }
+  else {
+    fprintf(stderr, "%s\n", ctx.msg);
+    exit(1);
+  }
+}
+
+off_t getSourceOffset(Source src) {
+  Ctx ctx;
+  TRY(&ctx) {
+    return Stream_getpos(src->s, &ctx);
+  }
+  else {
+    fprintf(stderr, "%s\n", ctx.msg);
+    exit(1);
+  }
+}
+
+void setSourceOffset(Source src, off_t pos) {
+  Ctx ctx;
+  TRY(&ctx) {
+    Stream_setpos(pos, src->s, &ctx);
   }
   else {
     fprintf(stderr, "%s\n", ctx.msg);
@@ -73,23 +102,9 @@ void consume(Source src) {
 }
 
 SourcePos getSourcePos(Source src) {
-  Ctx ctx;
-  TRY(&ctx) {
-    return (SourcePos){.offset = Stream_getpos(src->s, &ctx)};
-  }
-  else {
-    fprintf(stderr, "%s\n", ctx.msg);
-    exit(1);
-  }
+  return src->pos;
 }
 
 void setSourcePos(Source src, SourcePos pos) {
-  Ctx ctx;
-  TRY(&ctx) {
-    Stream_setpos(pos.offset, src->s, &ctx);
-  }
-  else {
-    fprintf(stderr, "%s\n", ctx.msg);
-    exit(1);
-  }
+  src->pos = pos;
 }

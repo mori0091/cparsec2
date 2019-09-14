@@ -53,6 +53,7 @@ assert  9 = ${CMD} '-(1+2)*-3'
 assert  9 = ${CMD} '(-1 + -2) * -3'
 assert "error:expects <endOfFile> but was ';'
 Parse error:3
+1:4
   unexpected ';'
   expecting <endOfFile>" = ${CMD} '1+2;'
 

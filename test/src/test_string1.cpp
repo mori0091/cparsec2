@@ -32,17 +32,16 @@ SCENARIO("string1(str)", "[cparsec2][parser][string1]") {
   GIVEN("an input: \"a123bc\"") {
     Source src = Source_new("a123bc");
     WHEN("apply string1(\"a1234\")") {
-      THEN("cause exception(\"expects \"a1234\" but was 'b'\")") {
-        REQUIRE_THROWS_WITH(parse(string1("a1234"), src),
-                            "expects \"a1234\" but was 'b'");
+      THEN("cause an error") {
+        REQUIRE_THROWS(parse(string1("a1234"), src));
       }
     }
   }
   GIVEN("an input: \"a123\"") {
     Source src = Source_new("a123");
     WHEN("apply string1(\"a1234\")") {
-      THEN("cause exception(\"too short\")") {
-        REQUIRE_THROWS_WITH(parse(string1("a1234"), src), "too short");
+      THEN("cause an error") {
+        REQUIRE_THROWS(parse(string1("a1234"), src));
       }
     }
   }

@@ -32,10 +32,17 @@ TYPEDEF_BUFF(ErrMsg, ErrMsg);
 DECLARE_BUFF(ErrMsg);
 
 typedef struct {
+  off_t offset;
   SourcePos pos;
   List(ErrMsg) msgs;
 } ParseError;
 
+/** Constructs a ParseError without message */
+ParseError ParseError_new(void);
+/** Gets the source-offset of the ParseError `e` */
+off_t ParseError_getOffset(ParseError e);
+/** Sets the source-offset to the ParseError `e` */
+ParseError ParseError_setOffset(off_t offset, ParseError e);
 /** Gets the source-position of the ParseError `e` */
 SourcePos ParseError_getPos(ParseError e);
 /** Sets the source-position to the ParseError `e` */
@@ -44,8 +51,6 @@ ParseError ParseError_setPos(SourcePos pos, ParseError e);
 List(ErrMsg) ParseError_getMessages(ParseError e);
 /** Tests whether the ParseError has no message */
 bool ParseError_isUnknown(ParseError e);
-/** Constructs a ParseError without message */
-ParseError ParseError_new(SourcePos pos);
 /** Add `msg` to the ParseError `e` */
 ParseError ParseError_addMessage(ErrMsg msg, ParseError e);
 /** Remove same type messages from `e` and add `msg` to `e` */

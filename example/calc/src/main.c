@@ -98,5 +98,6 @@ int main(int argc, char** argv) {
   cparsec2_init();
 
   setup();
-  return !parseTest(skip2nd(expr, token(endOfFile)), argv[1]);
+  PARSER(Int) p = skip1st(spaces, skip2nd(expr, endOfFile));
+  return !parseTest(p, argv[1]);
 }

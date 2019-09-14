@@ -15,11 +15,11 @@ SCENARIO("tryp(p)", "[cparsec2][parser][tryp]") {
     }
     WHEN("applied 'tryp(char1('a'))'") {
       THEN("causes an exception \"expects 'a' but was '1'\"") {
-        SourcePos previous_state = getSourcePos(src);
+        off_t previous_state = getSourceOffset(src);
         REQUIRE_THROWS_WITH(parse(tryp(char1('a')), src),
                             "expects 'a' but was '1'");
         AND_THEN("input-state is not changed") {
-          REQUIRE(isSourcePosEqual(previous_state, getSourcePos(src)));
+          REQUIRE(previous_state == getSourceOffset(src));
         }
       }
     }
@@ -41,23 +41,20 @@ SCENARIO("tryp(p)", "[cparsec2][parser][tryp]") {
     }
     WHEN("an input was \"ac\"") {
       Source src = Source_new("ac");
-      THEN("applied 'p' causes an exception "
-           "\"expects \"bc\" but was 'a'\"") {
-        REQUIRE_THROWS_WITH(parse(p, src), "expects \"bc\" but was 'a'");
+      THEN("applied 'p' causes an error") {
+        REQUIRE_THROWS(parse(p, src));
       }
     }
     WHEN("an input was \"bd\"") {
       Source src = Source_new("bd");
-      THEN("applied 'p' causes an exception "
-           "\"expects \"bc\" but was 'd'\"") {
-        REQUIRE_THROWS_WITH(parse(p, src), "expects \"bc\" but was 'd'");
+      THEN("applied 'p' causes an error") {
+        REQUIRE_THROWS(parse(p, src));
       }
     }
     WHEN("an input was \"b\"") {
       Source src = Source_new("b");
-      THEN("applied 'p' causes an exception "
-           "\"too short\"") {
-        REQUIRE_THROWS_WITH(parse(p, src), "too short");
+      THEN("applied 'p' causes an error") {
+        REQUIRE_THROWS(parse(p, src));
       }
     }
   }
@@ -93,9 +90,8 @@ SCENARIO("tryp(PARSER(List(T)))", "[cparsec2][parser][tryp]") {
   GIVEN("an input \",abc\"") {
     Source src = Source_new(",abc");
     WHEN("apply tryp(skip1st(char1(','), number))") {
-      THEN("cause exception(\"not satisfy\")") {
-        REQUIRE_THROWS_WITH(parse(tryp(skip1st(char1(','), number)), src),
-                            "not satisfy");
+      THEN("cause an error") {
+        REQUIRE_THROWS(parse(tryp(skip1st(char1(','), number)), src));
         AND_WHEN("apply string1(\",abc\")") {
           THEN("results \",abc\"") {
             REQUIRE(std::string(",abc") == parse(string1(",abc"), src));
@@ -104,10 +100,9 @@ SCENARIO("tryp(PARSER(List(T)))", "[cparsec2][parser][tryp]") {
       }
     }
     WHEN("apply tryp(skip1st(char1(','), many1(digit)))") {
-      THEN("cause exception(\"not satisfy\")") {
-        REQUIRE_THROWS_WITH(
-            parse(tryp(skip1st(char1(','), many1(digit))), src),
-            "not satisfy");
+      THEN("cause an error") {
+        REQUIRE_THROWS(
+            parse(tryp(skip1st(char1(','), many1(digit))), src));
         AND_WHEN("apply string1(\",abc\")") {
           THEN("results \",abc\"") {
             REQUIRE(std::string(",abc") == parse(string1(",abc"), src));

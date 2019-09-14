@@ -4,7 +4,7 @@
 
 #define DEFINE_TOKEN(T)                                                  \
   PARSER(T) TOKEN(T)(PARSER(T) p) {                                      \
-    return skip1st(spaces, p);                                           \
+    return skip2nd(p, spaces);                                           \
   }                                                                      \
   END_OF_STATEMENTS
 
