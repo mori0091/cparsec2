@@ -27,8 +27,8 @@ SCENARIO("token(many1(digit))", "[cparsec2][parser][token]") {
     Source src = Source_new("");
     WHEN("apply number = token(many1(digit))") {
       StringParser number = token(many1(digit));
-      THEN("cause exception(\"too short\")") {
-        REQUIRE_THROWS_WITH(parse(number, src), "too short");
+      THEN("cause an error") {
+        REQUIRE_THROWS(parse(number, src));
       }
     }
   }
@@ -36,8 +36,8 @@ SCENARIO("token(many1(digit))", "[cparsec2][parser][token]") {
     Source src = Source_new("a123");
     WHEN("apply number = token(many1(digit))") {
       StringParser number = token(many1(digit));
-      THEN("cause exception(\"not satisfy\")") {
-        REQUIRE_THROWS_WITH(parse(number, src), "not satisfy");
+      THEN("cause an error") {
+        REQUIRE_THROWS(parse(number, src));
       }
     }
   }
@@ -50,13 +50,13 @@ SCENARIO("token((char)'+')", "[cparsec2][parser][token]") {
     Source src = Source_new("1 + 2");
     WHEN("apply plus = token((char)'+')") {
       CharParser plus = token((char)'+');
-      THEN("cause exception(\"expects '+' but was '1'\")") {
-        REQUIRE_THROWS_WITH(parse(plus, src), "expects '+' but was '1'");
+      THEN("cause an error") {
+        REQUIRE_THROWS(parse(plus, src));
       }
     }
   }
-  GIVEN("an input: \" + 2\"") {
-    Source src = Source_new(" + 2");
+  GIVEN("an input: \"+ 2\"") {
+    Source src = Source_new("+ 2");
     WHEN("apply plus = token((char)'+')") {
       CharParser plus = token((char)'+');
       THEN("value is \"+\"") {
@@ -64,12 +64,12 @@ SCENARIO("token((char)'+')", "[cparsec2][parser][token]") {
       }
     }
   }
-  GIVEN("an input: \" 2\"") {
-    Source src = Source_new(" 2");
+  GIVEN("an input: \"2\"") {
+    Source src = Source_new("2");
     WHEN("apply plus = token((char)'+')") {
       CharParser plus = token((char)'+');
-      THEN("cause exception(\"expects '+' but was '2'\")") {
-        REQUIRE_THROWS_WITH(parse(plus, src), "expects '+' but was '2'");
+      THEN("cause an error") {
+        REQUIRE_THROWS(parse(plus, src));
       }
     }
   }
@@ -91,9 +91,8 @@ SCENARIO("token(\"foo\")", "[cparsec2][parser][token]") {
               THEN("results \"foo\"") {
                 REQUIRE(std::string("foo") == parse(foo, src));
                 AND_WHEN("apply foo") {
-                  THEN("cause exception(\"expects \"foo\" but was 'b'\")") {
-                    REQUIRE_THROWS_WITH(parse(foo, src),
-                                        "expects \"foo\" but was 'b'");
+                  THEN("cause an error") {
+                    REQUIRE_THROWS(parse(foo, src));
                   }
                 }
               }
@@ -108,11 +107,11 @@ SCENARIO("token(\"foo\")", "[cparsec2][parser][token]") {
 
 SCENARIO("token(PARSER(List(T)))", "[cparsec2][parser][token]") {
   cparsec2_init();
-  GIVEN("an input: \"  , 123,456,  789\"") {
-    Source src = Source_new("  , 123,456,  789");
-    WHEN("apply token(p) where p = many(skip1st(',', number))") {
-      PARSER(List(Int)) p = many(skip1st(',', number));
-      List(Int) xs = parse(token(p), src);
+  GIVEN("an input: \"123, 456 ,  789  ,\"") {
+    Source src = Source_new("123, 456 ,  789  ,");
+    WHEN("apply many(p) where p = skip2nd(number, token(','))") {
+      PARSER(Int) p = skip2nd(number, token(','));
+      List(Int) xs = parse(many(p), src);
       THEN("results [123, 456, 789]") {
         int* itr = list_begin(xs);
         REQUIRE(123 == itr[0]);
@@ -120,10 +119,10 @@ SCENARIO("token(PARSER(List(T)))", "[cparsec2][parser][token]") {
         REQUIRE(789 == itr[2]);
       }
     }
-    WHEN("apply token(p) where "
-         "p = many(skip1st(',', token(many1(digit))))") {
-      PARSER(List(String)) p = many(skip1st(',', token(many1(digit))));
-      List(String) xs = parse(token(p), src);
+    WHEN("apply many(p) where "
+         "p = skip2nd(token(many1(digit)), token(','))") {
+      PARSER(String) p = skip2nd(token(many1(digit)), token(','));
+      List(String) xs = parse(many(p), src);
       THEN("results [\"123\", \"456\", \"789\"]") {
         const char** itr = list_begin(xs);
         REQUIRE(std::string("123") == itr[0]);
