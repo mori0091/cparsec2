@@ -86,7 +86,6 @@ Example:
   }
   else {                             /* catch */
     printf("error:%s\n", ctx.msg);   /* -> "error: something wrong!" */
-    mem_free(ctx.msg);
   }
 #+end_src
 
@@ -222,33 +221,27 @@ For example:
 ** Supporting *concrete PARSER(T)* types
 
 - PARSER(Char)            ::
-  A parser of ~PARSER(Char)~ type reads one char, and \\
-  returns a ~char~ value, when it is applied to a text.\\
+  A parser of ~PARSER(Char)~ type reads one char, and returns a ~char~ value.\\
   (i.e. ~RETURN_TYPE(PARSER(Char))~ is ~char~.)
 - PARSER(String)          ::
-  A parser of ~PARSER(String)~ type reads chars, and \\
-  returns a ~const char*~ value, when it is applied to a text.
+  A parser of ~PARSER(String)~ type reads chars, and returns a ~const char*~ value.\\
   (i.e. ~RETURN_TYPE(PARSER(String))~ is ~const char*~.)
 - PARSER(Int)             ::
-  A parser of ~PARSER(Int)~ type reads chars, and \\
-  returns a ~int~ value, when it is applied to a text.
+  A parser of ~PARSER(Int)~ type reads chars, and returns a ~int~ value.\\
   (i.e. ~RETURN_TYPE(PARSER(Int))~ is ~int~.)
 
 
 - PARSER(List(Char))      ::
-  A parser of ~PARSER(List(Char))~ type reads chars, and \\
-  returns a ~List(Char)~ value, when it is applied to a text.
+  A parser of ~PARSER(List(Char))~ type reads chars, and returns a ~List(Char)~ value.\\
   (i.e. ~RETURN_TYPE(PARSER(List(Char)))~ is ~List(Char)~.)
   - *NOTE* :
     - ~PARSER(List(Char))~ is same as ~PARSER(String)~, and
     - ~List(Char)~ is same as ~const char*~.
 - PARSER(List(String))    ::
-  A parser of ~PARSER(List(String))~ type reads chars, and \\
-  returns a ~List(String)~ value, when it is applied to a text.
+  A parser of ~PARSER(List(String))~ type reads chars, and returns a ~List(String)~ value.\\
   (i.e. ~RETURN_TYPE(PARSER(List(String)))~ is ~List(String)~.)
 - PARSER(List(Int))       ::
-  A parser of ~PARSER(List(Int))~ type reads chars, and \\
-  returns a ~List(Int)~ value, when it is applied to a text.
+  A parser of ~PARSER(List(Int))~ type reads chars, and returns a ~List(Int)~ value.\\
   (i.e. ~RETURN_TYPE(PARSER(List(Int)))~ is ~List(Int)~.)
 
 
@@ -302,6 +295,9 @@ For example:
      Create a PARSER(Char) which parse the char ~c~
 - string1(s)            :: 
      Create a PARSER(String) which parse the string ~s~.
+  - *NOTE* : ~parse(string1(s), src, ex)~ succeeds:
+    - if and only if the input from ~src~ was starting with ~s~.
+    - otherwise fails *without consuming any input*.
 - utf8(s)               ::
      Create a PARSER(String) which parse the UTF-8 string ~s~.
 - oneOf(cs)             :: 
@@ -323,13 +319,28 @@ For example:
 - PARSER(List(T)) many(PARSER(T) p) ::
      Create a parser of PARSER(List(T)) type, which
   - apply ~p~ zeroth or more to a text.
-  - return a list consists of the each result of ~p~.
-  - if the text was not started with a char sequence expected by ~p~, returns a
-    empty list of ~List(T)~ type.
+  - returns a list of ~List(T)~ type, which consists of the each result of ~p~.
+  - *NOTE* : ~parse(many(p), src, ex)~
+    - succeeds if ~p~ exact matched *N* times (*N \ge 0*) to the input from
+      ~src~ and *N+1* th ~p~ failed *without consuming any input*.
+    - otherwise fails *after consumed some input*.
   - *NOTE* : ~T~ must be one of the following:
     - ~Char~
     - ~String~ aka ~List(Char)~
     - ~Int~
+
+**** 'parse(many(p), src, ex)' shall be :
+| result status  | returns                        | description                                   |
+|----------------+--------------------------------+-----------------------------------------------|
+| empty ok       | an emply list :: ~List(T)~     | succeeded with zeroth match (N = 0)           |
+| empty error    | n/a                            | n/a                                           |
+| consumed ok    | a N-elements list :: ~List(T)~ | succeeded with N times match (N \gt 0)        |
+| consumed error | throw exception via ~ex~       | the last ~p~ failed after consumed some input |
+where:
+- empty ok : succeeded without consuming any input
+- empty error : failed without consuming any input
+- consumed ok : succeeded after consumed some input from ~src~
+- consumed error : failed after consumed some input from ~src~
 
 *** many1(p)
 *NOTE* : ~many1(p)~ is same as ~cons(p, many(p))~.
@@ -342,13 +353,28 @@ For example:
 - PARSER(List(T)) many1(PARSER(T) p) ::
      Create a parser of PARSER(List(T)) type, which
   - apply ~p~ once or more to a text.
-  - return a list consists of the each result of ~p~.
-  - if the text was not started with a char sequence expected by ~p~, throws an
-    error of ~p~.
+  - returns a list of ~List(T)~ type, which consists of the each result of ~p~.
+  - *NOTE* : ~parse(many1(p), src, ex)~
+    - succeeds if ~p~ exact matched *N* times (*N \ge 1*) to the input from
+      ~src~ and *N+1* th ~p~ failed *without consuming any input*.
+    - otherwise fails.
   - *NOTE* : ~T~ must be one of the following:
     - ~Char~
     - ~String~ aka ~List(Char)~
     - ~Int~
+
+**** 'parse(many1(p), src, ex)' shall be :
+| result status  | returns                        | description                                      |
+|----------------+--------------------------------+--------------------------------------------------|
+| empty ok       | n/a                            | n/a                                              |
+| empty error    | throw exception via ~ex~       | the first ~p~ failed without consuming any input |
+| consumed ok    | a N-elements list :: ~List(T)~ | succeeded with N times match (N \gt 0)           |
+| consumed error | throw exception via ~ex~       | the last ~p~ failed after consumed some input    |
+where:
+- empty ok : succeeded without consuming any input
+- empty error : failed without consuming any input
+- consumed ok : succeeded after consumed some input from ~src~
+- consumed error : failed after consumed some input from ~src~
 
 *** seq(p, ...)
 - PARSER(List(T)) seq(PARSER(T) p, ...) ::
@@ -462,7 +488,7 @@ parseTest(skip2nd(string1("ab"), char1('c')), "abc"); // -> "ab"
 #+end_src
 
 *** token(p)
-*NOTE* : ~token(p)~ is same as ~skip1st(spaces, p)~.
+*NOTE* : ~token(p)~ is same as ~skip2nd(p, spaces)~.
 
 - PARSER(Char) token(char c) ::
      Same as ~token(char1(c))~.
@@ -471,8 +497,8 @@ parseTest(skip2nd(string1("ab"), char1('c')), "abc"); // -> "ab"
 
 - PARSER(T) token(PARSER(T) p) ::
      Create a parser of PARSER(T) type, which
-  - skip any leading white-spaces,
-  - apply ~p~ to the subsequent text, and
+  - apply ~p~ to the subsequent text,
+  - skip any trailing white-spaces, and
   - return the result of ~p~.
   - *NOTE* : ~T~ must be one of the following:
     - ~Char~
@@ -497,7 +523,7 @@ parseTest(skip2nd(string1("ab"), char1('c')), "abc"); // -> "ab"
 
 - PARSER(T) either(PARSER(T) p1, PARSER(T) p2) ::
      Create a parser of PARSER(T) type, which
-  - return result of ~p1~ if ~p1~ success,
+  - return result of ~p1~ if ~p1~ succeeded,
   - if ~p1~ consumed one or more chars and failed, throw error of ~p1~,
   - if ~p1~ consumed no chars and failed, return result of ~p2~, or
   - throw error of ~p2~
