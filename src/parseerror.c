@@ -10,13 +10,23 @@
 DEFINE_LIST(ErrMsg);
 DEFINE_BUFF(ErrMsg);
 
+/** Gets the source-offset of the ParseError `e` */
+off_t ParseError_getOffset(ParseError e) {
+  return e.offset;
+}
+/** Sets the source-offset to the ParseError `e` */
+ParseError ParseError_setOffset(off_t offset, ParseError e) {
+  e.offset = offset;
+  return e;
+}
 /** Gets the source-position of the ParseError `e` */
 SourcePos ParseError_getPos(ParseError e) {
   return e.pos;
 }
 /** Sets the source-position to the ParseError `e` */
 ParseError ParseError_setPos(SourcePos pos, ParseError e) {
-  return (ParseError){.pos = pos, .msgs = e.msgs};
+  e.pos = pos;
+  return e;
 }
 /** Returns list of messages in the ParseError `e` */
 List(ErrMsg) ParseError_getMessages(ParseError e) {
@@ -27,15 +37,18 @@ bool ParseError_isUnknown(ParseError e) {
   return LIST_LENGTH(ErrMsg)(e.msgs) == 0;
 }
 /** Constructs a ParseError without message */
-ParseError ParseError_new(SourcePos pos) {
-  return (ParseError){.pos = pos, .msgs = (List(ErrMsg)){0}};
+ParseError ParseError_new(void) {
+  ParseError e = {0};
+  e.pos = SourcePos_new("");
+  return e;
 }
 /** Add `msg` to the ParseError `e` */
 ParseError ParseError_addMessage(ErrMsg msg, ParseError e) {
   Buff(ErrMsg) b = {0};
   BUFF_APPEND(ErrMsg)(&b, e.msgs);
   BUFF_PUSH(ErrMsg)(&b, msg);
-  return (ParseError){.pos = e.pos, .msgs = BUFF_FINISH(ErrMsg)(&b)};
+  e.msgs = BUFF_FINISH(ErrMsg)(&b);
+  return e;
 }
 /** Remove same type messages from `e` and add `msg` to `e` */
 ParseError ParseError_setMessage(ErrMsg msg, ParseError e) {
@@ -48,7 +61,8 @@ ParseError ParseError_setMessage(ErrMsg msg, ParseError e) {
       BUFF_PUSH(ErrMsg)(&b, *itr);
     }
   }
-  return (ParseError){.pos = e.pos, .msgs = BUFF_FINISH(ErrMsg)(&b)};
+  e.msgs = BUFF_FINISH(ErrMsg)(&b);
+  return e;
 }
 /**
  * Merges two errors or select one.
@@ -57,16 +71,17 @@ ParseError ParseError_setMessage(ErrMsg msg, ParseError e) {
  * - otherwise returns one who has larger source-position.
  */
 ParseError ParseError_merge(ParseError e1, ParseError e2) {
-  if (e1.pos.offset > e2.pos.offset) {
+  if (e1.offset > e2.offset) {
     return e1;
   }
-  if (e1.pos.offset < e2.pos.offset) {
+  if (e1.offset < e2.offset) {
     return e2;
   }
   Buff(ErrMsg) b = {0};
   BUFF_APPEND(ErrMsg)(&b, e1.msgs);
   BUFF_APPEND(ErrMsg)(&b, e2.msgs);
-  return (ParseError){.pos = e1.pos, .msgs = BUFF_FINISH(ErrMsg)(&b)};
+  e1.msgs = BUFF_FINISH(ErrMsg)(&b);
+  return e1;
 }
 
 static const char* format_msgs(const char* prefix, List(String) msgs) {
@@ -75,15 +90,23 @@ static const char* format_msgs(const char* prefix, List(String) msgs) {
     buff_append(&b, mem_printf("%s ", prefix));
     const char** itr = list_begin(msgs);
     const char** end = list_end(msgs);
-    if (itr != end) {
+    switch (list_length(msgs)) {
+    case 0:
+      break;
+    case 1:
       buff_append(&b, *itr++);
-    }
-    while (itr < end - 1) {
-      buff_append(&b, ", ");
+      break;
+    case 2:
       buff_append(&b, *itr++);
-    }
-    if (itr != end) {
-      buff_append(&b, ", or ");
+      buff_append(&b, " or ");
+      buff_append(&b, *itr++);
+      break;
+    default:
+      while (itr < end - 1) {
+        buff_append(&b, *itr++);
+        buff_append(&b, ", ");
+      }
+      buff_append(&b, "or ");
       buff_append(&b, *itr++);
     }
     buff_append(&b, "\n");
@@ -96,11 +119,18 @@ static const char* format_msgs(const char* prefix, List(String) msgs) {
  */
 const char* ParseError_toString(ParseError e) {
   Buff(Char) b = {0};
-  buff_append(&b, mem_printf("Parse error:%" PRIdMAX "\n",
-                             (intmax_t)e.pos.offset));
+  // Parse error:{offset}
+  buff_append(
+      &b, mem_printf("Parse error:%" PRIdMAX "\n", (intmax_t)e.offset));
+  // [filename:]{line}:{column}
+  buff_append(&b, SourcePos_toString(e.pos));
+  buff_append(&b, "\n");
+  //   unexpected: {unexpect}
+  //   expecting: {expect1}, {expect2}, ... , or {expectN}
   if (ParseError_isUnknown(e)) {
     buff_append(&b, mem_printf("  unknown error\n"));
   } else {
+    const char* mSysUnexpect = NULL;
     Buff(String) mUnexpect = {0};
     Buff(String) mExpect = {0};
     Buff(String) mMessage = {0};
@@ -109,6 +139,10 @@ const char* ParseError_toString(ParseError e) {
     for (; itr != end; ++itr) {
       switch (itr->type) {
       case SysUnexpect:
+        if (!mSysUnexpect) {
+          mSysUnexpect = itr->msg;
+        }
+        break;
       case Unexpect:
         buff_push(&mUnexpect, itr->msg);
         break;
@@ -122,6 +156,14 @@ const char* ParseError_toString(ParseError e) {
         assert(0 && "invalid message type");
       }
     }
+    if (mSysUnexpect) {
+      List(String) lst = buff_finish(&mUnexpect);
+      if (!list_length(lst)) {
+        buff_push(&mUnexpect, mSysUnexpect);
+      } else {
+        buff_append(&mUnexpect, lst);
+      }
+    }
     buff_append(&b, format_msgs("  unexpected", buff_finish(&mUnexpect)));
     buff_append(&b, format_msgs("  expecting", buff_finish(&mExpect)));
     buff_append(&b, format_msgs("  ", buff_finish(&mMessage)));
@@ -131,7 +173,7 @@ const char* ParseError_toString(ParseError e) {
 
 /** Tests whether two ParseError have same value */
 bool ParseError_isEqual(ParseError e1, ParseError e2) {
-  if (!isSourcePosEqual(e1.pos, e2.pos)) {
+  if (e1.offset != e2.offset) {
     return false;
   }
   if (LIST_LENGTH(ErrMsg)(e1.msgs) != LIST_LENGTH(ErrMsg)(e2.msgs)) {

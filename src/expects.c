@@ -11,21 +11,23 @@
     void** ps = (void**)arg;                                             \
     const char* desc = ps[0];                                            \
     PARSER(T) p = ps[1];                                                 \
+    off_t pos = getSourceOffset(src);                                    \
     Ctx ctx;                                                             \
     TRY(&ctx) {                                                          \
       return parse(p, src, &ctx);                                        \
     }                                                                    \
-    else {                                                               \
-      ErrMsg m = {Expect, desc};                                         \
-      parseError(src, m);                                                \
-      const char* bw = strstr(ctx.msg, "but was");                       \
-      if (bw) {                                                          \
-        const char* msg = error("expects %s %s", desc, bw);              \
-        mem_free((void*)ctx.msg);                                        \
-        cthrow(ex, msg);                                                 \
-      } else {                                                           \
-        cthrow(ex, ctx.msg);                                             \
-      }                                                                  \
+    if (pos != getSourceOffset(src)) {                                   \
+      cthrow(ex, ctx.msg);                                               \
+    }                                                                    \
+    ErrMsg m = {Expect, desc};                                           \
+    parseError(src, m);                                                  \
+    const char* bw = strstr(ctx.msg, "but was");                         \
+    if (bw) {                                                            \
+      const char* msg = error("expects %s %s", desc, bw);                \
+      mem_free((void*)ctx.msg);                                          \
+      cthrow(ex, msg);                                                   \
+    } else {                                                             \
+      cthrow(ex, ctx.msg);                                               \
     }                                                                    \
   }                                                                      \
   PARSER(T) EXPECTS(T)(const char* desc, PARSER(T) p) {                  \

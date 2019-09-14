@@ -1,19 +1,25 @@
 /* -*- coding:utf-8-unix -*- */
 #pragma once
 
-#include <stdbool.h>
-#include <sys/types.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+typedef const char* FilePath;
+
 typedef struct {
-  off_t offset;
+  FilePath name; ///< source file name
+  int line;      ///< line number (>= 1)
+  int column;    ///< column number (>= 1)
 } SourcePos;
 
-// tests if two SourcePos are same or not
-bool isSourcePosEqual(SourcePos p1, SourcePos p2);
+typedef char Token;
+typedef const char* Tokens;
+
+SourcePos SourcePos_new(FilePath name);
+const char* SourcePos_toString(SourcePos p);
+SourcePos SourcePos_advance1(int tabWidth, Token c, SourcePos pos);
+SourcePos SourcePos_advanceN(int tabWidth, Tokens cs, SourcePos pos);
 
 #ifdef __cplusplus
 }

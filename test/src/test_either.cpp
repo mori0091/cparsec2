@@ -22,20 +22,20 @@ SCENARIO("either(p1, p2)", "[cparsec2][parser][either]") {
     }
     WHEN("applied to an input: \"ac\"") {
       Source src = Source_new("ac");
-      THEN("causes an error \"expects \"ab\" but was 'c'\"") {
-        REQUIRE_THROWS_WITH(parse(p, src), "expects \"ab\" but was 'c'");
+      THEN("causes an error") {
+        REQUIRE_THROWS(parse(p, src));
       }
     }
     WHEN("applied to an input: \"bd\"") {
       Source src = Source_new("bd");
-      THEN("causes an error \"expects \"bc\" but was 'd'\"") {
-        REQUIRE_THROWS_WITH(parse(p, src), "expects \"bc\" but was 'd'");
+      THEN("causes an error") {
+        REQUIRE_THROWS(parse(p, src));
       }
     }
     WHEN("applied to an input: \"b\"") {
       Source src = Source_new("b");
-      THEN("causes an error \"too short\"") {
-        REQUIRE_THROWS_WITH(parse(p, src), "too short");
+      THEN("causes an error") {
+        REQUIRE_THROWS(parse(p, src));
       }
     }
   }
@@ -56,20 +56,20 @@ SCENARIO("either(p1, p2)", "[cparsec2][parser][either]") {
     }
     WHEN("applied to an input: \"ac\"") {
       Source src = Source_new("ac");
-      THEN("causes an error \"expects \"ab\" but was 'c'\"") {
-        REQUIRE_THROWS_WITH(parse(p, src), "expects \"ab\" but was 'c'");
+      THEN("causes an error") {
+        REQUIRE_THROWS(parse(p, src));
       }
     }
     WHEN("applied to an input: \"bd\"") {
       Source src = Source_new("bd");
-      THEN("causes an error \"expects \"bc\" but was 'd'\"") {
-        REQUIRE_THROWS_WITH(parse(p, src), "expects \"bc\" but was 'd'");
+      THEN("causes an error") {
+        REQUIRE_THROWS(parse(p, src));
       }
     }
     WHEN("applied to an input: \"b\"") {
       Source src = Source_new("b");
-      THEN("causes an error \"too short\"") {
-        REQUIRE_THROWS_WITH(parse(p, src), "too short");
+      THEN("causes an error") {
+        REQUIRE_THROWS(parse(p, src));
       }
     }
   }
@@ -90,14 +90,14 @@ SCENARIO("either(p1, p2)", "[cparsec2][parser][either]") {
     }
     WHEN("applied to an input: \"c\"") {
       Source src = Source_new("c");
-      THEN("causes an error \"expects 'b' but was 'c'\"") {
-        REQUIRE_THROWS_WITH(parse(p, src), "expects 'b' but was 'c'");
+      THEN("causes an error") {
+        REQUIRE_THROWS(parse(p, src));
       }
     }
     WHEN("applied to an input: \"\"") {
       Source src = Source_new("");
-      THEN("causes an error \"too short\"") {
-        REQUIRE_THROWS_WITH(parse(p, src), "too short");
+      THEN("causes an error") {
+        REQUIRE_THROWS(parse(p, src));
       }
     }
   }
@@ -118,8 +118,8 @@ SCENARIO("either(p1, p2)", "[cparsec2][parser][either]") {
     }
     WHEN("applied to an input: \"+123\"") {
       Source src = Source_new("+123");
-      THEN("causes exception(\"expects \"++\" but was '1'\")") {
-        REQUIRE_THROWS_WITH(parse(p, src), "expects \"++\" but was '1'");
+      THEN("causes an error") {
+        REQUIRE_THROWS(parse(p, src));
       }
     }
   }
@@ -150,8 +150,8 @@ SCENARIO("either(p1, p2)", "[cparsec2][parser][either]") {
     }
     WHEN("applied to an input: \"+123++456++789\"") {
       Source src = Source_new("+123++456++789");
-      THEN("causes exception(\"expects \"++\" but was '1'\")") {
-        REQUIRE_THROWS_WITH(parse(p, src), "expects \"++\" but was '1'");
+      THEN("causes an error") {
+        REQUIRE_THROWS(parse(p, src));
       }
     }
   }
@@ -182,8 +182,8 @@ SCENARIO("either(p1, p2)", "[cparsec2][parser][either]") {
     }
     WHEN("applied to an input: \"+123++456++789\"") {
       Source src = Source_new("+123++456++789");
-      THEN("causes exception(\"expects \"++\" but was '1'\")") {
-        REQUIRE_THROWS_WITH(parse(p, src), "expects \"++\" but was '1'");
+      THEN("causes an error") {
+        REQUIRE_THROWS(parse(p, src));
       }
     }
   }

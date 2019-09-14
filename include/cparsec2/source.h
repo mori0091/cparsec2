@@ -32,6 +32,10 @@ Source newFileSource(FILE* fp);
 char peek(Source src, Ctx* ctx);
 // drop head char
 void consume(Source src);
+// get current source offset (backup state of the source)
+off_t getSourceOffset(Source src);
+// set current souce offset (revert state of the source)
+void setSourceOffset(Source src, off_t offset);
 // get current source position (backup state of the source)
 SourcePos getSourcePos(Source src);
 // set current souce position (revert state of the source)

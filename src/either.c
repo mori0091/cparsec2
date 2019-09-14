@@ -7,12 +7,12 @@
   static RETURN_TYPE(PARSER(T))                                          \
       EITHER_FN(T)(void* arg, Source src, Ctx* ex) {                     \
     PARSER(T)* p = (PARSER(T)*)arg;                                      \
-    SourcePos pos = getSourcePos(src);                                   \
+    off_t pos = getSourceOffset(src);                                    \
     Ctx ctx;                                                             \
     TRY(&ctx) {                                                          \
       return parse(p[0], src, &ctx);                                     \
     }                                                                    \
-    if (!isSourcePosEqual(pos, getSourcePos(src))) {                     \
+    if (pos != getSourceOffset(src)) {                                   \
       cthrow(ex, ctx.msg);                                               \
     }                                                                    \
     mem_free((void*)ctx.msg);                                            \
