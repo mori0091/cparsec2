@@ -16,17 +16,16 @@ SCENARIO("many1(p)", "[cparsec2][parser][many1]") {
   GIVEN("an input \"aaabbb\"") {
     Source src = Source_new("aaabbb");
     WHEN("apply many1(digit)") {
-      THEN("cause exception(\"not satisfy\")") {
-        REQUIRE_THROWS_WITH(parse(many1(digit), src), "not satisfy");
+      THEN("cause an error") {
+        REQUIRE_THROWS(parse(many1(digit), src));
       }
     }
     WHEN("apply many1(char1('a'))") {
       AND_WHEN("apply many1(char1('c'))") {
         THEN("results \"aaa\"") {
           REQUIRE(std::string("aaa") == parse(many1(char1('a')), src));
-          AND_THEN("cause exception(\"expects 'c' but was 'b'\")") {
-            REQUIRE_THROWS_WITH(parse(many1(char1('c')), src),
-                                "expects 'c' but was 'b'");
+          AND_THEN("cause an error") {
+            REQUIRE_THROWS(parse(many1(char1('c')), src));
           }
         }
       }
@@ -37,9 +36,10 @@ SCENARIO("many1(p)", "[cparsec2][parser][many1]") {
           THEN("results \"aaa\"") {
             REQUIRE(std::string("aaa") == parse(many1(char1('a')), src));
             AND_THEN("results \"bbb\"") {
-              REQUIRE(std::string("bbb") == parse(many1(char1('b')), src));
-              AND_THEN("cause exception(\"too short\")") {
-                REQUIRE_THROWS_WITH(parse(alpha, src), "too short");
+              REQUIRE(std::string("bbb") ==
+                      parse(many1(char1('b')), src));
+              AND_THEN("cause an error") {
+                REQUIRE_THROWS(parse(alpha, src));
               }
             }
           }
@@ -50,14 +50,13 @@ SCENARIO("many1(p)", "[cparsec2][parser][many1]") {
   GIVEN("an input \"abc\"") {
     Source src = Source_new("abc");
     WHEN("apply many1(number)") {
-      THEN("cause exception(\"not satisfy\")") {
-        REQUIRE_THROWS_WITH(parse(many1(number), src), "not satisfy");
+      THEN("cause an error") {
+        REQUIRE_THROWS(parse(many1(number), src));
       }
     }
     WHEN("apply many1(token(many1(digit)))") {
-      THEN("cause exception(\"not satisfy\")") {
-        REQUIRE_THROWS_WITH(parse(many1(token(many1(digit))), src),
-                            "not satisfy");
+      THEN("cause an error") {
+        REQUIRE_THROWS(parse(many1(token(many1(digit))), src));
       }
     }
   }
@@ -85,8 +84,8 @@ SCENARIO("many1(p)", "[cparsec2][parser][many1]") {
   }
   GIVEN("an input \",123,abc\"") {
     Source src = Source_new(",123,abc");
-    WHEN("apply many1(skip1st(char1(','), number))") {
-      List(Int) xs = parse(many1(skip1st(char1(','), number)), src);
+    WHEN("apply many1(tryp(skip1st(char1(','), number)))") {
+      List(Int) xs = parse(many1(tryp(skip1st(char1(','), number))), src);
       THEN("results [123]") {
         int* itr = list_begin(xs);
         REQUIRE(123 == itr[0]);
@@ -97,9 +96,9 @@ SCENARIO("many1(p)", "[cparsec2][parser][many1]") {
         }
       }
     }
-    WHEN("apply many1(skip1st(char1(','), many1(digit)))") {
+    WHEN("apply many1(tryp(skip1st(char1(','), many1(digit))))") {
       List(String) xs =
-          parse(many1(skip1st(char1(','), many1(digit))), src);
+          parse(many1(tryp(skip1st(char1(','), many1(digit)))), src);
       THEN("results [\"123\"]") {
         const char** itr = list_begin(xs);
         REQUIRE(std::string("123") == itr[0]);
@@ -114,27 +113,22 @@ SCENARIO("many1(p)", "[cparsec2][parser][many1]") {
   GIVEN("an input \",abc\"") {
     Source src = Source_new(",abc");
     WHEN("apply many1(skip1st(char1(','), number))") {
-      THEN("cause exception(\"not satisfy\")") {
-        REQUIRE_THROWS_WITH(
-            parse(many1(skip1st(char1(','), number)), src),
-            "not satisfy");
+      THEN("cause an error") {
+        REQUIRE_THROWS(parse(many1(skip1st(char1(','), number)), src));
         AND_WHEN("apply string1(\",abc\")") {
-          THEN("cause exception(\"expects \",abc\" but was 'a'\")") {
-            REQUIRE_THROWS_WITH(parse(string1(",abc"), src),
-                                "expects \",abc\" but was 'a'");
+          THEN("cause an error") {
+            REQUIRE_THROWS(parse(string1(",abc"), src));
           }
         }
       }
     }
     WHEN("apply many1(skip1st(char1(','), many1(digit)))") {
-      THEN("cause exception(\"not satisfy\")") {
-        REQUIRE_THROWS_WITH(
-            parse(many1(skip1st(char1(','), many1(digit))), src),
-            "not satisfy");
+      THEN("cause an error") {
+        REQUIRE_THROWS(
+            parse(many1(skip1st(char1(','), many1(digit))), src));
         AND_WHEN("apply string1(\",abc\")") {
-          THEN("cause exception(\"expects \",abc\" but was 'a'\")") {
-            REQUIRE_THROWS_WITH(parse(string1(",abc"), src),
-                                "expects \",abc\" but was 'a'");
+          THEN("cause an error") {
+            REQUIRE_THROWS(parse(string1(",abc"), src));
           }
         }
       }
