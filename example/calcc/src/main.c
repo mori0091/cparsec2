@@ -112,11 +112,12 @@ int main(int argc, char** argv) {
   cparsec2_init();
 
   setup();
+  PARSER(Node) p = skip1st(spaces, skip2nd(expr, endOfFile));
 
   Source src = Source_new(argv[1]);
   Ctx ctx;
   TRY(&ctx) {
-    Node ast = parse(skip2nd(expr, token(endOfFile)), src, &ctx);
+    Node ast = parse(p, src, &ctx);
 
     // [generate assembly code]
     codegen_header();
