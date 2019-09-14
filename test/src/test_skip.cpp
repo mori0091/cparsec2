@@ -34,9 +34,8 @@ SCENARIO("skip", "[cparsec2][parser][skip]") {
       }
     }
     WHEN("apply skip(string1(\"bc\"))") {
-      THEN("cause exception(\"expects \"bc\" but was 'a'\")") {
-        REQUIRE_THROWS_WITH(parse(skip(string1("bc")), src),
-                            "expects \"bc\" but was 'a'");
+      THEN("cause exception") {
+        REQUIRE_THROWS(parse(skip(string1("bc")), src));
       }
     }
   }
@@ -46,10 +45,10 @@ SCENARIO("skip", "[cparsec2][parser][skip]") {
     WHEN("apply skip(number)") {
       THEN("success") {
         REQUIRE_NOTHROW(parse(skip(number), src));
-        AND_WHEN("apply string1(\" 456 789\")") {
-          THEN("results \" 456 789\"") {
-            REQUIRE(std::string(" 456 789") ==
-                    parse(string1(" 456 789"), src));
+        AND_WHEN("apply string1(\"456 789\")") {
+          THEN("results \"456 789\"") {
+            REQUIRE(std::string("456 789") ==
+                    parse(string1("456 789"), src));
           }
         }
       }
