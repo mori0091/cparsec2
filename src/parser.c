@@ -2,6 +2,12 @@
 
 #include <cparsec2/parser.h>
 
+// ---- NoneParser ----
+DEFINE_PARSER(None, x) {
+  (void)(x);
+  printf("()\n");
+}
+
 // ---- CharParser ----
 DEFINE_PARSER(Char, x) {
   printf("'%c'\n", x);
@@ -15,6 +21,21 @@ DEFINE_PARSER(String, x) {
 // ---- IntParser ----
 DEFINE_PARSER(Int, x) {
   printf("%d\n", x);
+}
+
+// ---- NoneListParser ----
+DEFINE_PARSER(List(None), x) {
+  None* itr = list_begin(x);
+  None* end = list_end(x);
+  if (itr == end) {
+    printf("[]\n");
+  } else {
+    printf("[()"); itr++;
+    while (itr != end) {
+      printf(", ()"); itr++;
+    }
+    printf("]\n");
+  }
 }
 
 // ---- StringListParser ----

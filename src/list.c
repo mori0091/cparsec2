@@ -7,6 +7,9 @@
 
 // ---- List ----
 
+// List(None)
+DEFINE_LIST(None);
+
 // List(String)
 DEFINE_LIST(String);
 
@@ -36,6 +39,9 @@ int LIST_LENGTH(Char)(List(Char) xs) {
 }
 
 // ---- Buffer (List builder) ----
+
+// Buff(None)
+DEFINE_BUFF(None);
 
 // Buff(String)
 DEFINE_BUFF(String);

@@ -18,6 +18,8 @@
 #include "codegen.h"
 // ---- type generic list class ----
 #include "list.h"
+// ---- None type and NONE value ----
+#include "none.h"
 
 #define RETURN_TYPE(T) CAT(T, _return_type)
 
@@ -81,12 +83,17 @@
 extern "C" {
 #endif
 
+// ---- NoneParser ----
+TYPEDEF_PARSER(None, None);
 // ---- CharParser ----
 TYPEDEF_PARSER(Char, char);
 // ---- StringParser ----
 TYPEDEF_PARSER(String, const char*);
 // ---- IntParser ----
 TYPEDEF_PARSER(Int, int);
+
+// ---- NoneListParser ----
+TYPEDEF_PARSER(List(None), List(None));
 // ---- StringListParser ----
 TYPEDEF_PARSER(List(String), List(String));
 // ---- IntListParser ----
