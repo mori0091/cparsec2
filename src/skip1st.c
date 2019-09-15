@@ -7,10 +7,10 @@
   static RETURN_TYPE(PARSER(T))                                          \
       SKIP1ST_FN(T)(void* arg, Source src, Ctx* ex) {                    \
     void** ps = (void**)arg;                                             \
-    parse((IntParser)ps[0], src, ex);                                    \
+    parse((PARSER(None))ps[0], src, ex);                                 \
     return parse((PARSER(T))ps[1], src, ex);                             \
   }                                                                      \
-  PARSER(T) SKIP1ST(T)(IntParser p1, PARSER(T) p2) {                     \
+  PARSER(T) SKIP1ST(T)(PARSER(None) p1, PARSER(T) p2) {                  \
     void** arg = mem_malloc(sizeof(void*) * 2);                          \
     arg[0] = (void*)p1;                                                  \
     arg[1] = (void*)p2;                                                  \

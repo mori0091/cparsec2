@@ -41,11 +41,11 @@ extern PARSER(Char) alpha;
 extern PARSER(Char) alnum;
 extern PARSER(Char) letter;
 extern PARSER(Char) space;
-extern PARSER(String) spaces;
+extern PARSER(None) spaces;
 extern PARSER(Char) newline;
 extern PARSER(Char) crlf;
 extern PARSER(Char) endOfLine;
-extern PARSER(Char) endOfFile;
+extern PARSER(None) endOfFile;
 extern PARSER(Char) tab;
 extern PARSER(Int) number;
 extern PARSER(String) anyUtf8;
@@ -102,7 +102,7 @@ FOREACH(DECLARE_CONS, TYPESET(0));
 
 // Parser<Int> skip(Parser<T> p);
 #define SKIP(T) CAT(skip_, T)
-#define DECLARE_SKIP(T) PARSER(Int) SKIP(T)(PARSER(T) p)
+#define DECLARE_SKIP(T) PARSER(None) SKIP(T)(PARSER(T) p)
 FOREACH(DECLARE_SKIP, TYPESET(1));
 #define skip(p)                                                          \
   (GENERIC_P(PARSER_CAST(p), SKIP, TYPESET(1))(PARSER_CAST(p)))
@@ -110,7 +110,7 @@ FOREACH(DECLARE_SKIP, TYPESET(1));
 // Parser<T2> skip1st(Parser<T1> p1, Parser<T2> p2);
 #define SKIP1ST(T) CAT(skip1st_, T)
 #define DECLARE_SKIP1ST(T)                                               \
-  PARSER(T) SKIP1ST(T)(PARSER(Int) p1, PARSER(T) p2)
+  PARSER(T) SKIP1ST(T)(PARSER(None) p1, PARSER(T) p2)
 FOREACH(DECLARE_SKIP1ST, TYPESET(1));
 #define skip1st(p1, p2)                                                  \
   (GENERIC_P(PARSER_CAST(p2), SKIP1ST, TYPESET(1))(skip(p1),             \
@@ -119,7 +119,7 @@ FOREACH(DECLARE_SKIP1ST, TYPESET(1));
 // Parser<T2> skip2nd(Parser<T1> p1, Parser<T2> p2);
 #define SKIP2ND(T) CAT(skip2nd_, T)
 #define DECLARE_SKIP2ND(T)                                               \
-  PARSER(T) SKIP2ND(T)(PARSER(T) p1, PARSER(Int) p2)
+  PARSER(T) SKIP2ND(T)(PARSER(T) p1, PARSER(None) p2)
 FOREACH(DECLARE_SKIP2ND, TYPESET(1));
 #define skip2nd(p1, p2)                                                  \
   (GENERIC_P(PARSER_CAST(p1), SKIP2ND, TYPESET(1))((PARSER_CAST(p1)),    \

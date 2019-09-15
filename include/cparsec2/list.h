@@ -4,6 +4,7 @@
 #include "alloc.h"
 #include "codegen.h"
 #include "macros.h"
+#include "none.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,6 +60,9 @@ extern "C" {
 #define CharList String
 typedef const char* List(Char);
 typedef const char ELEMENT_TYPE(List(Char));
+
+// List(None)
+TYPEDEF_LIST(None, None);
 
 // List(String)
 TYPEDEF_LIST(String, const char*);
@@ -148,6 +152,9 @@ FOREACH(DECLARE_LIST, ELEMENT_TYPESET);
     return xs;                                                           \
   }                                                                      \
   END_OF_STATEMENTS
+
+// Buff(None)
+TYPEDEF_BUFF(None, None);
 
 // Buff(Char)
 TYPEDEF_BUFF(Char, char);

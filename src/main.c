@@ -87,10 +87,10 @@ static void self_tests(void) {
   assert(!PARSE_TEST(letter, "+*"));  /* error */
   assert(!PARSE_TEST(letter, ""));    /* error */
 
-  assert(PARSE_TEST(spaces, "   a"));    /* "   " */
-  assert(PARSE_TEST(spaces, " \t\n\r")); /* " \t\n\r" */
-  assert(PARSE_TEST(spaces, "a"));       /* "" */
-  assert(PARSE_TEST(spaces, ""));        /* "" */
+  assert(PARSE_TEST(spaces, "   a"));    /* () */
+  assert(PARSE_TEST(spaces, " \t\n\r")); /* () */
+  assert(PARSE_TEST(spaces, "a"));       /* () */
+  assert(PARSE_TEST(spaces, ""));        /* () */
 
   assert(PARSE_TEST(many(anyChar), "12ab!*"));      /* "12ab!*" */
   assert(PARSE_TEST(many(digit), "123"));           /* "123" */
@@ -164,6 +164,11 @@ static void self_tests(void) {
   assert(PARSE_TEST(FOLDL(either, "ab", "cd", "ef"), "cd"));  /* "cd" */
   assert(PARSE_TEST(FOLDL(either, "ab", "cd", "ef"), "ef"));  /* "ef" */
   assert(!PARSE_TEST(FOLDL(either, "ab", "cd", "ef"), "xy")); /* error */
+
+  assert(PARSE_TEST(skip((char)'a'), "ab"));         /* () */
+  assert(PARSE_TEST(many(skip((char)'a')), "aabb")); /* [(), ()] */
+  assert(PARSE_TEST(many(skip(either((char)'a', (char)'b'))), "aabb"));
+  /* -> [(), (), (), ()]  */
 
   assert(PARSE_TEST(many(number), "123 456 789"));
   /* -> [123, 456, 789] */
