@@ -132,6 +132,12 @@ Example:
 
 *NOTE* : ~List(Char)~ is same as ~const char*~ (i.e. string in C)
 
+
+The below is an experimental:
+- List(Node)          ::
+     A type of a list container whose element type is ~Node~.\\
+     (i.e. ~ELEMENT_TYPE(List(Node))~ is ~Node~.)
+
 ** Iteration API for List(T)
 
 To iterate elements contained in a ~List(T)~ object, use the following APIs.
@@ -177,6 +183,12 @@ For example:
 - Buff(Ptr)          ::
      A type of a list-builder whose element type is ~void*~.\\
      (i.e. ~ELEMENT_TYPE(Buff(Ptr))~ is ~void*~.)
+
+
+The below is an experimental:
+- Buff(Node)         ::
+     A type of a list-builder whose element type is ~Node~.\\
+     (i.e. ~ELEMENT_TYPE(Buff(Node))~ is ~Node~.)
 
 ** List builder API for Buff(T)
 
@@ -258,6 +270,14 @@ For example:
   A parser of ~PARSER(List(None))~ type returns a ~List(None)~ value when it is applied.\\
   (i.e. ~RETURN_TYPE(PARSER(List(None)))~ is ~List(None)~.)
 
+
+The below is an experimental:
+- PARSER(Node)            ::
+  A parser of ~PARSER(Node)~ type returns ~NONE~ when it is applied.\\
+  (i.e. ~RETURN_TYPE(PARSER(Node))~ is ~Node~.)
+- PARSER(List(Node))      ::
+  A parser of ~PARSER(List(Node))~ type returns a ~List(Node)~ value when it is applied.\\
+  (i.e. ~RETURN_TYPE(PARSER(List(Node)))~ is ~List(Node)~.)
 
 
 * Built-in Parsers, Parser generators, and Parser combinators
