@@ -227,13 +227,13 @@ For example:
 ** Supporting *concrete PARSER(T)* types
 
 - PARSER(Char)            ::
-  A parser of ~PARSER(Char)~ type reads one char, and returns a ~char~ value.\\
+  A parser of ~PARSER(Char)~ type returns a ~char~ value when it is applied.\\
   (i.e. ~RETURN_TYPE(PARSER(Char))~ is ~char~.)
 - PARSER(String)          ::
-  A parser of ~PARSER(String)~ type reads chars, and returns a ~const char*~ value.\\
+  A parser of ~PARSER(String)~ type returns a ~const char*~ value when it is applied.\\
   (i.e. ~RETURN_TYPE(PARSER(String))~ is ~const char*~.)
 - PARSER(Int)             ::
-  A parser of ~PARSER(Int)~ type reads chars, and returns a ~int~ value.\\
+  A parser of ~PARSER(Int)~ type returns a ~int~ value when it is applied.\\
   (i.e. ~RETURN_TYPE(PARSER(Int))~ is ~int~.)
 - PARSER(None)            ::
   A parser of ~PARSER(None)~ type returns ~NONE~ when it is applied.\\
@@ -241,16 +241,16 @@ For example:
 
 
 - PARSER(List(Char))      ::
-  A parser of ~PARSER(List(Char))~ type reads chars, and returns a ~List(Char)~ value.\\
+  A parser of ~PARSER(List(Char))~ type returns a ~List(Char)~ value when it is applied.\\
   (i.e. ~RETURN_TYPE(PARSER(List(Char)))~ is ~List(Char)~.)
   - *NOTE* :
     - ~PARSER(List(Char))~ is same as ~PARSER(String)~, and
     - ~List(Char)~ is same as ~const char*~.
 - PARSER(List(String))    ::
-  A parser of ~PARSER(List(String))~ type reads chars, and returns a ~List(String)~ value.\\
+  A parser of ~PARSER(List(String))~ type returns a ~List(String)~ value when it is applied.\\
   (i.e. ~RETURN_TYPE(PARSER(List(String)))~ is ~List(String)~.)
 - PARSER(List(Int))       ::
-  A parser of ~PARSER(List(Int))~ type reads chars, and returns a ~List(Int)~ value.\\
+  A parser of ~PARSER(List(Int))~ type returns a ~List(Int)~ value when it is applied.\\
   (i.e. ~RETURN_TYPE(PARSER(List(Int)))~ is ~List(Int)~.)
 - PARSER(List(None))      ::
   A parser of ~PARSER(List(None))~ type returns a ~List(None)~ value when it is applied.\\
@@ -300,8 +300,8 @@ For example:
      A PARSER(None) which parse zero or more white-spaces (i.e. space, TAB, LF,
      CR), and returns ~NONE~.
 - number                :: 
-     A PARSER(Int) which skips leading white-spaces and parse one or more
-     subsequent digits then returns it as an ~int~ value when applied to a text.
+     A PARSER(Int) which parse one or more digits and skips trailing
+     white-spaces, then returns it as an ~int~ value.
 - anyUtf8               ::
      A PARSER(String) which parse any one UTF-8 character and returns it as a
      string.
@@ -524,7 +524,7 @@ parseTest(skip2nd(string1("ab"), char1('c')), "abc"); // -> "ab"
 
 - PARSER(T) token(PARSER(T) p) ::
      Create a parser of PARSER(T) type, which
-  - apply ~p~ to the subsequent text,
+  - apply ~p~ at first, then
   - skip any trailing white-spaces, and
   - return the result of ~p~.
   - *NOTE* : ~T~ must be one of the following:
