@@ -338,10 +338,7 @@ For example:
     - succeeds if ~p~ exact matched *N* times (*N \ge 0*) to the input from
       ~src~ and *N+1* th ~p~ failed *without consuming any input*.
     - otherwise fails *after consumed some input*.
-  - *NOTE* : ~T~ must be one of the following:
-    - ~Char~
-    - ~String~ aka ~List(Char)~
-    - ~Int~
+  - *NOTE* : ~T~ must be a member of [[#typeset][TYPESET(0)]]
 
 **** 'parse(many(p), src, ex)' shall be :
 | result status  | returns                        | description                                   |
@@ -372,10 +369,7 @@ where:
     - succeeds if ~p~ exact matched *N* times (*N \ge 1*) to the input from
       ~src~ and *N+1* th ~p~ failed *without consuming any input*.
     - otherwise fails.
-  - *NOTE* : ~T~ must be one of the following:
-    - ~Char~
-    - ~String~ aka ~List(Char)~
-    - ~Int~
+  - *NOTE* : ~T~ must be a member of [[#typeset][TYPESET(0)]]
 
 **** 'parse(many1(p), src, ex)' shall be :
 | result status  | returns                        | description                                      |
@@ -398,10 +392,7 @@ where:
   - if a parser in the ~p, ...~ failed, throws an error of it.
   - *NOTE* : For all parser in the ~p, ...~, whose type must be same, otherwise
     the behavior is undefined.
-  - *NOTE* : ~T~ must be one of the following:
-    - ~Char~
-    - ~String~ aka ~List(Char)~
-    - ~Int~
+  - *NOTE* : ~T~ must be a member of [[#typeset][TYPESET(0)]]
 
 *** cons(p, ps)
 - PARSER(List(Char)) cons(char c, const char* cs) ::
@@ -418,10 +409,7 @@ where:
     - the result of ~p~ and
     - elements of the result of ~ps~.
   - if ~p~ or ~ps~ failed, throws an error of it.
-  - *NOTE* : ~T~ must be one of the following:
-    - ~Char~
-    - ~String~ aka ~List(Char)~
-    - ~Int~
+  - *NOTE* : ~T~ must be a member of [[#typeset][TYPESET(0)]]
 
 *** skip(p)
 - PARSER(None) skip(char c) ::
@@ -460,12 +448,7 @@ where:
   - return the result of ~p2~ if both ~p1~ and ~p2~ success.
   - if ~p1~ failed, ~p2~ is not applied and throws error of ~p1~.
   - if ~p1~ success and then ~p2~ failed, throws error of ~p2~.
-  - *NOTE* : ~S~ and ~T~ must be one of the following:
-    - ~Char~
-    - ~String~ aka ~List(Char)~
-    - ~Int~
-    - ~List(String)~
-    - ~List(Int)~
+  - *NOTE* : ~S~ and ~T~ must be a member of [[#typeset][TYPESET(1)]]
   - *NOTE* : ~S~ and ~T~ may or may not be same.\\
     (i.e. ~p1~ and ~p2~ may be a parser of same type or different type)
 
@@ -499,12 +482,7 @@ parseTest(skip1st(string1("ab"), char1('c')), "abc"); // -> 'c'
   - return the result of ~p1~ if both ~p1~ and ~p2~ success.
   - if ~p1~ failed, ~p2~ is not applied and throws error of ~p1~.
   - if ~p1~ success and then ~p2~ failed, throws error of ~p2~.
-  - *NOTE* : ~S~ and ~T~ must be one of the following:
-    - ~Char~
-    - ~String~ aka ~List(Char)~
-    - ~Int~
-    - ~List(String)~
-    - ~List(Int)~
+  - *NOTE* : ~S~ and ~T~ must be a member of [[#typeset][TYPESET(1)]]
   - *NOTE* : ~S~ and ~T~ may or may not be same.\\
     (i.e. ~p1~ and ~p2~ may be a parser of same type or different type)
 
@@ -527,12 +505,7 @@ parseTest(skip2nd(string1("ab"), char1('c')), "abc"); // -> "ab"
   - apply ~p~ at first, then
   - skip any trailing white-spaces, and
   - return the result of ~p~.
-  - *NOTE* : ~T~ must be one of the following:
-    - ~Char~
-    - ~String~ aka ~List(Char)~
-    - ~Int~
-    - ~List(String)~
-    - ~List(Int)~
+  - *NOTE* : ~T~ must be a member of [[#typeset][TYPESET(1)]]
 
 *** either(p1, p2)
 - PARSER(Char) either(char c1, char c2) :: 
@@ -554,12 +527,7 @@ parseTest(skip2nd(string1("ab"), char1('c')), "abc"); // -> "ab"
   - if ~p1~ consumed one or more chars and failed, throw error of ~p1~,
   - if ~p1~ consumed no chars and failed, return result of ~p2~, or
   - throw error of ~p2~
-  - *NOTE* : ~T~ must be one of the following:
-    - ~Char~
-    - ~String~ aka ~List(Char)~
-    - ~Int~
-    - ~List(String)~
-    - ~List(Int)~
+  - *NOTE* : ~T~ must be a member of [[#typeset][TYPESET(1)]]
 
 *** tryp(p)
 - PARSER(Char) tryp(char c) ::
@@ -571,12 +539,7 @@ parseTest(skip2nd(string1("ab"), char1('c')), "abc"); // -> "ab"
      Create a parser of PARSER(T) type, which
   - return result of ~p~ if ~p~ success,
   - otherwise rewind the input-state back then throw error of ~p~.
-  - *NOTE* : ~T~ must be one of the following:
-    - ~Char~
-    - ~String~ aka ~List(Char)~
-    - ~Int~
-    - ~List(String)~
-    - ~List(Int)~
+  - *NOTE* : ~T~ must be a member of [[#typeset][TYPESET(1)]]
 
 
 * Building block of Parser-class
