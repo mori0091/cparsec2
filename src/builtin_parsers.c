@@ -18,12 +18,12 @@ NoneParser spaces;
 CharParser newline;
 CharParser crlf;
 CharParser endOfLine;
-CharParser endOfFile;
+NoneParser endOfFile;
 CharParser tab;
 IntParser number;
 StringParser anyUtf8;
 
-static char endOfFile_fn(void* arg, Source src, Ctx* ex) {
+static None endOfFile_fn(void* arg, Source src, Ctx* ex) {
   UNUSED(arg);
   Ctx ctx;
   TRY(&ctx) {
@@ -33,7 +33,7 @@ static char endOfFile_fn(void* arg, Source src, Ctx* ex) {
   else {
     mem_free((void*)ctx.msg);
   }
-  return 0;
+  return NONE;
 }
 
 static int number_fn(void* arg, Source src, Ctx* ex) {
@@ -72,7 +72,7 @@ static void cparsec2_init__stage2(void) {
   crlf = expects("<CR><LF>", tryp(skip1st(char1('\r'), newline)));
   endOfLine = expects("<endOfLine>", either(newline, crlf));
   endOfFile =
-      expects("<endOfFile>", PARSER_GEN(Char)(endOfFile_fn, NULL));
+    expects("<endOfFile>", PARSER_GEN(None)(endOfFile_fn, NULL));
   tab = expects("a TAB", char1('\t'));
   number = PARSER_GEN(Int)(number_fn,
                            token(expects("a number", many1(digit))));

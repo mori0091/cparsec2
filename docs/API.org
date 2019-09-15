@@ -290,8 +290,8 @@ For example:
 - endOfLine             ::
      A PARSER(Char) which parse a LF or a CR-LF pair and returns LF.
 - endOfFile             ::
-     A PARSER(Char) which succeeds if and only if it was the end of input, and
-     returns ~\0~.
+     A PARSER(None) which succeeds if and only if it was the end of input, and
+     returns ~NONE~.
 - tab                   ::
      A PARSER(Char) which parse a TAB character.
 - space                 :: 

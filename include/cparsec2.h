@@ -45,7 +45,7 @@ extern PARSER(None) spaces;
 extern PARSER(Char) newline;
 extern PARSER(Char) crlf;
 extern PARSER(Char) endOfLine;
-extern PARSER(Char) endOfFile;
+extern PARSER(None) endOfFile;
 extern PARSER(Char) tab;
 extern PARSER(Int) number;
 extern PARSER(String) anyUtf8;
