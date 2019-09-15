@@ -297,7 +297,8 @@ For example:
 - space                 :: 
      A PARSER(Char) which parse a white-space (i.e. space, TAB, LF, CR)
 - spaces                :: 
-     A PARSER(String) which parse zero or more white-spaces (i.e. space, TAB, LF, CR)
+     A PARSER(None) which parse zero or more white-spaces (i.e. space, TAB, LF,
+     CR), and returns ~NONE~.
 - number                :: 
      A PARSER(Int) which skips leading white-spaces and parse one or more
      subsequent digits then returns it as an ~int~ value when applied to a text.

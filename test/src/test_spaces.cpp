@@ -8,16 +8,18 @@ SCENARIO("spaces", "[cparsec2][parser][spaces]") {
   GIVEN("an input: \"   a\"") {
     Source src = Source_new("   a");
     WHEN("apply spaces") {
-      THEN("results \"   \"") {
-        REQUIRE(std::string("   ") == parse(spaces, src));
+      THEN("results \"\"") {
+        REQUIRE(isNONE(parse(spaces, src)));
+        REQUIRE(3 == getSourceOffset(src));
       }
     }
   }
   GIVEN("an input: \" \\t\\n\\r\" (i.e. SPC TAB LF CR)") {
     Source src = Source_new(" \t\n\r");
     WHEN("apply spaces") {
-      THEN("results \" \\t\\n\\r\"") {
-        REQUIRE(std::string(" \t\n\r") == parse(spaces, src));
+      THEN("results \"\"") {
+        REQUIRE(isNONE(parse(spaces, src)));
+        REQUIRE(4 == getSourceOffset(src));
       }
     }
   }
@@ -25,7 +27,8 @@ SCENARIO("spaces", "[cparsec2][parser][spaces]") {
     Source src = Source_new("a");
     WHEN("apply spaces") {
       THEN("results \"\"") {
-        REQUIRE(std::string("") == parse(spaces, src));
+        REQUIRE(isNONE(parse(spaces, src)));
+        REQUIRE(0 == getSourceOffset(src));
       }
     }
   }
@@ -33,7 +36,8 @@ SCENARIO("spaces", "[cparsec2][parser][spaces]") {
     Source src = Source_new("");
     WHEN("apply spaces") {
       THEN("results \"\"") {
-        REQUIRE(std::string("") == parse(spaces, src));
+        REQUIRE(isNONE(parse(spaces, src)));
+        REQUIRE(0 == getSourceOffset(src));
       }
     }
   }

@@ -41,7 +41,7 @@ extern PARSER(Char) alpha;
 extern PARSER(Char) alnum;
 extern PARSER(Char) letter;
 extern PARSER(Char) space;
-extern PARSER(String) spaces;
+extern PARSER(None) spaces;
 extern PARSER(Char) newline;
 extern PARSER(Char) crlf;
 extern PARSER(Char) endOfLine;

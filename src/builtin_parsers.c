@@ -14,7 +14,7 @@ CharParser alpha;
 CharParser alnum;
 CharParser letter;
 CharParser space;
-StringParser spaces;
+NoneParser spaces;
 CharParser newline;
 CharParser crlf;
 CharParser endOfLine;
@@ -41,6 +41,18 @@ static int number_fn(void* arg, Source src, Ctx* ex) {
   return atoi(parse(p, src, ex));
 }
 
+static None spaces_fn(void* arg, Source src, Ctx* ex) {
+  UNUSED(arg);
+  UNUSED(ex);
+  Ctx ctx;
+  TRY(&ctx) {
+    for (;;) {
+      parse(space, src, &ctx);
+    }
+  }
+  return NONE;
+}
+
 static void cparsec2_init__stage1(void) {
   anyChar = expects("a character", satisfy(is_anyChar));
   digit = expects("a decimal digit", satisfy(is_digit));
@@ -55,7 +67,7 @@ static void cparsec2_init__stage1(void) {
 }
 
 static void cparsec2_init__stage2(void) {
-  spaces = many(space); /* always success */
+  spaces = PARSER_GEN(None)(spaces_fn, NULL); /* always success */
   newline = expects("<LF>", char1('\n'));
   crlf = expects("<CR><LF>", tryp(skip1st(char1('\r'), newline)));
   endOfLine = expects("<endOfLine>", either(newline, crlf));
