@@ -423,6 +423,19 @@ where:
     - ~String~ aka ~List(Char)~
     - ~Int~
 
+*** skip(p)
+- PARSER(None) skip(char c) ::
+     Same as ~skip(char1(c))~.
+- PARSER(None) skip(const char* s) ::
+     Same as ~skip(string1(s))~.
+
+- PARSER(None) skip(PARSER(T) p) ::
+     Create a parser of PARSER(List(T)) type, which
+  - apply ~p~ and returns ~NONE~.
+  - a value returned by ~p~ is discarded.
+  - if ~p~ failed, throws error of ~p~.
+  - *NOTE* : ~T~ must be a member of [[#typeset][TYPESET(1)]]
+
 *** skip1st(p1, p2)
 - PARSER(Char) skip1st(char c1, char c2) ::
      Same as ~skip1st(char1(c1), char1(c2))~.

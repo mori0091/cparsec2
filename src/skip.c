@@ -4,13 +4,13 @@
 
 #define SKIP_FN(T) run_skip##T
 #define DEFINE_SKIP(T)                                                   \
-  static int SKIP_FN(T)(void* arg, Source src, Ctx* ex) {                \
+  static None SKIP_FN(T)(void* arg, Source src, Ctx* ex) {               \
     PARSER(T) p = (PARSER(T))arg;                                        \
     parse(p, src, ex);                                                   \
-    return 0;                                                            \
+    return NONE;                                                         \
   }                                                                      \
-  PARSER(Int) SKIP(T)(PARSER(T) p) {                                     \
-    return PARSER_GEN(Int)(SKIP_FN(T), (void*)p);                        \
+  PARSER(None) SKIP(T)(PARSER(T) p) {                                    \
+    return PARSER_GEN(None)(SKIP_FN(T), (void*)p);                       \
   }                                                                      \
   END_OF_STATEMENTS
 

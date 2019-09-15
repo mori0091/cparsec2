@@ -8,10 +8,10 @@
       SKIP2ND_FN(T)(void* arg, Source src, Ctx* ex) {                    \
     void** ps = (void**)arg;                                             \
     RETURN_TYPE(PARSER(T)) ret = parse((PARSER(T))ps[0], src, ex);       \
-    parse((IntParser)ps[1], src, ex);                                    \
+    parse((PARSER(None))ps[1], src, ex);                                 \
     return ret;                                                          \
   }                                                                      \
-  PARSER(T) SKIP2ND(T)(PARSER(T) p1, IntParser p2) {                     \
+  PARSER(T) SKIP2ND(T)(PARSER(T) p1, PARSER(None) p2) {                  \
     void** arg = mem_malloc(sizeof(void*) * 2);                          \
     arg[0] = (void*)p1;                                                  \
     arg[1] = (void*)p2;                                                  \
