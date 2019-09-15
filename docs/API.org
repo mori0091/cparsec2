@@ -121,6 +121,9 @@ Example:
 - List(Int)           ::
      A type of a list container whose element type is ~int~.\\
      (i.e. ~ELEMENT_TYPE(List(Int))~ is ~int~.)
+- List(None)          ::
+     A type of a list container whose element type is ~None~.\\
+     (i.e. ~ELEMENT_TYPE(List(None))~ is ~None~.)
 - List(Ptr)           ::
      A type of a list container whose element type is ~void*~.\\
      (i.e. ~ELEMENT_TYPE(List(Ptr))~ is ~void*~.)
@@ -166,6 +169,9 @@ For example:
 - Buff(Int)          ::
      A type of a list-builder whose element type is ~int~.\\
      (i.e. ~ELEMENT_TYPE(Buff(Int))~ is ~int~.)
+- Buff(None)         ::
+     A type of a list-builder whose element type is ~None~.\\
+     (i.e. ~ELEMENT_TYPE(Buff(None))~ is ~None~.)
 - Buff(Ptr)          ::
      A type of a list-builder whose element type is ~void*~.\\
      (i.e. ~ELEMENT_TYPE(Buff(Ptr))~ is ~void*~.)
@@ -229,6 +235,9 @@ For example:
 - PARSER(Int)             ::
   A parser of ~PARSER(Int)~ type reads chars, and returns a ~int~ value.\\
   (i.e. ~RETURN_TYPE(PARSER(Int))~ is ~int~.)
+- PARSER(None)            ::
+  A parser of ~PARSER(None)~ type returns ~NONE~ when it is applied.\\
+  (i.e. ~RETURN_TYPE(PARSER(None))~ is ~None~.)
 
 
 - PARSER(List(Char))      ::
@@ -243,6 +252,10 @@ For example:
 - PARSER(List(Int))       ::
   A parser of ~PARSER(List(Int))~ type reads chars, and returns a ~List(Int)~ value.\\
   (i.e. ~RETURN_TYPE(PARSER(List(Int)))~ is ~List(Int)~.)
+- PARSER(List(None))      ::
+  A parser of ~PARSER(List(None))~ type returns a ~List(None)~ value when it is applied.\\
+  (i.e. ~RETURN_TYPE(PARSER(List(None)))~ is ~List(None)~.)
+
 
 
 * Built-in Parsers, Parser generators, and Parser combinators
@@ -782,18 +795,21 @@ FOREACH(F, char, int, double);
 #+end_src
 
 ** TYPESET
+:PROPERTIES:
+:CUSTOM_ID: typeset
+:END:
 
 Set of type-names.
 
 - TYPESET(0)      ::
      A set of type-names for parser-combinators. \\
-     ~TYPESET(0)~ is expanded to ~Char, String, Int~.
+     ~TYPESET(0)~ is expanded to ~Char, String, Int, None, Node~.
 - TYPESET(1)      ::
      Another set of type-names for parser-combinators. \\
-     ~TYPESET(1)~ is expanded to ~Char, String, Int, List(String), List(Int)~.
+     ~TYPESET(1)~ is expanded to ~Char, String, Int, None, Node, List(String), List(Int), List(None), List(Node)~.
 - ELEMENT_TYPESET ::
      A set of type-names for element-type of generic-containers. \\
-     ~ELEMENT_TYPESET~ is expanded to ~Ptr, Char, String, Int~
+     ~ELEMENT_TYPESET~ is expanded to ~Ptr, Char, String, Int, None, Node~
 
 These macros are convenient and easy to use with
  - ~GENERIC_METHOD(expr, C, F, ...)~,
