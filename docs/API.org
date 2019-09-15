@@ -18,7 +18,8 @@
   - Type of Parsers
   - Supporting concrete ~PARSER(T)~ types
 - [[#built-in-parsers-parser-generators-and-parser-combinators][Built-in Parsers, Parser generators, and Parser combinators]] ::
-  - Built-in Parsers and Parser-generators
+  - Built-in Parsers
+  - Built-in Parser-generators
   - Built-in *GENERIC* Parser-combinators
 - [[#building-block-of-parser-class][Building block of Parser-class]] ::
   - Declares/Defines new PARSER(T) class
@@ -31,6 +32,7 @@
   - GENERIC_P(expr, F, ...)
   - FOREACH(F, ...)
   - TYPESET
+
 
 * Core API
 :PROPERTIES:
@@ -263,7 +265,23 @@ For example:
 :CUSTOM_ID: built-in-parsers-parser-generators-and-parser-combinators
 :END:
 
-** Built-in Parsers and Parser-generators
+- parser            ::
+     a functional object for parsing.
+  - When a *parser* was applied to a input stream, it reads zero or more tokens
+    (e.g. sequence of chars) from the input and returns a corresponding value.
+- parser generator  ::
+     a factory method (constructor function) for creating a parser.
+  - A *parser generator* takes one or more arguments for creating a
+    parameterized parser.
+  - Typically the given arguments are used as parmeters for pattern match.
+- parser combinator ::
+     a factory method (constructor function) for creating a composite parser.
+  - A *parser combinator* takes one or more parsers for creating a composite
+    parser.
+  - It is used to create a complex parser by combinating one or more simple
+    parsers.
+
+** Built-in Parsers
 
 - anyChar               :: 
      A PARSER(Char) which parse any one char
@@ -305,6 +323,9 @@ For example:
 - anyUtf8               ::
      A PARSER(String) which parse any one UTF-8 character and returns it as a
      string.
+
+** Built-in Parser-generators
+
 - char1(c)              :: 
      Create a PARSER(Char) which parse the char ~c~
 - string1(s)            :: 
@@ -324,6 +345,7 @@ For example:
      Create a PARSER(Char) which parse a char ~c~ satisfying ~min <= c && c <= max~.
 
 ** Built-in GENERIC Parser-combinators
+
 *** many(p)
 - PARSER(List(Char)) many(char c) ::
      Same as ~many(char1(c))~.
