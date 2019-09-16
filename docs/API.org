@@ -374,11 +374,12 @@ The below is an experimental:
 
 - PARSER(List(T)) many(PARSER(T) p) ::
      Create a parser of PARSER(List(T)) type, which
-  - apply ~p~ zeroth or more to a text.
+  - apply ~p~ zero or more to a text.
   - returns a list of ~List(T)~ type, which consists of the each result of ~p~.
   - *NOTE* : ~parse(many(p), src, ex)~
     - succeeds if ~p~ exact matched *N* times (*N \ge 0*) to the input from
       ~src~ and *N+1* th ~p~ failed *without consuming any input*.
+    - fails if ~p~ succeeded *without consuming any input*.
     - otherwise fails *after consumed some input*.
   - *NOTE* : ~T~ must be a member of [[#typeset][TYPESET(0)]]
 
@@ -410,7 +411,8 @@ where:
   - *NOTE* : ~parse(many1(p), src, ex)~
     - succeeds if ~p~ exact matched *N* times (*N \ge 1*) to the input from
       ~src~ and *N+1* th ~p~ failed *without consuming any input*.
-    - otherwise fails.
+    - fails if ~p~ succeeded *without consuming any input*.
+    - otherwise fails *after consumed some input*.
   - *NOTE* : ~T~ must be a member of [[#typeset][TYPESET(0)]]
 
 **** 'parse(many1(p), src, ex)' shall be :
