@@ -595,12 +595,15 @@ parseTest(skip2nd(string1("ab"), char1('c')), "abc"); // -> "ab"
 not for users at the present.
 
 - TYPEDEF_PARSER(T, R)  ::
-     Define new concrete ~PARSER(T)~ type and ~RETURN_TYPE(PARSER(T))~.\\
+     Define new concrete ~PARSER(T)~ type and ~RETURN_TYPE(PARSER(T))~.
+
      A parser of type ~PARSER(T)~ returns a value of type ~R~ when the parser
      was applied to a text.\\
      (i.e. ~RETURN_TYPE(PARSER(T))~ will be ~R~)
+
 - DECLARE_PARSER(T)     :: 
      Declares functions/methods for ~PARSER(T)~.
+
 - DEFINE_PARSER(T, x) { ~/* print x; */~ } :: 
      Defines functions/methods for ~PARSER(T)~.\\
   - *NOTE* : The trailing block ~{...}~ is body of function ~void SHOW(T)(R x)~.
