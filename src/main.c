@@ -189,5 +189,15 @@ static void self_tests(void) {
                     ",123,456,789"));
   /* -> ["123", "456", "789"] */
 
+  assert(!PARSE_TEST(many(endOfFile), ""));       /* error */
+  assert(!PARSE_TEST(many(spaces), "aaa"));       /* error */
+  assert(!PARSE_TEST(many(skip(endOfFile)), "")); /* error */
+  assert(!PARSE_TEST(many(skip(spaces)), "aaa")); /* error */
+
+  assert(!PARSE_TEST(many1(endOfFile), ""));       /* error */
+  assert(!PARSE_TEST(many1(spaces), "aaa"));       /* error */
+  assert(!PARSE_TEST(many1(skip(endOfFile)), "")); /* error */
+  assert(!PARSE_TEST(many1(skip(spaces)), "aaa")); /* error */
+
   cparsec2_end();
 }

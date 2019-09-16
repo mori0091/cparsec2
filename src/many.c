@@ -14,6 +14,10 @@
       for (;;) {                                                         \
         offset = getSourceOffset(src);                                   \
         buff_push(&str, parse(parser, src, &ctx));                       \
+        if (offset == getSourceOffset(src)) {                            \
+          cthrow(ex, error("combinator 'many' is applied to a parser "   \
+                           "that accepts an empty input."));             \
+        }                                                                \
       }                                                                  \
     }                                                                    \
     if (offset != getSourceOffset(src)) {                                \
