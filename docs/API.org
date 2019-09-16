@@ -286,20 +286,93 @@ The below is an experimental:
 :END:
 
 - parser            ::
-     a functional object for parsing.
-  - When a *parser* was applied to a input stream, it reads zero or more tokens
-    (e.g. sequence of chars) from the input and returns a corresponding value.
+     A functional object for parsing input stream.
+  - When a *parser* was applied to an input stream:
+    - it takes zero or more tokens (e.g. sequence of chars) from the input,
+    - then execute something pattern match, and
+    - returns a corresponding value if succeeded.
+    - otherwise causes an error by throwing an exception.
+  - To apply a *parser*, use one of the following APIs (see also [[#core-api][Core API]]):
+    - ~parse(parser, src, ex)~
+    - ~parseTest(parser, text)~
+    - ~bool PARSE_TEST(parser, text)~
 - parser generator  ::
-     a factory method (constructor function) for creating a parser.
+     A factory method (constructor function) for creating a parser.
   - A *parser generator* takes one or more arguments for creating a
     parameterized parser.
-  - Typically the given arguments are used as parmeters for pattern match.
+  - Typically the given arguments are used as parameters for pattern match.
 - parser combinator ::
-     a factory method (constructor function) for creating a composite parser.
+     A factory method (constructor function) for creating a composite parser.
   - A *parser combinator* takes one or more parsers for creating a composite
     parser.
   - It is used to create a complex parser by combinating one or more simple
     parsers.
+
+
+The below table shows characteristics of built-in parsers, parser generators,
+and parser combinators:
+ - *parser* column shows built-in parsers, parser generators, or parser combinators
+ - other columns show resulting status of ~parse(parser, src, ex)~.\\
+   It causes one of the following result:
+   - eok (empty ok)        ::
+     - *parser* succeeded without consuming any input.
+     - Returns a corresponding value explained in that column.
+   - eerr (empty error)    ::
+     - *parser* failed without consuming any input.
+     - Throws an exception via ~ex~.\\
+       (annotated as *error* in that column)
+   - cok (consumed ok)     ::
+     - *parser* succeeded after consumed some input from ~src~.
+     - Returns a corresponding value explained in that column.
+   - cerr (consumed error) ::
+     - *parser* failed after consumed some input from ~src~.
+     - Throws an exception via ~ex~.\\
+       (annotated as *error* in that column)
+ - *NOTE* : n/a (not applicable) means that such resulting status does not occur.
+ - *NOTE* : ~NONE~ is a value of type ~None~.
+   - ~NONE~ is returned by any parser of type ~PARSER(None)~ when it succeeded.
+   - Parser of type ~PARSER(None)~ has no meaningful value should to be
+     returned, so it returns ~NONE~ instead.
+
+| parser                 | eok                          | eerr    | cok                                  | cerr    |
+|------------------------+------------------------------+---------+--------------------------------------+---------|
+| anyChar                | n/a                          | *error* | a char                               | n/a     |
+| digit                  | n/a                          | *error* | a decimal digit                      | n/a     |
+| hexDigit               | n/a                          | *error* | a hexadecimal digit                  | n/a     |
+| octDigit               | n/a                          | *error* | an octal digit                       | n/a     |
+| lower                  | n/a                          | *error* | a lower-case alphabet                | n/a     |
+| upper                  | n/a                          | *error* | a upper-case alphabet                | n/a     |
+| alpha                  | n/a                          | *error* | an alphabet                          | n/a     |
+| alnum                  | n/a                          | *error* | an alphabet or a decimal digit       | n/a     |
+| letter                 | n/a                          | *error* | '~_~' or a alphabet                  | n/a     |
+| newline                | n/a                          | *error* | linefeed (LF)                        | n/a     |
+| crlf                   | n/a                          | *error* | linefeed (LF)                        | n/a     |
+| endOfLine              | n/a                          | *error* | linefeed (LF)                        | n/a     |
+| endOfFile              | ~NONE~                       | *error* | n/a                                  | n/a     |
+| tab                    | n/a                          | *error* | horizontal tab (TAB)                 | n/a     |
+| space                  | n/a                          | *error* | space (SPC)                          | n/a     |
+| spaces                 | ~NONE~                       | n/a     | ~NONE~                               | n/a     |
+| number                 | n/a                          | *error* | an int                               | n/a     |
+| anyUtf8                | n/a                          | *error* | a UTF-8 character as string          | n/a     |
+|------------------------+------------------------------+---------+--------------------------------------+---------|
+| char1(c)               | n/a                          | *error* | char ~c~                             | *error* |
+| string1(s)             | n/a                          | *error* | string ~s~                           | *error* |
+| utf8(s)                | n/a                          | *error* | UTF-8 string ~s~                     | *error* |
+| oneOf(s)               | n/a                          | *error* | a char included in ~s~               | *error* |
+| noneOf(s)              | n/a                          | *error* | a char not included in ~s~           | *error* |
+| satisfy(pred)          | n/a                          | *error* | ~c~ satisfing ~pred(c) == true~      | *error* |
+| range(min, max)        | n/a                          | *error* | ~c~ satisfing ~min <= c && c <= max~ | *error* |
+|------------------------+------------------------------+---------+--------------------------------------+---------|
+| many(p)                | empty list                   | n/a     | N-elements list (N \gt 0)            | *error* |
+| many1(p)               | n/a                          | *error* | N-elements list (N \gt 0)            | *error* |
+| seq(p_{1}, ..., p_{n}) | N-elements list (N = n)      | *error* | N-elements list (N = n)              | *error* |
+| cons(p, ps)            | N-elements list (N \gt 0)    | *error* | N-elements list (N \gt 0)            | *error* |
+| skip(p)                | ~NONE~                       | *error* | ~NONE~                               | *error* |
+| skip1st(p1, p2)        | return value of ~p2~         | *error* | return value of ~p2~                 | *error* |
+| skip2nd(p1, p2)        | return value of ~p1~         | *error* | return value of ~p1~                 | *error* |
+| token(p)               | return value of ~p~          | *error* | return value of ~p~                  | *error* |
+| either(p1, p2)         | return value of ~p1~ or ~p2~ | *error* | return value of ~p1~ or ~p2~         | *error* |
+| tryp(p)                | return value of ~p~          | *error* | return value of ~p~                  | n/a     |
 
 ** Built-in Parsers
 
@@ -374,26 +447,14 @@ The below is an experimental:
 
 - PARSER(List(T)) many(PARSER(T) p) ::
      Create a parser of PARSER(List(T)) type, which
-  - apply ~p~ zeroth or more to a text.
+  - apply ~p~ zero or more to a text.
   - returns a list of ~List(T)~ type, which consists of the each result of ~p~.
   - *NOTE* : ~parse(many(p), src, ex)~
     - succeeds if ~p~ exact matched *N* times (*N \ge 0*) to the input from
       ~src~ and *N+1* th ~p~ failed *without consuming any input*.
+    - fails if ~p~ succeeded *without consuming any input*.
     - otherwise fails *after consumed some input*.
   - *NOTE* : ~T~ must be a member of [[#typeset][TYPESET(0)]]
-
-**** 'parse(many(p), src, ex)' shall be :
-| result status  | returns                        | description                                   |
-|----------------+--------------------------------+-----------------------------------------------|
-| empty ok       | an emply list :: ~List(T)~     | succeeded with zeroth match (N = 0)           |
-| empty error    | n/a                            | n/a                                           |
-| consumed ok    | a N-elements list :: ~List(T)~ | succeeded with N times match (N \gt 0)        |
-| consumed error | throw exception via ~ex~       | the last ~p~ failed after consumed some input |
-where:
-- empty ok : succeeded without consuming any input
-- empty error : failed without consuming any input
-- consumed ok : succeeded after consumed some input from ~src~
-- consumed error : failed after consumed some input from ~src~
 
 *** many1(p)
 *NOTE* : ~many1(p)~ is same as ~cons(p, many(p))~.
@@ -410,21 +471,9 @@ where:
   - *NOTE* : ~parse(many1(p), src, ex)~
     - succeeds if ~p~ exact matched *N* times (*N \ge 1*) to the input from
       ~src~ and *N+1* th ~p~ failed *without consuming any input*.
-    - otherwise fails.
+    - fails if ~p~ succeeded *without consuming any input*.
+    - otherwise fails *after consumed some input*.
   - *NOTE* : ~T~ must be a member of [[#typeset][TYPESET(0)]]
-
-**** 'parse(many1(p), src, ex)' shall be :
-| result status  | returns                        | description                                      |
-|----------------+--------------------------------+--------------------------------------------------|
-| empty ok       | n/a                            | n/a                                              |
-| empty error    | throw exception via ~ex~       | the first ~p~ failed without consuming any input |
-| consumed ok    | a N-elements list :: ~List(T)~ | succeeded with N times match (N \gt 0)           |
-| consumed error | throw exception via ~ex~       | the last ~p~ failed after consumed some input    |
-where:
-- empty ok : succeeded without consuming any input
-- empty error : failed without consuming any input
-- consumed ok : succeeded after consumed some input from ~src~
-- consumed error : failed after consumed some input from ~src~
 
 *** seq(p, ...)
 - PARSER(List(T)) seq(PARSER(T) p, ...) ::
@@ -595,12 +644,15 @@ parseTest(skip2nd(string1("ab"), char1('c')), "abc"); // -> "ab"
 not for users at the present.
 
 - TYPEDEF_PARSER(T, R)  ::
-     Define new concrete ~PARSER(T)~ type and ~RETURN_TYPE(PARSER(T))~.\\
+     Define new concrete ~PARSER(T)~ type and ~RETURN_TYPE(PARSER(T))~.
+
      A parser of type ~PARSER(T)~ returns a value of type ~R~ when the parser
      was applied to a text.\\
      (i.e. ~RETURN_TYPE(PARSER(T))~ will be ~R~)
+
 - DECLARE_PARSER(T)     :: 
      Declares functions/methods for ~PARSER(T)~.
+
 - DEFINE_PARSER(T, x) { ~/* print x; */~ } :: 
      Defines functions/methods for ~PARSER(T)~.\\
   - *NOTE* : The trailing block ~{...}~ is body of function ~void SHOW(T)(R x)~.
