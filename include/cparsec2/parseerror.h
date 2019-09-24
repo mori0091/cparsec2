@@ -2,6 +2,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "sourcepos.h"
 
@@ -32,7 +33,7 @@ TYPEDEF_BUFF(ErrMsg, ErrMsg);
 DECLARE_BUFF(ErrMsg);
 
 typedef struct {
-  off_t offset;
+  intmax_t offset;
   SourcePos pos;
   List(ErrMsg) msgs;
 } ParseError;
@@ -40,9 +41,9 @@ typedef struct {
 /** Constructs a ParseError without message */
 ParseError ParseError_new(void);
 /** Gets the source-offset of the ParseError `e` */
-off_t ParseError_getOffset(ParseError e);
+intmax_t ParseError_getOffset(ParseError e);
 /** Sets the source-offset to the ParseError `e` */
-ParseError ParseError_setOffset(off_t offset, ParseError e);
+ParseError ParseError_setOffset(intmax_t offset, ParseError e);
 /** Gets the source-position of the ParseError `e` */
 SourcePos ParseError_getPos(ParseError e);
 /** Sets the source-position to the ParseError `e` */

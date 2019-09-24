@@ -11,7 +11,7 @@ PARSER(String) utf8(const char* s) {
     }
   }
   else {
-    off_t pos = getSourceOffset(src);
+    intmax_t pos = getSourceOffset(src);
     assert(pos == list_length(s));
     mem_free((void*)ctx.msg);
   }

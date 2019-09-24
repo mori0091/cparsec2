@@ -56,7 +56,8 @@ static char run_char1(void* arg, Source src, Ctx* ex) {
     consume(src);
     return c;
   }
-  parseError(src, (ErrMsg){SysUnexpect, c2s(c)});
+  ErrMsg m = {SysUnexpect, c2s(c)};
+  parseError(src, m);
   cthrow(ex, error("expects %s but was %s", c2s(expected), c2s(c)));
 }
 

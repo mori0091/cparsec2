@@ -7,7 +7,7 @@
   static RETURN_TYPE(PARSER(T))                                          \
       EITHER_FN(T)(void* arg, Source src, Ctx* ex) {                     \
     PARSER(T)* p = (PARSER(T)*)arg;                                      \
-    off_t pos = getSourceOffset(src);                                    \
+    intmax_t pos = getSourceOffset(src);                                 \
     Ctx ctx;                                                             \
     TRY(&ctx) {                                                          \
       return parse(p[0], src, &ctx);                                     \

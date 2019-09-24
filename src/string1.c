@@ -28,7 +28,8 @@ static const char* run_string1(void* arg, Source src, Ctx* ex) {
     // exact match
     return actual;
   }
-  parseError(src, (ErrMsg){SysUnexpect, to_s(actual)});
+  ErrMsg m = {SysUnexpect, to_s(actual)};
+  parseError(src, m);
   mem_free((void*)actual);
   cthrow(ex, error("unexpected tokens"));
 }

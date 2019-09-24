@@ -1,6 +1,7 @@
 /* -*- coding:utf-8-unix -*- */
 #pragma once
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -29,8 +30,8 @@ Stream Stream_new_mem(const char* s);
 Stream Stream_new_fp(FILE* fp);
 
 size_t Stream_read(void* ptr, size_t size, Stream s, Ctx* ex);
-off_t Stream_getpos(Stream s, Ctx* ex);
-void Stream_setpos(off_t pos, Stream s, Ctx* ex);
+intmax_t Stream_getpos(Stream s, Ctx* ex);
+void Stream_setpos(intmax_t pos, Stream s, Ctx* ex);
 
 #ifdef __cplusplus
 }

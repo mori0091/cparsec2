@@ -11,7 +11,7 @@
     void** ps = (void**)arg;                                             \
     const char* desc = ps[0];                                            \
     PARSER(T) p = ps[1];                                                 \
-    off_t pos = getSourceOffset(src);                                    \
+    intmax_t pos = getSourceOffset(src);                                 \
     Ctx ctx;                                                             \
     TRY(&ctx) {                                                          \
       return parse(p, src, &ctx);                                        \

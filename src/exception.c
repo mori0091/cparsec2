@@ -6,5 +6,5 @@
 
 _Noreturn void cthrow(Ctx* ctx, const char* msg) {
   ctx->msg = msg;
-  longjmp(ctx->e, -1);
+  longjmp(ctx->e, 1);
 }

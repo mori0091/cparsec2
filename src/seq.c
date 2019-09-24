@@ -5,10 +5,10 @@
 #define SEQ_FN(T) CAT(run_seq, T)
 #define DEFINE_SEQ(T)                                                    \
   static List(T) SEQ_FN(T)(void* arg, Source src, Ctx* ex) {             \
-    PARSER(T)* p = (PARSER(T)*)arg;                                      \
     Buff(T) str = {0};                                                   \
     Ctx ctx;                                                             \
     TRY(&ctx) {                                                          \
+      PARSER(T)* p = (PARSER(T)*)arg;                                   \
       while (*p) {                                                       \
         buff_push(&str, parse(*p, src, &ctx));                           \
         p++;                                                             \
