@@ -1,6 +1,7 @@
 /* -*- coding:utf-8-unix -*- */
 #pragma once
 
+#include <stdint.h>
 #include <stdio.h>
 #include <sys/types.h>
 
@@ -21,9 +22,11 @@ typedef struct stSource* Source;
            , char*       : newStringSource                               \
            , const char* : newStringSource                               \
            , FILE*       : newFileSource                                 \
+           , Source      : Source_identity                               \
            )(x)
 // clang-format on
 
+Source Source_identity(Source src);
 // Construct new Source object from a string.
 Source newStringSource(const char* text);
 // Construct new Source object from a FILE pointer.
@@ -33,9 +36,9 @@ char peek(Source src, Ctx* ctx);
 // drop head char
 void consume(Source src);
 // get current source offset (backup state of the source)
-off_t getSourceOffset(Source src);
+intmax_t getSourceOffset(Source src);
 // set current souce offset (revert state of the source)
-void setSourceOffset(Source src, off_t offset);
+void setSourceOffset(Source src, intmax_t offset);
 // get current source position (backup state of the source)
 SourcePos getSourcePos(Source src);
 // set current souce position (revert state of the source)

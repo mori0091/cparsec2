@@ -11,11 +11,11 @@ DEFINE_LIST(ErrMsg);
 DEFINE_BUFF(ErrMsg);
 
 /** Gets the source-offset of the ParseError `e` */
-off_t ParseError_getOffset(ParseError e) {
+intmax_t ParseError_getOffset(ParseError e) {
   return e.offset;
 }
 /** Sets the source-offset to the ParseError `e` */
-ParseError ParseError_setOffset(off_t offset, ParseError e) {
+ParseError ParseError_setOffset(intmax_t offset, ParseError e) {
   e.offset = offset;
   return e;
 }

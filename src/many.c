@@ -8,7 +8,7 @@
     UNUSED(ex);                                                          \
     PARSER(T) parser = (PARSER(T))arg;                                   \
     Buff(T) str = {0};                                                   \
-    off_t offset;                                                        \
+    volatile intmax_t offset;                                            \
     Ctx ctx;                                                             \
     TRY(&ctx) {                                                          \
       for (;;) {                                                         \

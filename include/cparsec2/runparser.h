@@ -2,6 +2,7 @@
 #pragma once
 
 #include "parser.h"
+#include <stdint.h>
 
 #define ParseResult(T) CAT(T, ParseResult)
 #define RUNPARSER(T) CAT(PARSER(T), _runParser)
@@ -9,7 +10,7 @@
 
 #define TYPEDEF_ParseResult(T)                                           \
   typedef struct {                                                       \
-    off_t consumed;                                                      \
+    intmax_t consumed;                                                   \
     bool succeeded;                                                      \
     union {                                                              \
       RETURN_TYPE(PARSER(T)) ok;                                         \
@@ -25,25 +26,23 @@
 
 #define DEFINE_RUNPARSER(T)                                              \
   ParseResult(T) RUNPARSER(T)(PARSER(T) p, Source src) {                 \
-    off_t offset = getSourceOffset(src);                                 \
+    intmax_t offset = getSourceOffset(src);                              \
     Ctx ctx;                                                             \
     TRY(&ctx) {                                                          \
       RETURN_TYPE(PARSER(T)) ret = PARSE(T)(p, src, &ctx);               \
-      ParseResult(T)                                                     \
-          result = {.consumed = getSourceOffset(src) - offset,           \
-                    .succeeded = true,                                   \
-                    .ok = ret};                                          \
-      return result;                                                     \
+      return (ParseResult(T)){.consumed = getSourceOffset(src) - offset, \
+                              .succeeded = true,                         \
+                              .ok = ret};                                \
     }                                                                    \
-    ParseResult(T) result = {.consumed = getSourceOffset(src) - offset,  \
-                             .succeeded = false,                         \
-                             .err = getParseError(src)};                 \
-    return result;                                                       \
+    else {                                                               \
+      return (ParseResult(T)){.consumed = getSourceOffset(src) - offset, \
+                              .succeeded = false,                        \
+                              .err = getParseError(src)};                \
+    }                                                                    \
   }                                                                      \
-  ParseResult(T)                                                         \
-      RUNPARSER_EX(T)(PARSER(T) p, Source src, bool del_src) {           \
+  ParseResult(T) RUNPARSER_EX(T)(PARSER(T) p, Source src, bool del) {    \
     ParseResult(T) result = RUNPARSER(T)(p, src);                        \
-    if (del_src) {                                                       \
+    if (del) {                                                           \
       mem_free(src);                                                     \
     }                                                                    \
     return result;                                                       \
@@ -51,12 +50,12 @@
   END_OF_STATEMENTS
 
 #ifdef __cplusplus
-  extern "C" {
+extern "C" {
 #endif
 
 FOREACH(TYPEDEF_ParseResult, TYPESET(1));
 FOREACH(DECLARE_RUNPARSER, TYPESET(1));
 
 #ifdef __cplusplus
-  }
+}
 #endif

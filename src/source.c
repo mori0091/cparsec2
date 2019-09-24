@@ -25,13 +25,17 @@ void setParseError(Source src, ParseError err) {
 }
 
 void parseError(Source src, ErrMsg msg) {
-  off_t offset = getSourceOffset(src);
+  intmax_t offset = getSourceOffset(src);
   SourcePos pos = getSourcePos(src);
   ParseError err = getParseError(src);
   err = ParseError_setMessage(msg, err);
   err = ParseError_setOffset(offset, err);
   err = ParseError_setPos(pos, err);
   setParseError(src, err);
+}
+
+Source Source_identity(Source src) {
+  return src;
 }
 
 Source newStringSource(const char* text) {
@@ -53,7 +57,8 @@ Source newFileSource(FILE* fp) {
 static char readChar(Source src, Ctx* ctx) {
   char c;
   if (!Stream_read((void*)&c, 1, src->s, ctx)) {
-    parseError(src, (ErrMsg){SysUnexpect, "end of input"});
+    ErrMsg m = {SysUnexpect, "end of input"};
+    parseError(src, m);
     cthrow(ctx, mem_printf("too short"));
   }
   return c;
@@ -79,10 +84,10 @@ void consume(Source src) {
   }
 }
 
-off_t getSourceOffset(Source src) {
+intmax_t getSourceOffset(Source src) {
   Ctx ctx;
   TRY(&ctx) {
-    return Stream_getpos(src->s, &ctx);
+    return (intmax_t)Stream_getpos(src->s, &ctx);
   }
   else {
     fprintf(stderr, "%s\n", ctx.msg);
@@ -90,10 +95,10 @@ off_t getSourceOffset(Source src) {
   }
 }
 
-void setSourceOffset(Source src, off_t pos) {
+void setSourceOffset(Source src, intmax_t pos) {
   Ctx ctx;
   TRY(&ctx) {
-    Stream_setpos(pos, src->s, &ctx);
+    Stream_setpos((off_t)pos, src->s, &ctx);
   }
   else {
     fprintf(stderr, "%s\n", ctx.msg);

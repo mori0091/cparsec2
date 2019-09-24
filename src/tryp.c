@@ -7,7 +7,7 @@
   static RETURN_TYPE(PARSER(T))                                          \
       TRYP_FN(T)(void* arg, Source src, Ctx* ex) {                       \
     PARSER(T) p = (PARSER(T))arg;                                        \
-    off_t offset = getSourceOffset(src);                                 \
+    intmax_t offset = getSourceOffset(src);                              \
     SourcePos pos = getSourcePos(src);                                   \
     Ctx ctx;                                                             \
     TRY(&ctx) {                                                          \

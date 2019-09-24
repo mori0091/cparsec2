@@ -56,23 +56,23 @@ size_t Stream_read(void* ptr, size_t size, Stream s, Ctx* ex) {
   }
 }
 
-off_t Stream_getpos(Stream s, Ctx* ex) {
+intmax_t Stream_getpos(Stream s, Ctx* ex) {
   if (s->fp) {
     off_t pos = ftello(s->fp);
     if (pos == -1) {
       cthrow(ex, mem_printf("%s", strerror(errno)));
     }
-    return pos;
+    return (intmax_t)pos;
   }
   else {
     assert(s->beg <= s->p && s->p <= s->end);
-    return (off_t)(s->p - s->beg);
+    return (intmax_t)(s->p - s->beg);
   }
 }
 
-void Stream_setpos(off_t pos, Stream s, Ctx* ex) {
+void Stream_setpos(intmax_t pos, Stream s, Ctx* ex) {
   if (s->fp) {
-    if (fseeko(s->fp, pos, SEEK_SET) == -1) {
+    if (fseeko(s->fp, (off_t)pos, SEEK_SET) == -1) {
       cthrow(ex, mem_printf("%s", strerror(errno)));
     }
   }
