@@ -20,16 +20,16 @@ TESTFLAGS ?=
 SRCDIR ?= src
 OBJDIR ?= obj
 
-SRCS_C = $(wildcard $(SRCDIR)/*.c)
-OBJS_C = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCS_C))
+SRCS = $(shell find $(SRCDIR) -type f \
+                    -name '*.c'   -o  \
+                    -name '*.cpp' -o  \
+                    -name '*.cxx')
 
-SRCS_CPP = $(wildcard $(SRCDIR)/*.cpp)
-SRCS_CXX = $(wildcard $(SRCDIR)/*.cxx)
-OBJS_CPP = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRCS_CPP))
-OBJS_CXX = $(patsubst $(SRCDIR)/%.cxx, $(OBJDIR)/%.o, $(SRCS_CXX))
+OBJS = $(patsubst $(SRCDIR)/%.c,   $(OBJDIR)/%.o, \
+       $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, \
+       $(patsubst $(SRCDIR)/%.cxx, $(OBJDIR)/%.o, \
+       $(SRCS))))
 
-SRCS = $(SRCS_C) $(SRCS_CPP) $(SRCS_CXX)
-OBJS = $(OBJS_C) $(OBJS_CPP) $(OBJS_CXX)
 DEPS = $(patsubst %.o, %.d, $(OBJS))
 COVS = $(patsubst %.o, %.gcda, $(OBJS)) $(patsubst %.o, %.gcno, $(OBJS))
 LIBOBJS = $(filter-out %/main.o, $(OBJS))
