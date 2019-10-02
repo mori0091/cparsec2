@@ -18,6 +18,7 @@ void clearLVars(void);
 int getLVarOffsetMax(void);
 LVar getLVar(const char* name, Ctx* ex);
 LVar addLVar(const char* name);
+bool hasLVar(const char* name);
 LVar findLVar(const char* name);
 
 #ifdef __cplusplus

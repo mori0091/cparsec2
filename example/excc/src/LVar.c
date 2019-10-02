@@ -53,6 +53,16 @@ LVar addLVar(const char* name) {
   return x;
 }
 
+bool hasLVar(const char* name) {
+  Ctx ctx;
+  TRY(&ctx) {
+    getLVar(name, &ctx);
+    return true;
+  }
+  mem_free((void*)ctx.msg);
+  return false;
+}
+
 // find local variable or register if not found
 LVar findLVar(const char* name) {
   Ctx ctx;
