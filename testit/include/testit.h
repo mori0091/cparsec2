@@ -155,6 +155,7 @@ static void print(const char* esc, const char* fmt, ...) {
     vprintf(fmt, ap);
     printf("\033[0m");
   }
+  va_end(ap);
 }
 
 static void showError(Test t, int paramIndex) {

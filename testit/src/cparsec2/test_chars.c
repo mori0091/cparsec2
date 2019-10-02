@@ -29,8 +29,8 @@ static void should_pass_iff_(struct expectation x) {
 
 /* a dataset generator (generates "\0", "\0x01", ..., "\0xff") */
 static void* char_dataset(size_t i) {
-  static char input[2] = {0};
   if (i < 256) {
+    static char input[2] = {0};
     input[0] = (char)i;
     input[1] = '\0';
     return input;
