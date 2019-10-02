@@ -119,11 +119,11 @@ typedef struct InfixParserArgSt {
 
 static Node infixl_fn(void* arg, Source src, Ctx* ex) {
   InfixParserArg tbl = arg;
-  Node x = parse(tbl->p, src, ex);
-  bool repeat;
+  volatile Node x = parse(tbl->p, src, ex);
+  volatile bool repeat;
   do {
     repeat = false;
-    for (int i = 0; i < tbl->n; ++i) {
+    for (volatile int i = 0; i < tbl->n; ++i) {
       Ctx ctx;
       TRY(&ctx) {
         List(Node) xs = parse(tbl->ps[i], src, &ctx);
@@ -157,7 +157,7 @@ static PARSER(Node) infixl(PARSER(Node) p, int n, Infix tbl[n]) {
 
 static Node infixr_fn(void* arg, Source src, Ctx* ex) {
   InfixParserArg tbl = arg;
-  for (int i = 0; i < tbl->n; ++i) {
+  for (volatile int i = 0; i < tbl->n; ++i) {
     Ctx ctx;
     TRY(&ctx) {
       List(Node) xs = parse(tbl->ps[i], src, &ctx);
@@ -319,14 +319,8 @@ static Node c_functionDefinition_fn(void* arg, Source src, Ctx* ex) {
   if (itr != end) {
     addLVar(*itr++);
     for (; itr != end; ++itr) {
-      Ctx ctx;
-      TRY(&ctx) {
-        getLVar(*itr, &ctx);
-        mem_free((void*)ctx.msg);
+      if (hasLVar(*itr)) {
         cthrow(ex, error("duplicated parameter %s", *itr));
-      }
-      else {
-        mem_free((void*)ctx.msg);
       }
       addLVar(*itr);
     }
