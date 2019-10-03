@@ -4,7 +4,6 @@
 
 #define TestSuite parametric
 #include "testit.h"
-#include <cparsec2.h>
 
 static int mul(int x, int y) {
   return x * y;
@@ -43,7 +42,7 @@ static void* dataset1(size_t i) {
 test("mul(x,y) with dataset1", .generator = dataset1) {
   // get the current value provided by generator function.
   struct data* x = testit_current_test_data();
-  c_assert(mul(x->lhs, x->rhs) == x->expect);
+  c_assert(eq(x->expect, mul(x->lhs, x->rhs)));
 }
 
 // if no .generator was given, testit_current_test_data() API fails

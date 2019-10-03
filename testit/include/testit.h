@@ -1,12 +1,18 @@
 // -*- coding: utf-8-unix -*-
 #pragma once
 
+#include <stdint.h>
+#include <string.h>
 #include <unistd.h>
 
 #ifdef __cplusplus
-#define TESTIT_EXTERN extern "C"
+#define TESTIT_CAPI extern "C"
+#define TESTIT_BEGIN_CAPI extern "C" {
+#define TESTIT_END_CAPI }
 #else
-#define TESTIT_EXTERN
+#define TESTIT_CAPI
+#define TESTIT_BEGIN_CAPI
+#define TESTIT_END_CAPI
 #endif
 
 #if !defined(TestSuite)
@@ -22,16 +28,27 @@
 #define TESTIT_ANONYMOUS_ID() TESTIT_CAT(anonymous, __LINE__)
 #endif
 
+// ----
+
 #define test(...) testit(TestSuite, TESTIT_ANONYMOUS_ID(), __VA_ARGS__)
 #define testit(suite, name, ...) TESTIT0(suite, name, __VA_ARGS__)
 
-#define c_assert(expr) TESTIT_assert(expr)
+#define c_assert(expr) TESTIT_assert(#expr, expr)
 #define c_abort(msg) TESTIT_abort(__LINE__, msg)
+
+#define eq(a, b) TESTIT_BINARY_OPERATOR(testit_eq, a, b)
+#define le(a, b) TESTIT_BINARY_OPERATOR(testit_le, a, b)
+#define lt(a, b) TESTIT_BINARY_OPERATOR(testit_lt, a, b)
+#define ne(a, b) !eq(a, b)
+#define ge(a, b) !lt(a, b)
+#define gt(a, b) !le(a, b)
+
+// ----
 
 #define TESTIT0(suite_, name_, ...) TESTIT1(suite_, name_, __VA_ARGS__)
 #define TESTIT1(suite_, name_, ...)                                      \
   static void TESTIT_FUNC(suite_, name_)(void);                          \
-  TESTIT_EXTERN TestSt TESTIT_TEST(suite_, name_) = {                    \
+  TESTIT_CAPI TestSt TESTIT_TEST(suite_, name_) = {                      \
       .file = __FILE__,                                                  \
       .line = __LINE__,                                                  \
       .suite = #suite_,                                                  \
@@ -45,10 +62,10 @@
 #define TESTIT_TEST(suite, id) TESTIT_IDENT(TestIt_test__, suite, id)
 #define TESTIT_FUNC(suite, id) TESTIT_IDENT(TestIt_run__, suite, id)
 
-#define TESTIT_assert(expr)                                              \
+#define TESTIT_assert(exprstr, expr)                                     \
   do {                                                                   \
     if (!(expr)) {                                                       \
-      c_abort("Assertion failed `" #expr "'");                           \
+      c_abort("Assertion failed `" exprstr "'");                         \
     }                                                                    \
   } while (0)
 
@@ -56,9 +73,26 @@
 #define TESTIT_abort_0(line, msg)                                        \
   TestIt_abort("" __FILE__ ":" #line ": " msg)
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// ----
+
+#define TESTIT_BINARY_OPERATOR(op, a, b)                                 \
+  _Generic((a)                                                           \
+           , int8_t   : op##_I8                                          \
+           , int16_t  : op##_I16                                         \
+           , int32_t  : op##_I32                                         \
+           , int64_t  : op##_I64                                         \
+           , uint8_t  : op##_U8                                          \
+           , uint16_t : op##_U16                                         \
+           , uint32_t : op##_U32                                         \
+           , uint64_t : op##_U64                                         \
+           , char     : op##_Char                                        \
+           , void*    : op##_Ptr                                         \
+           , char*    : op##_String                                      \
+           )((a), (b))
+
+// ----
+
+TESTIT_BEGIN_CAPI
 
 #include <stdbool.h>
 
@@ -79,17 +113,116 @@ typedef struct TestSt {
 void TestIt_abort(const char* msg);
 void* testit_current_test_data(void);
 
-#ifdef __cplusplus
+static inline bool testit_eq_I8(int8_t a, int8_t b) {
+  return a == b;
 }
-#endif
+static inline bool testit_eq_I16(int16_t a, int16_t b) {
+  return a == b;
+}
+static inline bool testit_eq_I32(int32_t a, int32_t b) {
+  return a == b;
+}
+static inline bool testit_eq_I64(int64_t a, int64_t b) {
+  return a == b;
+}
+static inline bool testit_eq_U8(uint8_t a, uint8_t b) {
+  return a == b;
+}
+static inline bool testit_eq_U16(uint16_t a, uint16_t b) {
+  return a == b;
+}
+static inline bool testit_eq_U32(uint32_t a, uint32_t b) {
+  return a == b;
+}
+static inline bool testit_eq_U64(uint64_t a, uint64_t b) {
+  return a == b;
+}
+static inline bool testit_eq_Char(char a, char b) {
+  return a == b;
+}
+static inline bool testit_eq_Ptr(void* a, void* b) {
+  return a == b;
+}
+static inline bool testit_eq_String(const char* a, const char* b) {
+  return !strcmp(a, b);
+}
+
+static inline bool testit_lt_I8(int8_t a, int8_t b) {
+  return a < b;
+}
+static inline bool testit_lt_I16(int16_t a, int16_t b) {
+  return a < b;
+}
+static inline bool testit_lt_I32(int32_t a, int32_t b) {
+  return a < b;
+}
+static inline bool testit_lt_I64(int64_t a, int64_t b) {
+  return a < b;
+}
+static inline bool testit_lt_U8(uint8_t a, uint8_t b) {
+  return a < b;
+}
+static inline bool testit_lt_U16(uint16_t a, uint16_t b) {
+  return a < b;
+}
+static inline bool testit_lt_U32(uint32_t a, uint32_t b) {
+  return a < b;
+}
+static inline bool testit_lt_U64(uint64_t a, uint64_t b) {
+  return a < b;
+}
+static inline bool testit_lt_Char(char a, char b) {
+  return a < b;
+}
+static inline bool testit_lt_Ptr(void* a, void* b) {
+  return a < b;
+}
+static inline bool testit_lt_String(const char* a, const char* b) {
+  return strcmp(a, b) < 0;
+}
+
+static inline bool testit_le_I8(int8_t a, int8_t b) {
+  return a <= b;
+}
+static inline bool testit_le_I16(int16_t a, int16_t b) {
+  return a <= b;
+}
+static inline bool testit_le_I32(int32_t a, int32_t b) {
+  return a <= b;
+}
+static inline bool testit_le_I64(int64_t a, int64_t b) {
+  return a <= b;
+}
+static inline bool testit_le_U8(uint8_t a, uint8_t b) {
+  return a <= b;
+}
+static inline bool testit_le_U16(uint16_t a, uint16_t b) {
+  return a <= b;
+}
+static inline bool testit_le_U32(uint32_t a, uint32_t b) {
+  return a <= b;
+}
+static inline bool testit_le_U64(uint64_t a, uint64_t b) {
+  return a <= b;
+}
+static inline bool testit_le_Char(char a, char b) {
+  return a <= b;
+}
+static inline bool testit_le_Ptr(void* a, void* b) {
+  return a <= b;
+}
+static inline bool testit_le_String(const char* a, const char* b) {
+  return strcmp(a, b) <= 0;
+}
+
+TESTIT_END_CAPI
 
 // ---- main ----
 #ifdef TESTIT_CONFIG_MAIN
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <setjmp.h>
 #include <stdio.h>
+
+TESTIT_BEGIN_CAPI
 
 extern Test* testit_tests_;
 extern int testit_tests_total_;
@@ -316,8 +449,6 @@ int main(int argc, char** argv) {
   return runTestRunner();
 }
 
-#ifdef __cplusplus
-}
-#endif
+TESTIT_END_CAPI
 
 #endif
