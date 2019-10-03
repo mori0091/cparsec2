@@ -9,8 +9,8 @@ test("cparsec2/anyChar") {
   TRY(&ctx) {
     Source src = Source_new("x");
     char r = parse(anyChar, src, &ctx);
-    c_assert(getSourceOffset(src) == 1);
-    c_assert(r == 'x');
+    c_assert(eq(1, getSourceOffset(src)));
+    c_assert(eq('x', r));
   }
   else {
     c_abort("must not fail");
@@ -24,8 +24,8 @@ test("cparsec2/number") {
   TRY(&ctx) {
     Source src = Source_new("123");
     int r = parse(number, src, &ctx);
-    c_assert(getSourceOffset(src) == 3);
-    c_assert(r == 123);
+    c_assert(eq(3, getSourceOffset(src)));
+    c_assert(eq(123, r));
   }
   else {
     c_abort("must not fail");

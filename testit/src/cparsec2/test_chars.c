@@ -14,13 +14,13 @@ static void should_pass_iff_(struct expectation x) {
   ParseResult(Char) result = runParser(x.parser, x.input);
   if (x.assume) {
     c_assert(result.succeeded);
-    c_assert(result.consumed == 1);
-    c_assert(result.ok == x.expect);
+    c_assert(eq(1, result.consumed));
+    c_assert(eq(x.expect, result.ok));
   } else {
     c_assert(!result.succeeded);
-    c_assert(result.consumed == 0);
-    c_assert(result.err.pos.line == 1);
-    c_assert(result.err.pos.column == 1);
+    c_assert(eq(0, result.consumed));
+    c_assert(eq(1, result.err.pos.line));
+    c_assert(eq(1, result.err.pos.column));
   }
 }
 
