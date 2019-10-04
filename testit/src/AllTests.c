@@ -6,12 +6,7 @@
 //
 // When it defined and then "testit.h" was included, code of main()
 // function of the testing framework is generated.
-//
-// **Note**
-// The generated `main()` refers an external test-registry (an array of
-// testcases), but it is not defined anywhere. The source code of test-registry
-// is generated from object files (i.e. *.o or *.a) by `testit.sh`
-// post-processing script.
+// (i.e. No need to implement main() function)
 //
 // For example, supposing that the following source files are there:
 //
@@ -31,25 +26,18 @@
 // }
 // ~~~
 //
-// To build test-executable:
+// To build test-executable 'AllTests':
 //
-// Step 1. compile each sources
 // ~~~shell
-// cc -c main.c -o main.o
-// cc -c test1.c -o test1.o
+// cc main.c test1.c -o AllTests
 // ~~~
 //
-// Step 2. generate source code of test-registry.
+// To run test:
 // ~~~shell
-// sh testit.sh main.o test1.o > testdb.c
+// ./AllTests
 // ~~~
 //
-// Step 3. compile and link
+// To show help messages:
 // ~~~shell
-// cc testdb.c main.o test1.o -o tests
-// ~~~
-//
-// Step 4. run test
-// ~~~shell
-// ./tests
+// ./AllTests --help
 // ~~~
