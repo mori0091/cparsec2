@@ -5,32 +5,13 @@
 #include <string.h>
 #include <unistd.h>
 
-#ifdef __cplusplus
-#define TESTIT_CAPI extern "C"
-#define TESTIT_BEGIN_CAPI extern "C" {
-#define TESTIT_END_CAPI }
-#else
-#define TESTIT_CAPI
-#define TESTIT_BEGIN_CAPI
-#define TESTIT_END_CAPI
-#endif
+// ----
 
 #if !defined(TestSuite)
 #define TestSuite
 #endif
 
-#define TESTIT_CAT(x, y) TESTIT_CAT0(x, y)
-#define TESTIT_CAT0(x, y) x##y
-
-#ifdef __COUNTER__
-#define TESTIT_ANONYMOUS_ID() TESTIT_CAT(anonymous, __COUNTER__)
-#else
-#define TESTIT_ANONYMOUS_ID() TESTIT_CAT(anonymous, __LINE__)
-#endif
-
-// ----
-
-#define test(...) testit(TestSuite, TESTIT_ANONYMOUS_ID(), __VA_ARGS__)
+#define test(...) testit(TestSuite, TESTIT_UNIQUE_ID, __VA_ARGS__)
 #define testit(suite, name, ...) TESTIT0(suite, name, __VA_ARGS__)
 
 #define c_assert(expr) TESTIT_assert(#expr, expr)
@@ -45,22 +26,45 @@
 
 // ----
 
+#ifdef __cplusplus
+#define TESTIT_CAPI extern "C"
+#define TESTIT_BEGIN_CAPI extern "C" {
+#define TESTIT_END_CAPI }
+#else
+#define TESTIT_CAPI
+#define TESTIT_BEGIN_CAPI
+#define TESTIT_END_CAPI
+#endif
+
+#define TESTIT_CAT(x, y) TESTIT_CAT0(x, y)
+#define TESTIT_CAT0(x, y) x##y
+
+#ifdef __COUNTER__
+#define TESTIT_UNIQUE_ID __COUNTER__
+#else
+#define TESTIT_UNIQUE_ID __LINE__
+#endif
+
 #define TESTIT0(suite_, name_, ...) TESTIT1(suite_, name_, __VA_ARGS__)
 #define TESTIT1(suite_, name_, ...)                                      \
-  static void TESTIT_FUNC(suite_, name_)(void);                          \
-  TESTIT_CAPI TestSt TESTIT_TEST(suite_, name_) = {                      \
-      .file = __FILE__,                                                  \
-      .line = __LINE__,                                                  \
-      .suite = #suite_,                                                  \
-      .name = #name_,                                                    \
-      .run = TESTIT_FUNC(suite_, name_),                                 \
-      .title = "" __VA_ARGS__};                                          \
-  static void TESTIT_FUNC(suite_, name_)(void)
+  static void TESTIT_TEST_RUN(void);                                     \
+  TESTIT_INITIALIZER(TESTIT_ADD_TEST) {                                  \
+    static TestSt t = {.file = __FILE__,                                 \
+                       .line = __LINE__,                                 \
+                       .suite = #suite_,                                 \
+                       .name = #name_,                                   \
+                       .run = TESTIT_TEST_RUN,                           \
+                       .title = "" __VA_ARGS__};                         \
+    testit_add_test(&t);                                                 \
+  }                                                                      \
+  static void TESTIT_TEST_RUN(void)
 
-#define TESTIT_IDENT(prefix, suite, id) TESTIT_IDENT0(prefix, suite, id)
-#define TESTIT_IDENT0(prefix, suite, id) prefix##suite##_##id
-#define TESTIT_TEST(suite, id) TESTIT_IDENT(TestIt_test__, suite, id)
-#define TESTIT_FUNC(suite, id) TESTIT_IDENT(TestIt_run__, suite, id)
+#define TESTIT_ADD_TEST TESTIT_CAT(TestIt_add__, __LINE__)
+#define TESTIT_TEST_RUN TESTIT_CAT(TestIt_run__, __LINE__)
+
+#define TESTIT_INITIALIZER(f) TESTIT_INITIALIZER_0(f)
+#define TESTIT_INITIALIZER_0(f)                                          \
+  __attribute__((constructor)) static void f(void)
 
 #define TESTIT_assert(exprstr, expr)                                     \
   do {                                                                   \
@@ -71,7 +75,7 @@
 
 #define TESTIT_abort(line, msg) TESTIT_abort_0(line, msg)
 #define TESTIT_abort_0(line, msg)                                        \
-  TestIt_abort("" __FILE__ ":" #line ": " msg)
+  testit_abort("" __FILE__ ":" #line ": " msg)
 
 // ----
 
@@ -110,7 +114,8 @@ typedef struct TestSt {
   };
 } TestSt, *Test;
 
-void TestIt_abort(const char* msg);
+void testit_add_test(Test t);
+void testit_abort(const char* msg);
 void* testit_current_test_data(void);
 
 static inline bool testit_eq_I8(int8_t a, int8_t b) {
@@ -219,13 +224,43 @@ TESTIT_END_CAPI
 
 // ---- main ----
 #ifdef TESTIT_CONFIG_MAIN
+#include <assert.h>
 #include <setjmp.h>
+#include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 TESTIT_BEGIN_CAPI
 
-extern Test* testit_tests_;
-extern int testit_tests_total_;
+typedef struct TestListSt* TestList;
+struct TestListSt {
+  Test head;
+  TestList tail;
+};
+
+static TestList TestList_cons(Test x, TestList xs) {
+  TestList ys = malloc(sizeof(ys[0]));
+  assert(ys && "Not enough memory");
+  ys->head = x;
+  ys->tail = xs;
+  return ys;
+}
+
+static int TestList_length(TestList xs) {
+  int len = 0;
+  while (xs) {
+    len++;
+    xs = xs->tail;
+  }
+  return len;
+}
+
+static TestList tests = 0;
+
+void testit_add_test(Test t) {
+  tests = TestList_cons(t, tests);
+}
 
 struct TestItException {
   const char* msg;
@@ -234,7 +269,7 @@ struct TestItException {
 
 static struct TestItException testit_except_;
 
-void TestIt_abort(const char* msg) {
+void testit_abort(const char* msg) {
   testit_except_.msg = msg;
   longjmp(testit_except_.jmp, 1);
 }
@@ -243,16 +278,11 @@ static void* current_test_data_;
 
 void* testit_current_test_data(void) {
   if (!current_test_data_) {
-    TestIt_abort(
-        "testit_current_test_data() called from a non-parametric test");
+    testit_abort("testit_current_test_data() called "
+                 "from a non-parametric test");
   }
   return current_test_data_;
 }
-
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 
 #ifdef _WIN32
 /* for Windows platform (including Mingw) */
@@ -261,6 +291,7 @@ static bool is_ANSI_escape_available(void) {
 }
 #else
 /* for Other platform (including MSYS) */
+#include <unistd.h>
 static bool is_ANSI_escape_available(void) {
   return isatty(fileno(stdout));
 }
@@ -309,66 +340,66 @@ static void showError(Test t, int paramIndex) {
   printf("\n");
 }
 
-static bool runTest(Test t) {
+static bool runTest(Test t, void* data) {
   testit_except_ = (struct TestItException){0};
   volatile bool passed = false;
+  current_test_data_ = data;
   if (!setjmp(testit_except_.jmp)) {
     t->run();
     passed = true;
   }
+  current_test_data_ = NULL;
   return (t->should_fail ? !passed : passed);
 }
 
 static int runTestRunner(void) {
-  const int total_testcases = testit_tests_total_;
-  int fail_testcases = 0;
+  int tests_total = 0;
+  int tests_failed = 0;
   int total = 0;
   int fail = 0;
-  for (int i = 0; i < total_testcases; ++i) {
-    Test t = testit_tests_[i];
+  for (TestList ts = tests; ts; ts = ts->tail) {
+    Test t = ts->head;
+    tests_total++;
+    int fail_ = 0;
     if (!t->generator) {
       total++;
-      bool passed = runTest(t);
+      bool passed = runTest(t, NULL);
       if (!passed) {
         showError(t, -1);
-        fail++;
-        fail_testcases++;
+        fail_++;
       }
     } else {
-      int fail_ = 0;
       for (int paramIndex = 0;; paramIndex++) {
         void* data = t->generator(paramIndex);
         if (!data) {
           break;
         }
         total++;
-        current_test_data_ = data;
-        bool passed = runTest(t);
-        current_test_data_ = NULL;
+        bool passed = runTest(t, data);
         if (!passed) {
           showError(t, paramIndex);
           fail_++;
         }
       }
-      fail += fail_;
-      fail_testcases += !!fail_;
     }
+    fail += fail_;
+    tests_failed += !!fail_;
   }
   printf("\n");
   if (!fail) {
     print(BOLD GREEN, "All tests passed ");
     printf("(");
-    print(BOLD CYAN, "%d tests", total);
-    printf(" in %d test cases", total_testcases);
+    print(BOLD CYAN, "%d testcases", total);
+    printf(" in %d tests", tests_total);
     printf(")\n");
   } else {
-    printf("test cases: %4d", total_testcases);
+    printf("tests   : %4d", tests_total);
     printf(" | ");
-    print(GREEN, "%4d passed", total_testcases - fail_testcases);
+    print(GREEN, "%4d passed", tests_total - tests_failed);
     printf(" | ");
-    print(BOLD RED, "%4d failed", fail_testcases);
+    print(BOLD RED, "%4d failed", tests_failed);
     printf("\n");
-    printf("     tests: %4d", total);
+    printf("testcases: %4d", total);
     printf(" | ");
     print(GREEN, "%4d passed", total - fail);
     printf(" | ");
@@ -380,9 +411,8 @@ static int runTestRunner(void) {
 }
 
 static void testit_list_tests(void) {
-  const int N = testit_tests_total_;
-  for (int i = 0; i < N; ++i) {
-    Test t = testit_tests_[i];
+  for (TestList xs = tests; xs; xs = xs->tail) {
+    Test t = xs->head;
     char cardinality = (t->generator ? '*' : ' ');
     printf("[%c] ", cardinality);
     if (t->title[0]) {
@@ -394,7 +424,7 @@ static void testit_list_tests(void) {
     printf("    %s:%d (%s::%s)\n", t->file, t->line, t->suite, t->name);
   }
   printf("\n");
-  printf("%d test cases\n", N);
+  printf("%d test cases\n", TestList_length(tests));
   printf("Note: [*] is a parameterized test (0 < cardinality)\n");
   printf("\n");
 }
