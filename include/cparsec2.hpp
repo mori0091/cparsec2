@@ -15,6 +15,11 @@ inline auto Source_new(FILE* fp) {
 }
 #endif
 
+#ifdef PARSER_CAST
+#undef PARSER_CAST
+#define PARSER_CAST(expr) parser_cast(expr)
+#endif
+
 template <typename P>
 inline P parser_cast(P p) {
   return p;
@@ -53,6 +58,29 @@ FOREACH(DEFINE_CXX_PARSE, TYPESET(1));
   }                                                                      \
   END_OF_STATEMENTS
 FOREACH(DEFINE_CXX_PARSETEST, TYPESET(1));
+#endif
+
+#ifdef runParserEx
+#undef runParserEx
+#define runParserEx(p, src, del)                                         \
+  cxx_runParserEx(parser_cast(p), (src), (del))
+#define DEFINE_CXX_RUNPARSEREX(T)                                        \
+  inline auto cxx_runParserEx(PARSER(T) p, Source src, bool del) {       \
+    return RUNPARSER_EX(T)(p, src, del);                                 \
+  }                                                                      \
+  END_OF_STATEMENTS
+FOREACH(DEFINE_CXX_RUNPARSEREX, TYPESET(1));
+#endif
+
+#ifdef runParser
+#undef runParser
+#define runParser(p, input)                                              \
+  runParserEx((p), Source_new(input),                                    \
+              (!std::is_same<Source, decltype(input)>::value))
+#endif
+
+#ifdef is_a
+#undef is_a
 #endif
 
 #ifdef expects
