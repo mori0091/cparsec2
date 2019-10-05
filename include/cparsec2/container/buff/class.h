@@ -1,83 +1,6 @@
 /* -*- coding:utf-8-unix -*- */
 #pragma once
 
-#include "alloc.h"
-#include "codegen.h"
-#include "macros.h"
-#include "none.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#define ELEMENT_TYPE(T) CAT(T, _elem_type)
-
-// ---- List ----
-// Name of List(T)
-#define List(T) CAT(T, List)
-
-// Name of functions for List(T)
-#define LIST_BEGIN(T) CAT(List(T), _begin)
-#define LIST_END(T) CAT(List(T), _end)
-#define LIST_LENGTH(T) CAT(List(T), _length)
-
-// Generic functions for List(T)
-#define list_begin(xs)                                                   \
-  GENERIC_METHOD((xs), List, LIST_BEGIN, ELEMENT_TYPESET)(xs)
-#define list_end(xs)                                                     \
-  GENERIC_METHOD((xs), List, LIST_END, ELEMENT_TYPESET)(xs)
-#define list_length(xs)                                                  \
-  GENERIC_METHOD((xs), List, LIST_LENGTH, ELEMENT_TYPESET)(xs)
-
-// Defines List(T) type whose element type is E, and
-// defines type alias of E as ELEMENT_TYPE(List(T)) type.
-#define TYPEDEF_LIST(T, E)                                               \
-  typedef E ELEMENT_TYPE(List(T));                                       \
-  typedef struct {                                                       \
-    ELEMENT_TYPE(List(T)) * data;                                        \
-    int len;                                                             \
-  } List(T)
-
-// Declares function prototypes for List(T)
-#define DECLARE_LIST(T)                                                  \
-  ELEMENT_TYPE(List(T)) * LIST_BEGIN(T)(List(T) xs);                     \
-  ELEMENT_TYPE(List(T)) * LIST_END(T)(List(T) xs);                       \
-  int LIST_LENGTH(T)(List(T) xs)
-
-#define DEFINE_LIST(T)                                                   \
-  ELEMENT_TYPE(List(T)) * LIST_BEGIN(T)(List(T) xs) {                    \
-    return xs.data;                                                      \
-  }                                                                      \
-  ELEMENT_TYPE(List(T)) * LIST_END(T)(List(T) xs) {                      \
-    return xs.data + xs.len;                                             \
-  }                                                                      \
-  int LIST_LENGTH(T)(List(T) xs) {                                       \
-    return xs.len;                                                       \
-  }                                                                      \
-  END_OF_STATEMENTS
-
-// List(Char)
-#define CharList String
-typedef const char* List(Char);
-typedef const char ELEMENT_TYPE(List(Char));
-
-// List(None)
-TYPEDEF_LIST(None, None);
-
-// List(String)
-TYPEDEF_LIST(String, const char*);
-
-// List(Int)
-TYPEDEF_LIST(Int, int);
-
-// List(Ptr)
-TYPEDEF_LIST(Ptr, void*);
-
-// List(Node)
-TYPEDEF_LIST(Node, Node);
-
-FOREACH(DECLARE_LIST, ELEMENT_TYPESET);
-
 // ---- Buffer (List builder) ----
 // Name of Buff(T)
 #define Buff(T) CAT(T, Buff)
@@ -87,16 +10,6 @@ FOREACH(DECLARE_LIST, ELEMENT_TYPESET);
 #define BUFF_PUSH(T) CAT(buff_push_, T)
 #define BUFF_APPEND(T) CAT(buff_append_, T)
 #define BUFF_FINISH(T) CAT(buff_finish_, T)
-
-// Generic functions for Buff(T)
-#define buff_ensure(b)                                                   \
-  GENERIC_METHOD(*(b), Buff, BUFF_ENSURE, ELEMENT_TYPESET)(b)
-#define buff_push(b, x)                                                  \
-  GENERIC_METHOD(*(b), Buff, BUFF_PUSH, ELEMENT_TYPESET)(b, x)
-#define buff_append(b, xs)                                               \
-  GENERIC_METHOD(*(b), Buff, BUFF_APPEND, ELEMENT_TYPESET)(b, xs)
-#define buff_finish(b)                                                   \
-  GENERIC_METHOD(*(b), Buff, BUFF_FINISH, ELEMENT_TYPESET)(b)
 
 // Defines Buff(T) type whose element type is E, and
 // defines type alias of E as ELEMENT_TYPE(Buff(T)) type.
@@ -152,27 +65,3 @@ FOREACH(DECLARE_LIST, ELEMENT_TYPESET);
     return xs;                                                           \
   }                                                                      \
   END_OF_STATEMENTS
-
-// Buff(None)
-TYPEDEF_BUFF(None, None);
-
-// Buff(Char)
-TYPEDEF_BUFF(Char, char);
-
-// Buff(String)
-TYPEDEF_BUFF(String, const char*);
-
-// Buff(Int)
-TYPEDEF_BUFF(Int, int);
-
-// Buff(Ptr)
-TYPEDEF_BUFF(Ptr, void*);
-
-// Buff(Node)
-TYPEDEF_BUFF(Node, Node);
-
-FOREACH(DECLARE_BUFF, ELEMENT_TYPESET);
-
-#ifdef __cplusplus
-}
-#endif

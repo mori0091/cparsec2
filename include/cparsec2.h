@@ -14,8 +14,8 @@
 #include "cparsec2/macros.h"
 // ---- code generators as abstract syntax tree ----
 #include "cparsec2/codegen.h"
-// ---- type generic list class ----
-#include "cparsec2/list.h"
+// ---- type generic container ----
+#include "cparsec2/container.h"
 
 // ---- type generic parser class ----
 #include "cparsec2/parser.h"
