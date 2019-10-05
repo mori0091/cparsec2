@@ -62,7 +62,10 @@ cov: all test
 
 # 'make gcov': generates coverage report
 gcov:
-	@gcov -abcpu -o $(OBJDIR) $(SRCS)
+	$(foreach d, $(sort $(dir $(SRCS))), \
+		gcov -abcpu \
+			-o $(patsubst $(SRCDIR)/%, $(OBJDIR)/%, $(d)) \
+			$(filter $(d)%.c $(d)%.cpp $(d)%.cxx, $(SRCS)) ;)
 
 $(TARGET): $(OBJS)
 	$(info [LD]    Build   : $@	[$(notdir $(CURDIR))])
