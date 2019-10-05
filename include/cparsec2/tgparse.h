@@ -27,7 +27,7 @@
 // template<class T, class S>
 // ParseResult<T> runParser(Parser<T> p, S input);
 #define runParser(p, input)                                              \
-  runParserEx(p, Source_new(input), !isSource(input))
+  runParserEx(p, Source_new(input), !is_a(Source, input))
 
 // template<class T>
 // ParseResult<T> runParserEx(Parser<T> p, Source src, bool del);
@@ -35,5 +35,4 @@
   (GENERIC_P(PARSER_CAST(p), RUNPARSER_EX, TYPESET(1)))(PARSER_CAST(p),  \
                                                         (src), (del))
 
-#define isSource(input)                                                  \
-  (_Generic((input), Source : true, default : false))
+#define is_a(Type, expr) (_Generic((expr), Type : true, default : false))
