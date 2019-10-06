@@ -2,7 +2,6 @@
 #pragma once
 
 #include <cparsec2.h>
-#include <cparsec2/list.hpp>
 #include <string>
 
 #ifdef Source_new

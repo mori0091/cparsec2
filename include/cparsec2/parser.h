@@ -16,8 +16,8 @@
 #include "macros.h"
 // ---- code generators as abstract syntax tree ----
 #include "codegen.h"
-// ---- type generic list class ----
-#include "list.h"
+// ---- type generic container ----
+#include "container.h"
 // ---- None type and NONE value ----
 #include "none.h"
 

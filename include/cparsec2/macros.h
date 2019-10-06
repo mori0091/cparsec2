@@ -1,13 +1,10 @@
 /* -*- coding:utf-8-unix -*- */
 #pragma once
 
+#include <assert.h>
 #include "metac2.h"
 
-#ifdef __cplusplus
 #define END_OF_STATEMENTS static_assert(1, "end of statement")
-#else
-#define END_OF_STATEMENTS _Static_assert(1, "end of statement")
-#endif
 
 #define UNUSED(v) ((void)v)
 

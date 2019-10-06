@@ -8,7 +8,7 @@
 
 #include "macros.h"
 
-#include "list.h"
+#include "container.h"
 
 #ifdef __cplusplus
 extern "C" {

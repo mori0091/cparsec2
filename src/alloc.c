@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include <cparsec2/alloc.h>
-#include <cparsec2/list.h>
+#include <cparsec2/container.h>
 
 // ---- resource management ----
 
