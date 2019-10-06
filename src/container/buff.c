@@ -8,20 +8,8 @@
 
 // ---- Buffer (List builder) ----
 
-// Buff(None)
-DEFINE_BUFF(None);
-
-// Buff(String)
-DEFINE_BUFF(String);
-
-// Buff(Int)
-DEFINE_BUFF(Int);
-
 // Buff(Ptr)
 DEFINE_BUFF(Ptr);
-
-// Buff(Node)
-DEFINE_BUFF(Node);
 
 // Buff(Char) ; a special case of Buff(T)
 DEFINE_BUFF_COMMON(Char);
@@ -31,3 +19,6 @@ List(Char) BUFF_FINISH(Char)(Buff(Char) * b) {
   *b = (Buff(Char)){0};
   return xs;
 }
+
+// Define Buff(T) for each remaining T in ELEMENT_TYPESET.
+FOREACH(DEFINE_BUFF, TYPESET_0());

@@ -2,88 +2,43 @@
 
 #include <cparsec2/parser.h>
 
-// ---- NoneParser ----
-DEFINE_PARSER(None, x) {
-  (void)(x);
-  printf("()\n");
+#define DEFINE_SHOW_LIST(T)                                              \
+  void SHOW(List(T))(List(T) xs) {                                       \
+    ELEMENT_TYPE(List(T))* itr = LIST_BEGIN(T)(xs);                      \
+    ELEMENT_TYPE(List(T))* end = LIST_END(T)(xs);                        \
+    if (itr == end) {                                                    \
+      printf("[]");                                                      \
+    } else {                                                             \
+      printf("[");                                                       \
+      SHOW(T)(*itr);                                                     \
+      itr++;                                                             \
+      while (itr != end) {                                               \
+        printf(", ");                                                    \
+        SHOW(T)(*itr);                                                   \
+        itr++;                                                           \
+      }                                                                  \
+      printf("]");                                                       \
+    }                                                                    \
+  }                                                                      \
+  END_OF_STATEMENTS
+
+void SHOW(Char)(char x) {
+  printf("'%c'", x);
+}
+void SHOW(String)(const char* x) {
+  printf("\"%s\"", x);
+}
+void SHOW(Int)(int x) {
+  printf("%d", x);
+}
+void SHOW(None)(None x) {
+  UNUSED(x);
+  printf("()");
+}
+void SHOW(Node)(Node x) {
+  printf("<Node:%p>", (void*)x);
 }
 
-// ---- CharParser ----
-DEFINE_PARSER(Char, x) {
-  printf("'%c'\n", x);
-}
+FOREACH(DEFINE_SHOW_LIST, TYPESET_0());
 
-// ---- StringParser ----
-DEFINE_PARSER(String, x) {
-  printf("\"%s\"\n", x);
-}
-
-// ---- IntParser ----
-DEFINE_PARSER(Int, x) {
-  printf("%d\n", x);
-}
-
-// ---- NoneListParser ----
-DEFINE_PARSER(List(None), x) {
-  None* itr = list_begin(x);
-  None* end = list_end(x);
-  if (itr == end) {
-    printf("[]\n");
-  } else {
-    printf("[()"); itr++;
-    while (itr != end) {
-      printf(", ()"); itr++;
-    }
-    printf("]\n");
-  }
-}
-
-// ---- StringListParser ----
-DEFINE_PARSER(List(String), x) {
-  const char** itr = list_begin(x);
-  const char** end = list_end(x);
-  if (itr == end) {
-    printf("[]\n");
-  } else {
-    printf("[\"%s\"", *itr++);
-    while (itr != end) {
-      printf(", \"%s\"", *itr++);
-    }
-    printf("]\n");
-  }
-}
-
-// ---- IntListParser ----
-DEFINE_PARSER(List(Int), x) {
-  int* itr = list_begin(x);
-  int* end = list_end(x);
-  if (itr == end) {
-    printf("[]\n");
-  } else {
-    printf("[%d", *itr++);
-    while (itr != end) {
-      printf(", %d", *itr++);
-    }
-    printf("]\n");
-  }
-}
-
-// ---- NodeParser ----
-DEFINE_PARSER(Node, x) {
-  printf("<Node:%p>\n", (void*)x);
-}
-
-// ---- NodeListParser ----
-DEFINE_PARSER(List(Node), x) {
-  Node* itr = list_begin(x);
-  Node* end = list_end(x);
-  if (itr == end) {
-    printf("[]\n");
-  } else {
-    printf("[<Node:%p>", (void*)*itr++);
-    while (itr != end) {
-      printf(", <Node:%p>", (void*)*itr++);
-    }
-    printf("]\n");
-  }
-}
+FOREACH(DEFINE_PARSER, TYPESET(1));

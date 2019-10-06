@@ -1,15 +1,16 @@
 /* -*- coding: utf-8-unix -*- */
 
-_Static_assert(1, "PARSER(Int) is already defined.");
+_Static_assert(1, "PARSER(Int) and SHOW(Int)(int x) are already defined.");
 
 #if 0
 
 #include "IntParser.h"
 
 /* Defines (implement) functions/methods for PARSER(Int) */
-DEFINE_PARSER(Int, x) {
-  /* implementation of void SHOW(Int)(int x) */
-  printf("%d\n", x);
+DEFINE_PARSER(Int);
+/* implementation of void SHOW(Int)(int x) */
+SHOW(Int)(int x) {
+  printf("%d", x);
 }
 
 #endif

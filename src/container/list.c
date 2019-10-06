@@ -8,20 +8,8 @@
 
 // ---- List ----
 
-// List(None)
-DEFINE_LIST(None);
-
-// List(String)
-DEFINE_LIST(String);
-
-// List(Int)
-DEFINE_LIST(Int);
-
 // List(Ptr)
 DEFINE_LIST(Ptr);
-
-// List(Node)
-DEFINE_LIST(Node);
 
 // List(Char) ; a special case of List(T)
 ELEMENT_TYPE(List(Char)) * LIST_BEGIN(Char)(List(Char) xs) {
@@ -38,3 +26,6 @@ int LIST_LENGTH(Char)(List(Char) xs) {
   assert(n < SIZE_MAX);
   return n;
 }
+
+// Define List(T) for each remaining T in ELEMENT_TYPESET.
+FOREACH(DEFINE_LIST, TYPESET_0());
