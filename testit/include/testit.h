@@ -233,6 +233,13 @@ TESTIT_END_CAPI
 
 TESTIT_BEGIN_CAPI
 
+static struct {
+  bool help;
+  bool list;
+  bool verbose;
+  bool should_fail;
+} options = {0};
+
 typedef struct TestListSt* TestList;
 struct TestListSt {
   Test head;
@@ -322,6 +329,26 @@ static void print(const char* esc, const char* fmt, ...) {
   va_end(ap);
 }
 
+static void showPassed(Test t, int paramIndex) {
+  printf("[");
+  print(BOLD GREEN, "%s", "PASS");
+  printf("] ");
+  print(BOLD UNDERLINE, "%s",
+        (t->title[0] ? t->title : "<no description>"));
+  printf("\n");
+  printf("| %s:%d: (%s::%s)", t->file, t->line, t->suite, t->name);
+  if (0 <= paramIndex) {
+    printf(" #%d", paramIndex);
+  }
+  printf("\n");
+  if (testit_except_.msg) {
+    printf("| ");
+    print(BOLD YELLOW, "%s", testit_except_.msg);
+    printf("\n");
+  }
+  printf("\n");
+}
+
 static void showError(Test t, int paramIndex) {
   printf("[");
   print(BOLD RED, "%s", "FAIL");
@@ -338,6 +365,17 @@ static void showError(Test t, int paramIndex) {
   print(BOLD YELLOW, "%s", testit_except_.msg);
   printf("\n");
   printf("\n");
+}
+
+static void showResult(bool passed, Test t, int paramIndex) {
+  if (!passed || options.verbose ||
+      (options.should_fail && t->should_fail)) {
+    if (passed) {
+      showPassed(t, paramIndex);
+    } else {
+      showError(t, paramIndex);
+    }
+  }
 }
 
 static bool runTest(Test t, void* data) {
@@ -364,10 +402,8 @@ static int runTestRunner(void) {
     if (!t->generator) {
       total++;
       bool passed = runTest(t, NULL);
-      if (!passed) {
-        showError(t, -1);
-        fail_++;
-      }
+      showResult(passed, t, -1);
+      fail_ += !passed;
     } else {
       for (int paramIndex = 0;; paramIndex++) {
         void* data = t->generator(paramIndex);
@@ -376,10 +412,8 @@ static int runTestRunner(void) {
         }
         total++;
         bool passed = runTest(t, data);
-        if (!passed) {
-          showError(t, paramIndex);
-          fail_++;
-        }
+        showResult(passed, t, paramIndex);
+        fail_ += !passed;
       }
     }
     fail += fail_;
@@ -393,7 +427,7 @@ static int runTestRunner(void) {
     printf(" in %d tests", tests_total);
     printf(")\n");
   } else {
-    printf("tests   : %4d", tests_total);
+    printf("tests    : %4d", tests_total);
     printf(" | ");
     print(GREEN, "%4d passed", tests_total - tests_failed);
     printf(" | ");
@@ -435,25 +469,33 @@ static void testit_help(const char* appName) {
   printf("Usage: %s [options]\n", appName);
   printf("\n");
   printf("Options:\n");
-  const char* opt_fmt = "  %-16s  %s\n";
+  const char* opt_fmt = "  %-24s  %s\n";
   printf(opt_fmt, "-h, --help", "show this help");
   printf(opt_fmt, "-l, --list", "list all tests");
+  printf(opt_fmt, "-v, --verbose",
+         "show all outuput, also a passed tests");
+  printf(opt_fmt, "    --should-fail",
+         "show also a passed tests w/ .should_fail = true");
   printf("\n");
 }
 
 static void testit_init(int argc, char** argv) {
-  struct {
-    bool help;
-    bool list;
-  } op = {0};
   for (int i = 1; i < argc; i++) {
     const char* arg = argv[i];
     if (!strcmp(arg, "-h") || !strcmp(arg, "--help")) {
-      op.help = true;
+      options.help = true;
       continue;
     }
     if (!strcmp(arg, "-l") || !strcmp(arg, "--list")) {
-      op.list = true;
+      options.list = true;
+      continue;
+    }
+    if (!strcmp(arg, "-v") || !strcmp(arg, "--verbose")) {
+      options.verbose = true;
+      continue;
+    }
+    if (!strcmp(arg, "--should-fail")) {
+      options.should_fail = true;
       continue;
     }
     //...
@@ -464,11 +506,11 @@ static void testit_init(int argc, char** argv) {
     printf("invalid argument: %s\n", arg);
     exit(1);
   }
-  if (op.help) {
+  if (options.help) {
     testit_help(argv[0]);
     exit(0);
   }
-  if (op.list) {
+  if (options.list) {
     testit_list_tests();
     exit(0);
   }
