@@ -65,7 +65,7 @@ gcov:
 	$(foreach d, $(sort $(dir $(SRCS))), \
 		gcov -abcpu \
 			-o $(patsubst $(SRCDIR)/%, $(OBJDIR)/%, $(d)) \
-			$(filter $(d)%.c $(d)%.cpp $(d)%.cxx, $(SRCS)) ;)
+			$(wildcard $(d)*.c $(d)*.cpp $(d)*.cxx) ;)
 
 $(TARGET): $(OBJS)
 	$(info [LD]    Build   : $@	[$(notdir $(CURDIR))])
