@@ -653,9 +653,11 @@ not for users at the present.
 - DECLARE_PARSER(T)     :: 
      Declares functions/methods for ~PARSER(T)~.
 
-- DEFINE_PARSER(T, x) { ~/* print x; */~ } :: 
-     Defines functions/methods for ~PARSER(T)~.\\
-  - *NOTE* : The trailing block ~{...}~ is body of function ~void SHOW(T)(R x)~.
+- DEFINE_PARSER(T)      :: 
+     Defines functions/methods for ~PARSER(T)~.
+
+- void SHOW(T)(R x) { ~/* print x; */~ } ::
+     Defines function ~void SHOW(T)(R x)~.
   - *NOTE* : ~void SHOW(T)(R x)~ is called by ~parseTest(p, text)~ to print ~x~.
   - *NOTE* : ~x~ is the result of parser ~p~ applied to the ~text~.
 
@@ -674,9 +676,10 @@ Example: 'IntParser.c'
   #include "IntParser.h"
 
   /* Defines (implement) functions/methods for PARSER(Int) */
-  DEFINE_PARSER(Int, x) {
-    /* implementation of void SHOW(Int)(int x) */
-    printf("%d\n", x);
+  DEFINE_PARSER(Int);
+  /* and defines void SHOW(Int)(int x) */
+  void SHOW(Int)(int x) {
+    printf("%d", x);
   }
 #+end_src
 

@@ -42,9 +42,10 @@
   RETURN_TYPE(PARSER(T)) PARSE(T)(PARSER(T) p, Source src, Ctx * ctx);   \
   bool PARSETEST(T)(const char* msg, PARSER(T) p, const char* input);    \
   PARSER(T) PARSER_ID_FN(T)(PARSER(T) p);                                \
-  void SHOW(T)(RETURN_TYPE(PARSER(T)) val)
+  void SHOW(T)(RETURN_TYPE(PARSER(T)) val);                              \
+  END_OF_STATEMENTS
 
-#define DEFINE_PARSER(T, RET)                                            \
+#define DEFINE_PARSER(T)                                                 \
   struct PARSER_ST(T) {                                                  \
     PARSER_FN(T) run;                                                    \
     void* arg;                                                           \
@@ -65,6 +66,7 @@
     Ctx ctx;                                                             \
     TRY(&ctx) {                                                          \
       SHOW(T)(PARSE(T)(p, src, &ctx));                                   \
+      printf("\n");                                                      \
       return true;                                                       \
     }                                                                    \
     else {                                                               \
@@ -77,7 +79,9 @@
   PARSER(T) PARSER_ID_FN(T)(PARSER(T) p) {                               \
     return p;                                                            \
   }                                                                      \
-  void SHOW(T)(RETURN_TYPE(PARSER(T)) RET)
+  /* SHOW(T)(RETURN_TYPE(PARSER(T) x) must be defined explicitly */      \
+  void SHOW(T)(RETURN_TYPE(PARSER(T)) x);                                \
+  END_OF_STATEMENTS
 
 #ifdef __cplusplus
 extern "C" {
