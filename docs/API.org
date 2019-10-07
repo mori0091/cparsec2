@@ -219,6 +219,28 @@ For example:
   printf("\n");
 #+end_src
 
+Additionaly, ~Buff(Char)~ has also the following APIs:
+
+- void buff_printf(Buff(Char)* buf, const char* format, ...) ::
+     Appends a ~printf()~-like formatted string to the last of ~buf~.
+- void buff_vprintf(Buff(Char)* buf, const char* format, va_list ap) ::
+     Equivalent to the ~buff_printf()~ except that it is called with a ~va_list~
+     instead of variable number of arguments. See ~stdarg(3)~.
+
+For example:
+#+begin_src c
+  const char* name = "Bob";
+  int year = 2000;
+  int month = 4;
+  int day = 10;
+
+  Buff(Char) buf = {0};
+  buff_printf(&buf, "name: %s, ", name);
+  buff_printf(&buf, "birthday: %4d-%02d-%02d", year, month, day);
+
+  const char* s = buff_finish(&buf);
+  // -> s = "name: Bob, birthday: 2000-04-10"
+#+end_src
 
 * Parser Classes
 :PROPERTIES:
