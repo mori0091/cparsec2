@@ -6,6 +6,9 @@
 #ifdef __cplusplus
 
 #define DEFINE_CXX_BUFF(T)                                               \
+  inline void buff_ensure_by(Buff(T) * b, size_t sz) {                   \
+    BUFF_ENSURE_BY(T)(b, sz);                                            \
+  }                                                                      \
   inline void buff_ensure(Buff(T) * b) {                                 \
     BUFF_ENSURE(T)(b);                                                   \
   }                                                                      \
@@ -26,6 +29,8 @@ FOREACH(DEFINE_CXX_BUFF, ELEMENT_TYPESET);
 
 #else
 
+#define buff_ensure_by(b, sz)                                            \
+  GENERIC_METHOD(*(b), Buff, BUFF_ENSURE_BY, ELEMENT_TYPESET)(b, sz)
 #define buff_ensure(b)                                                   \
   GENERIC_METHOD(*(b), Buff, BUFF_ENSURE, ELEMENT_TYPESET)(b)
 #define buff_push(b, x)                                                  \

@@ -84,34 +84,33 @@ ParseError ParseError_merge(ParseError e1, ParseError e2) {
   return e1;
 }
 
-static const char* format_msgs(const char* prefix, List(String) msgs) {
-  Buff(Char) b = {0};
+static void format_msgs(Buff(Char) * b, const char* prefix,
+                        List(String) msgs) {
   if (0 < list_length(msgs)) {
-    buff_append(&b, mem_printf("%s ", prefix));
+    buff_printf(b, "%s ", prefix);
     const char** itr = list_begin(msgs);
     const char** end = list_end(msgs);
     switch (list_length(msgs)) {
     case 0:
       break;
     case 1:
-      buff_append(&b, *itr++);
+      buff_append(b, *itr++);
       break;
     case 2:
-      buff_append(&b, *itr++);
-      buff_append(&b, " or ");
-      buff_append(&b, *itr++);
+      buff_append(b, *itr++);
+      buff_append(b, " or ");
+      buff_append(b, *itr++);
       break;
     default:
       while (itr < end - 1) {
-        buff_append(&b, *itr++);
-        buff_append(&b, ", ");
+        buff_append(b, *itr++);
+        buff_append(b, ", ");
       }
-      buff_append(&b, "or ");
-      buff_append(&b, *itr++);
+      buff_append(b, "or ");
+      buff_append(b, *itr++);
     }
-    buff_append(&b, "\n");
+    buff_append(b, "\n");
   }
-  return buff_finish(&b);
 }
 
 /**
@@ -120,15 +119,14 @@ static const char* format_msgs(const char* prefix, List(String) msgs) {
 const char* ParseError_toString(ParseError e) {
   Buff(Char) b = {0};
   // Parse error:{offset}
-  buff_append(
-      &b, mem_printf("Parse error:%" PRIdMAX "\n", (intmax_t)e.offset));
+  buff_printf(&b, "Parse error:%" PRIdMAX "\n", (intmax_t)e.offset);
   // [filename:]{line}:{column}
   buff_append(&b, SourcePos_toString(e.pos));
   buff_append(&b, "\n");
   //   unexpected: {unexpect}
   //   expecting: {expect1}, {expect2}, ... , or {expectN}
   if (ParseError_isUnknown(e)) {
-    buff_append(&b, mem_printf("  unknown error\n"));
+    buff_printf(&b, "  unknown error\n");
   } else {
     const char* mSysUnexpect = NULL;
     Buff(String) mUnexpect = {0};
@@ -164,9 +162,9 @@ const char* ParseError_toString(ParseError e) {
         buff_append(&mUnexpect, lst);
       }
     }
-    buff_append(&b, format_msgs("  unexpected", buff_finish(&mUnexpect)));
-    buff_append(&b, format_msgs("  expecting", buff_finish(&mExpect)));
-    buff_append(&b, format_msgs("  ", buff_finish(&mMessage)));
+    format_msgs(&b, "  unexpected", buff_finish(&mUnexpect));
+    format_msgs(&b, "  expecting", buff_finish(&mExpect));
+    format_msgs(&b, "  ", buff_finish(&mMessage));
   }
   return buff_finish(&b);
 }
