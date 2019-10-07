@@ -105,23 +105,10 @@ void mem_free(void* p) {
 }
 
 const char* mem_printf(const char* fmt, ...) {
-  int len;
+  Buff(Char) b = {0};
   va_list ap;
   va_start(ap, fmt);
-  len = vsnprintf(NULL, 0, fmt, ap);
+  buff_vprintf(&b, fmt, ap);
   va_end(ap);
-  if (len < 0) {
-    fprintf(stderr, "vsnprintf(NULL, 0, fmt, ...):%s\n", strerror(errno));
-    exit(1);
-  }
-  char* buf = mem_malloc(len + 1);
-  va_start(ap, fmt);
-  len = vsnprintf(buf, len + 1, fmt, ap);
-  va_end(ap);
-  if (len < 0) {
-    fprintf(stderr, "vsnprintf(buf, len, fmt, ...):%s\n",
-            strerror(errno));
-    exit(1);
-  }
-  return buf;
+  return buff_finish(&b);
 }
