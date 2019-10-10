@@ -3,6 +3,7 @@
 
 #include "metac2.h"
 #include <assert.h>
+#include <stdbool.h>
 
 #define END_OF_STATEMENTS static_assert(1, "end of statement")
 
@@ -32,6 +33,7 @@
 
 // ---- True if the type of expr was T, false otherwise
 #ifdef __cplusplus
+#include <type_traits>
 #define type_eq(T, expr) (std::is_same<T, decltype(expr)>::value)
 #else
 #define type_eq(T, expr) (_Generic((expr), T : true, default : false))
