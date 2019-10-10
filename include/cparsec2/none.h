@@ -1,21 +1,16 @@
 /* -*- coding:utf-8-unix -*- */
 #pragma once
 
+#include "macros.h"
+
+CPARSEC2_C_API_BEGIN
+
 typedef struct {
   char _;
 } None;
 
 static const None NONE = {0};
 
-#ifdef __cplusplus
-template <typename T>
-inline auto isNONE(T) {
-  return false;
-}
-template <>
-inline auto isNONE(None) {
-  return true;
-}
-#else
-#define isNONE(x) _Generic((x), None : 1, default : 0)
-#endif
+CPARSEC2_C_API_END
+
+#define isNONE(x) type_eq(None, x)
