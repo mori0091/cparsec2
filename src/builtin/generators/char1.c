@@ -1,6 +1,6 @@
 /* -*- coding:utf-8-unix -*- */
 
-#include "cparsec2.h"
+#include <cparsec2.h>
 
 #include <ctype.h>
 

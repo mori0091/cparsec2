@@ -1,10 +1,9 @@
 /* -*- coding: utf-8-unix -*- */
 
+#include <cparsec2.h>
+
 #include <assert.h>
 #include <string.h>
-
-#include <cparsec2/container/buff.h>
-#include <cparsec2/container/list.h>
 
 // ---- Buffer (List builder) ----
 

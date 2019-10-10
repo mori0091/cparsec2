@@ -1,9 +1,8 @@
 /* -*- coding:utf-8-unix -*- */
 
-#include <cparsec2/source.h>
+#include <cparsec2.h>
 
-#include <cparsec2/alloc.h>
-#include <cparsec2/stream.h>
+#include "stream.h"
 
 // ---- source of input character sequence ----
 
@@ -34,11 +33,7 @@ void parseError(Source src, ErrMsg msg) {
   setParseError(src, err);
 }
 
-Source Source_identity(Source src) {
-  return src;
-}
-
-Source newStringSource(const char* text) {
+Source Source_fromString(const char* text) {
   Source src = mem_malloc(sizeof(struct stSource));
   src->s = Stream_new(text);
   src->pos = SourcePos_new("");
@@ -46,7 +41,7 @@ Source newStringSource(const char* text) {
   return src;
 }
 
-Source newFileSource(FILE* fp) {
+Source Source_fromFile(FILE* fp) {
   Source src = mem_malloc(sizeof(struct stSource));
   src->s = Stream_new(fp);
   src->pos = SourcePos_new("");

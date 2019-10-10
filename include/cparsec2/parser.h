@@ -14,14 +14,17 @@
 
 // ---- common macros ----
 #include "macros.h"
+
 // ---- code generators as abstract syntax tree ----
 #include "codegen.h"
-// ---- type generic container ----
-#include "container.h"
 // ---- None type and NONE value ----
 #include "none.h"
 
-#define RETURN_TYPE(T) CAT(T, _return_type)
+// ---- type generic container ----
+#include "container.h"
+
+// ---- typeset macros ----
+#include "typeset.h"
 
 #define PARSER(T) CAT(T, Parser)
 #define PARSER_ST(T) CAT(PARSER(T), St)
@@ -83,9 +86,7 @@
   void SHOW(T)(RETURN_TYPE(PARSER(T)) x);                                \
   END_OF_STATEMENTS
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+CPARSEC2_C_API_BEGIN
 
 // ---- NoneParser ----
 TYPEDEF_PARSER(None, None);
@@ -109,6 +110,4 @@ TYPEDEF_PARSER(List(Node), List(Node));
 
 FOREACH(DECLARE_PARSER, TYPESET(1));
 
-#ifdef __cplusplus
-}
-#endif
+CPARSEC2_C_API_END

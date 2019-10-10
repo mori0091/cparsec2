@@ -7,7 +7,7 @@
  * @note i.e. `obj/main.o` will not be included in `lib/cparsec2.a`.
  */
 
-#include "cparsec2.h"
+#include <cparsec2.h>
 
 #include <assert.h>
 #include <stdarg.h>

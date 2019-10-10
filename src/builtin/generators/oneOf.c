@@ -1,6 +1,6 @@
 /* -*- coding:utf-8-unix -*- */
 
-#include "cparsec2.h"
+#include <cparsec2.h>
 
 static char run_oneOf(void* arg, Source src, Ctx* ex) {
   const char* expected = (const char*)arg;

@@ -1,14 +1,12 @@
 /* -*- coding:utf-8-unix -*- */
 
-//#include <cparsec2.h>
-#include <cparsec2/stream.h>
+#include <cparsec2.h>
+
+#include "stream.h"
 
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
-
-#include <cparsec2/alloc.h>
-#include <cparsec2/container.h>
 
 struct stStream {
   const char* beg;

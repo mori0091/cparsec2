@@ -1,6 +1,6 @@
 /* -*- coding:utf-8-unix -*- */
 
-#include <cparsec2/parser.h>
+#include <cparsec2.h>
 
 #define DEFINE_SHOW_LIST(T)                                              \
   void SHOW(List(T))(List(T) xs) {                                       \

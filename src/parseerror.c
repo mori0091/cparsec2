@@ -1,11 +1,10 @@
 /* -*- coding:utf-8-unix -*- */
 
+#include <cparsec2.h>
+
 #include <assert.h>
 #include <inttypes.h>
 #include <string.h>
-
-#include "cparsec2/alloc.h"
-#include "cparsec2/parseerror.h"
 
 DEFINE_LIST(ErrMsg);
 DEFINE_BUFF(ErrMsg);

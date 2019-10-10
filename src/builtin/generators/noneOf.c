@@ -1,6 +1,6 @@
 /* -*- coding:utf-8-unix -*- */
 
-#include "cparsec2.h"
+#include <cparsec2.h>
 
 static char run_noneOf(void* arg, Source src, Ctx* ex) {
   const char* unexpected = (const char*)arg;

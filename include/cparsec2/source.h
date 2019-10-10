@@ -15,22 +15,14 @@ extern "C" {
 
 typedef struct stSource* Source;
 
-// Construct new Source object from a string or from a FILE pointer
-// clang-format off
-#define Source_new(x)                                                    \
-  _Generic((x)                                                           \
-           , char*       : newStringSource                               \
-           , const char* : newStringSource                               \
-           , FILE*       : newFileSource                                 \
-           , Source      : Source_identity                               \
-           )(x)
-// clang-format on
-
-Source Source_identity(Source src);
+static inline Source Source_identity(Source src) {
+  return src;
+}
 // Construct new Source object from a string.
-Source newStringSource(const char* text);
+Source Source_fromString(const char* text);
 // Construct new Source object from a FILE pointer.
-Source newFileSource(FILE* fp);
+Source Source_fromFile(FILE* fp);
+
 // peek head char
 char peek(Source src, Ctx* ctx);
 // drop head char
@@ -52,4 +44,31 @@ void parseError(Source src, ErrMsg msg);
 
 #ifdef __cplusplus
 }
+#endif
+
+#ifdef __cplusplus
+
+inline auto Source_new(const char* text) {
+  return Source_fromString(text);
+}
+inline auto Source_new(FILE* fp) {
+  return Source_fromFile(fp);
+}
+inline auto Source_new(Source src) {
+  return Source_identity(src);
+}
+
+#else
+
+// Construct new Source object from a string or from a FILE pointer
+// clang-format off
+#define Source_new(x)                                                   \
+  _Generic((x)                                                          \
+           , char*       : Source_fromString                            \
+           , const char* : Source_fromString                            \
+           , FILE*       : Source_fromFile                              \
+           , Source      : Source_identity                              \
+           )(x)
+// clang-format on
+
 #endif
