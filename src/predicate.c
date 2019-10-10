@@ -1,6 +1,6 @@
 /* -*- coding:utf-8-unix -*- */
 
-#include <cparsec2/predicate.h>
+#include <cparsec2.h>
 
 bool is_anyChar(char c) {
   (void)(c);

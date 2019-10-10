@@ -1,6 +1,6 @@
 /* -*- coding:utf-8-unix -*- */
 
-#include <cparsec2/exception.h>
+#include <cparsec2.h>
 
 // ---- error and exception handling ----
 

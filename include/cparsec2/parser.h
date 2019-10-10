@@ -14,14 +14,17 @@
 
 // ---- common macros ----
 #include "macros.h"
+
 // ---- code generators as abstract syntax tree ----
 #include "codegen.h"
-// ---- type generic container ----
-#include "container.h"
 // ---- None type and NONE value ----
 #include "none.h"
 
-#define RETURN_TYPE(T) CAT(T, _return_type)
+// ---- type generic container ----
+#include "container.h"
+
+// ---- typeset macros ----
+#include "typeset.h"
 
 #define PARSER(T) CAT(T, Parser)
 #define PARSER_ST(T) CAT(PARSER(T), St)

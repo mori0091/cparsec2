@@ -1,17 +1,26 @@
 /* -*- coding:utf-8-unix -*- */
 #pragma once
 
-#include <assert.h>
 #include "metac2.h"
+#include <assert.h>
 
 #define END_OF_STATEMENTS static_assert(1, "end of statement")
 
-#define UNUSED(v) ((void)v)
+#ifdef __cplusplus
 
-#define ELEMENT_TYPESET TYPESET(0), Ptr
-#define TYPESET(n) Char, CAT(TYPESET_, n)()
-#define TYPESET_0() String, Int, None, Node
-#define TYPESET_1() TYPESET_0(), APPLY(List, TYPESET_0())
+#define CPARSEC2_C_API extern "C"
+#define CPARSEC2_C_API_BEGIN extern "C" {
+#define CPARSEC2_C_API_END }
+
+#else
+
+#define CPARSEC2_C_API
+#define CPARSEC2_C_API_BEGIN
+#define CPARSEC2_C_API_END
+
+#endif
+
+#define UNUSED(v) ((void)v)
 
 // ---- F(T); ... for each T in varargs
 #define FOREACH(F, ...) SEP_BY(SEMICOLON, F, __VA_ARGS__)
@@ -21,10 +30,13 @@
 // ---- _Generic(expr, PARSER(T) : F(T), ...) for each T in varargs
 #define GENERIC_P(expr, F, ...) GENERIC(expr, PARSER, F, __VA_ARGS__)
 
-// ---- generic macros for parser-combinators
-#define PARSER_CAST(expr)                                                \
-  _Generic((expr)                                                        \
-           , char  : char1                                               \
-           , char* : string1                                             \
-           , GENERIC_SELECTORS(PARSER, PARSER_ID_FN, TYPESET(1))         \
-           )(expr)
+// ---- True if the type of expr was T, false otherwise
+#ifdef __cplusplus
+#define type_eq(T, expr) (std::is_same<T, decltype(expr)>::value)
+#else
+#define type_eq(T, expr) (_Generic((expr), T : true, default : false))
+#endif
+
+#define ELEMENT_TYPE(T) CAT(T, _elem_type)
+
+#define RETURN_TYPE(T) CAT(T, _return_type)

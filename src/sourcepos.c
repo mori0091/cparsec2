@@ -1,9 +1,8 @@
 /* -*- coding:utf-8-unix -*- */
 
-#include <assert.h>
+#include <cparsec2.h>
 
-#include <cparsec2/alloc.h>
-#include <cparsec2/sourcepos.h>
+#include <assert.h>
 
 SourcePos SourcePos_new(FilePath name) {
   if (! name) {
