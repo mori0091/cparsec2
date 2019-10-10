@@ -49,13 +49,9 @@
   }                                                                      \
   END_OF_STATEMENTS
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+CPARSEC2_C_API_BEGIN
 
 FOREACH(TYPEDEF_ParseResult, TYPESET(1));
 FOREACH(DECLARE_RUNPARSER, TYPESET(1));
 
-#ifdef __cplusplus
-}
-#endif
+CPARSEC2_C_API_END

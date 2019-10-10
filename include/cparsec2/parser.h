@@ -86,9 +86,7 @@
   void SHOW(T)(RETURN_TYPE(PARSER(T)) x);                                \
   END_OF_STATEMENTS
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+CPARSEC2_C_API_BEGIN
 
 // ---- NoneParser ----
 TYPEDEF_PARSER(None, None);
@@ -112,6 +110,4 @@ TYPEDEF_PARSER(List(Node), List(Node));
 
 FOREACH(DECLARE_PARSER, TYPESET(1));
 
-#ifdef __cplusplus
-}
-#endif
+CPARSEC2_C_API_END

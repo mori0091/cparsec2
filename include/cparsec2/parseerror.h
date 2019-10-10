@@ -5,14 +5,10 @@
 #include <stdint.h>
 
 #include "sourcepos.h"
-
 #include "macros.h"
-
 #include "container.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+CPARSEC2_C_API_BEGIN
 
 enum ErrMsgType {
   SysUnexpect = 0,
@@ -72,6 +68,4 @@ const char* ParseError_toString(ParseError e);
 /** Tests whether two ParseError have same value */
 bool ParseError_isEqual(ParseError e1, ParseError e2);
 
-#ifdef __cplusplus
-}
-#endif
+CPARSEC2_C_API_END
