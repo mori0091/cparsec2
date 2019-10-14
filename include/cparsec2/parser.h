@@ -86,6 +86,26 @@
   void SHOW(T)(RETURN_TYPE(PARSER(T)) x);                                \
   END_OF_STATEMENTS
 
+#define DEFINE_SHOW_LIST(T)                                              \
+  void SHOW(List(T))(List(T) xs) {                                       \
+    ELEMENT_TYPE(List(T))* itr = LIST_BEGIN(T)(xs);                      \
+    ELEMENT_TYPE(List(T))* end = LIST_END(T)(xs);                        \
+    if (itr == end) {                                                    \
+      printf("[]");                                                      \
+    } else {                                                             \
+      printf("[");                                                       \
+      SHOW(T)(*itr);                                                     \
+      itr++;                                                             \
+      while (itr != end) {                                               \
+        printf(", ");                                                    \
+        SHOW(T)(*itr);                                                   \
+        itr++;                                                           \
+      }                                                                  \
+      printf("]");                                                       \
+    }                                                                    \
+  }                                                                      \
+  END_OF_STATEMENTS
+
 CPARSEC2_C_API_BEGIN
 
 // ---- NoneParser ----
@@ -107,6 +127,14 @@ TYPEDEF_PARSER(List(Int), List(Int));
 TYPEDEF_PARSER(Node, Node);
 // ---- NodeListParser ----
 TYPEDEF_PARSER(List(Node), List(Node));
+
+#ifdef CPARSEC2_USER_TYPESET
+#define F(T)                                                             \
+  TYPEDEF_PARSER(T, T);                                                  \
+  TYPEDEF_PARSER(List(T), List(T))
+FOREACH(F, SQUASH(CPARSEC2_USER_TYPESET));
+#undef F
+#endif
 
 FOREACH(DECLARE_PARSER, TYPESET(1));
 

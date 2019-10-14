@@ -2,26 +2,6 @@
 
 #include <cparsec2.h>
 
-#define DEFINE_SHOW_LIST(T)                                              \
-  void SHOW(List(T))(List(T) xs) {                                       \
-    ELEMENT_TYPE(List(T))* itr = LIST_BEGIN(T)(xs);                      \
-    ELEMENT_TYPE(List(T))* end = LIST_END(T)(xs);                        \
-    if (itr == end) {                                                    \
-      printf("[]");                                                      \
-    } else {                                                             \
-      printf("[");                                                       \
-      SHOW(T)(*itr);                                                     \
-      itr++;                                                             \
-      while (itr != end) {                                               \
-        printf(", ");                                                    \
-        SHOW(T)(*itr);                                                   \
-        itr++;                                                           \
-      }                                                                  \
-      printf("]");                                                       \
-    }                                                                    \
-  }                                                                      \
-  END_OF_STATEMENTS
-
 void SHOW(Char)(char x) {
   printf("'%c'", x);
 }
