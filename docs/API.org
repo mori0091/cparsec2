@@ -32,6 +32,9 @@
   - GENERIC_P(expr, F, ...)
   - FOREACH(F, ...)
   - TYPESET
+- [[#extends-cparsec2-library-for-user-defined-types][Extends CPARSEC2 library for user defined types]] ::
+  - CPARSEC2_USER_TYPESET
+  - CPARSEC2_DEFINE_USER_TYPESET()
 
 
 * Core API
@@ -920,4 +923,107 @@ GENERIC_P(expr, F, TYPESET(0))(expr);
 The above code is expanded as follows:
 #+begin_src c
 _Generic(expr, PARSER(Char) : F(Char), PARSER(String) : F(String), PARSER(Int) : F(Int))(expr);
+#+end_src
+
+* Extends CPARSEC2 library for user defined types
+:PROPERTIES:
+:CUSTOM_ID: extends-cparsec2-library-for-user-defined-types
+:END:
+
+#+begin_quote
+- Where is ~List(float)~?
+- Where is ~PARSER(double)~?
+- How to add ~List(UserType)~, ~Buff(UserType)~, and ~PARSER(UserType)~?
+#+end_quote
+
+Good question!
+
+The CPARSEC2 library is ready to extend itself against user-defined types.
+
+To extend the library, 
+1. Define ~CPARSEC2_USER_TYPESET~ macro, before ~#include <cparsec2.h>~
+2. Call ~CPARSEC2_DEFINE_USER_TYPESET()~ macro, after ~#include <cparsec2.h>~
+3. Define ~void SHOW(U)(U x)~ function for each type ~U~ in ~CPARSEC2_USER_TYPESET~.
+
+
+The following sections show an example how to add user-defined type ~Person~ to
+the CPARSEC2 library. See also [[https://github.com/mori0091/cparsec2/blob/master/example/extend_cparsec2][example/extend_cparsec2]].
+
+** Example of extended CPARSEC2 library
+
+Here is an example that is extending CPARSEC2 library against user-defined type
+~Person~.
+
+*my_cparsec2.h* - a header file of extended CPARSEC2 library:
+#+begin_src c
+  // (1) Define types
+  typedef struct {
+    const char* name;
+    int age;
+  } Person;
+
+  // (2) Define 'CPARSEC2_USER_TYPESET' macro, 
+  //     which should be a list of type names. (comma-separated)
+  #define CPARSEC2_USER_TYPESET Person
+
+  // (3) Then include 'cparsec2.h'
+  #include <cparsec2.h>
+#+end_src
+
+*my_cparsec2.c* - an implementation of extended CPARSEC2 library:
+#+begin_src c
+  // (1) include 'my_cparsec2.h'
+  #include "my_cparsec2.h"
+
+  // (2) Call CPARSEC2_DEFINE_USER_TYPESET() macro, which defines implementation
+  //     of the following classes/APIs for each U in CPARSEC2_USER_TYPESET:
+  //     - Buff(U),
+  //     - List(U),
+  //     - PARSER(U),
+  //     - PARSER(List(U)),
+  //     - All APIs for these classes such as `parse(p, src, ex)`, and
+  //     - All parser-combinators such as `many(p)`, `either(p1, p2)`, etc.
+  CPARSEC2_DEFINE_USER_TYPESET();
+
+  // (3) Define function `void SHOW(U)(U x)` for each U in CPARSEC2_USER_TYPESET.
+  void SHOW(Person)(Person x) {
+    printf("<Person:.name=\"%s\", .age=%d>", x.name, x.age);
+  }
+#+end_src
+
+That's all.
+
+
+** Sample application for the extended CPARSEC2 library
+
+Now you can use ~Buff(Person)~, ~List(Person)~, ~PARSER(Person)~,
+~PARSER(List(Person))~, all APIs for these classes, and all parser-combinators
+for ~PARSER(Person)~.
+
+Here is the application sample:
+
+*main.c* - an application using the extended CPARSEC2 library:
+#+begin_src c
+  #include "my_cparsec2.h"
+
+  // implementation of 'person' parser
+  Person person_fn(void* arg, Source src, Ctx* ex) {
+    UNUSED(arg);
+    parse(token((char)'('), src, ex);
+    const char* name = parse(token(many1(letter)), src, ex);
+    parse(token((char)','), src, ex);
+    int age = parse(number, src, ex);
+    parse(token((char)')'), src, ex);
+    return (Person){.name = name, .age = age};
+  }
+
+  int main() {
+    cparsec2_init();
+
+    PARSER(Person) person = PARSER_GEN(Person)(person_fn, NULL);
+    PARSE_TEST(many(person), "(Alice, 19) (Bob, 24)");
+    // -> [<Person:.name="Alice", .age=19>, <Person:.name="Bob", .age=24>]
+
+    cparsec2_end();
+  }
 #+end_src
