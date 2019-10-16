@@ -55,19 +55,40 @@
      During after calling this API and before calling ~cparsec2_init()~, calling
      any other cparsec2 API and values returned from them are invalid (access to
      them will be undefined behavior).
-- Source_new(str_or_fp) ::
-     Constructs a ~Source~ object from a text (if the ~str_or_fp~ was a string)
-     or from a file (if the ~str_or_fp~ was a ~FILE*~).
+- Source_new(input) ::
+     Constructs a ~Source~ object from the given ~input~.
+  - input :: a ~const char*~, ~FILE*~, or ~Source~.
+  - return :: a new ~Source~ object, or ~input~ if ~input~ was a ~Source~.
 - parse(p, src, ctx)    :: 
      Apply parser ~p~ to text provided from the ~Source~ object ~src~, and
      return result (such as ~char~, ~const char *~). If an error occurred, it is
      thrown as exception through ~ctx~. (see also [[#exception-handling][Exception handling]])
+  - p   :: a parser of ~PARSER(T)~ type such as ~PARSER(Char)~, etc.
+  - src :: a ~Source~ object.
+  - ctx :: a potinter to ~Ctx~ object.
+  - return :: an object of ~RETURN_TYPE(PARSER(T))~ type. For example,
+    - a ~char~ if ~p~ was a ~PARSER(Char)~,
+    - a ~const char*~ if ~p~ was a ~PARSER(String)~,
+    - a ~int~ if ~p~ was a ~PARSER(Int)~,
+    - ~NONE~ if ~p~ was a ~PARSER(None)~.
 - parseTest(p, text)    :: 
-     Apply parser ~p~ to ~text~ and print result.\\
+     Apply parser ~p~ to ~text~ and print result to /standard output/.\\
      Return ~true~ if passed, ~false~ if failed.
-- PARSE_TEST(p, text) :: 
+  - p    :: a parser of ~PARSER(T)~ type such as ~PARSER(Char)~, etc.
+  - text :: a ~const char*~. (null-terminated char sequence; i.e. string in C)
+  - return :: ~true~ or ~false~.
+- PARSE_TEST(p, text)   :: 
      Same as ~parseTest~ and also print ~p text~. (for debug purpose)\\
      Return ~true~ if passed, ~false~ if failed.
+  - p    :: a parser of ~PARSER(T)~ type such as ~PARSER(Char)~, etc.
+  - text :: a ~const char*~. (null-terminated char sequence; i.e. string in C)
+  - return :: ~true~ or ~false~.
+- runParser(p, input)   ::
+     Apply parser ~p~ to ~input~. ~input~ is a ~const char*~, ~FILE*~, or ~Source~.\\
+     Returns a ~ParseResult(T)~.
+  - p    :: a parser of ~PARSER(T)~ type such as ~PARSER(Char)~, etc.
+  - input :: a ~const char*~, ~FILE*~, or ~Source~.
+  - return :: an object of ~ParseResult(T)~ type such as ~ParseResult(Char)~, etc.
 
 ** Exception handling
 :PROPERTIES:
@@ -298,7 +319,7 @@ For example:
 
 The below is an experimental:
 - PARSER(Node)            ::
-  A parser of ~PARSER(Node)~ type returns ~NONE~ when it is applied.\\
+  A parser of ~PARSER(Node)~ type returns a ~Node~ value when it is applied.\\
   (i.e. ~RETURN_TYPE(PARSER(Node))~ is ~Node~.)
 - PARSER(List(Node))      ::
   A parser of ~PARSER(List(Node))~ type returns a ~List(Node)~ value when it is applied.\\
@@ -320,12 +341,15 @@ The below is an experimental:
   - To apply a *parser*, use one of the following APIs (see also [[#core-api][Core API]]):
     - ~parse(parser, src, ex)~
     - ~parseTest(parser, text)~
-    - ~bool PARSE_TEST(parser, text)~
+    - ~PARSE_TEST(parser, text)~
+    - ~runParser(parser, input)~
+
 - parser generator  ::
      A factory method (constructor function) for creating a parser.
   - A *parser generator* takes one or more arguments for creating a
     parameterized parser.
   - Typically the given arguments are used as parameters for pattern match.
+
 - parser combinator ::
      A factory method (constructor function) for creating a composite parser.
   - A *parser combinator* takes one or more parsers for creating a composite
@@ -355,8 +379,8 @@ and parser combinators:
        (annotated as *error* in that column)
  - *NOTE* : n/a (not applicable) means that such resulting status does not occur.
  - *NOTE* : ~NONE~ is a value of type ~None~.
-   - ~NONE~ is returned by any parser of type ~PARSER(None)~ when it succeeded.
-   - Parser of type ~PARSER(None)~ has no meaningful value should to be
+   - A parser of ~PARSER(None)~ type returns ~NONE~ value, when it succeeded.
+   - Parser of ~PARSER(None)~ type has no meaningful value should to be
      returned, so it returns ~NONE~ instead.
 
 | parser                 | eok                          | eerr    | cok                                  | cerr    |
