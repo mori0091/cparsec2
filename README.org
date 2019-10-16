@@ -93,6 +93,9 @@ To build and test anything all in the project:
 - [[file:example/mult][mult]] ::
      example of user-defined *parser-class*
      - See also [[file:docs/API.org#building-block-of-parser-class][API / Building block of Parser-class]]
+- [[file:example/extend_cparsec2][extend_cparsec2]] ::
+     an example how to add user-defined type ~Person~ to the CPARSEC2 library.
+     - See also [[file:docs/API.org#extends-cparsec2-library-for-user-defined-types][API / Extends CPARSEC2 library for user defined types]]
 
 * Tutorial
 :PROPERTIES:
