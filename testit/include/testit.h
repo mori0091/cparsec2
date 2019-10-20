@@ -81,17 +81,18 @@
 
 #define TESTIT_BINARY_OPERATOR(op, a, b)                                 \
   _Generic((a)                                                           \
-           , int8_t   : op##_I8                                          \
-           , int16_t  : op##_I16                                         \
-           , int32_t  : op##_I32                                         \
-           , int64_t  : op##_I64                                         \
-           , uint8_t  : op##_U8                                          \
-           , uint16_t : op##_U16                                         \
-           , uint32_t : op##_U32                                         \
-           , uint64_t : op##_U64                                         \
-           , char     : op##_Char                                        \
-           , void*    : op##_Ptr                                         \
-           , char*    : op##_String                                      \
+           , int8_t      : op##_I8                                       \
+           , int16_t     : op##_I16                                      \
+           , int32_t     : op##_I32                                      \
+           , int64_t     : op##_I64                                      \
+           , uint8_t     : op##_U8                                       \
+           , uint16_t    : op##_U16                                      \
+           , uint32_t    : op##_U32                                      \
+           , uint64_t    : op##_U64                                      \
+           , char        : op##_Char                                     \
+           , void*       : op##_Ptr                                      \
+           , char*       : op##_String                                   \
+           , const char* : op##_String                                   \
            )((a), (b))
 
 // ----
