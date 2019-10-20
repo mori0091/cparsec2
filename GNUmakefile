@@ -34,7 +34,9 @@ DEPS = $(patsubst %.o, %.d, $(OBJS))
 COVS = $(patsubst %.o, %.gcda, $(OBJS)) $(patsubst %.o, %.gcno, $(OBJS))
 LIBOBJS = $(filter-out %/main.o, $(OBJS))
 
+ifdef TARGET
 TEST_COMMAND ?= ./$(TARGET) $(TESTFLAGS)
+endif
 
 build: $(TARGET)
 
